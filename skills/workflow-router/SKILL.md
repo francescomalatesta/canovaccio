@@ -1,6 +1,6 @@
 ---
 name: workflow-router
-description: Classifies a development request into the right workflow (greenfield, feature, refactor, fix, spike) when none was named explicitly, announces the choice and loads that workflow.
+description: Classifies a development request into the right workflow (greenfield, feature, refactor, fix, spike, docs-init) when none was named explicitly, announces the choice and loads that workflow.
 ---
 
 # Workflow router
@@ -22,6 +22,7 @@ Read the request and, when the answer depends on the codebase, do a quick read-o
 
 | Workflow | Signals |
 |---|---|
+| `workflow-docs-init` | document an existing codebase as a whole: "document this project", "map the system", "create the docs"; no code change requested |
 | `workflow-spike` | the request is a question to answer before building: "is it feasible", "which library", "how would we", "evaluate", "compare", "prototype to find out" |
 | `workflow-fix` | existing behavior is wrong: bug, error, crash, regression, failing test, "it should do X but does Y" |
 | `workflow-refactor` | improve structure without changing behavior: restructure, extract, rename, migrate internals, pay down debt, upgrade with no functional change |
