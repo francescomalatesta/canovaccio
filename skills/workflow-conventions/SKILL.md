@@ -1,6 +1,6 @@
 ---
 name: workflow-conventions
-description: Shared rules for every development workflow (greenfield, feature, refactor, fix, spike) - gates, checkpoints, artifacts, state, resumption, workflow switching and precedence over superpowers skills. Load before running or resuming any workflow.
+description: Shared rules for every development workflow (greenfield, feature, refactor, fix, spike, docs-init) - gates, checkpoints, artifacts, state, resumption, system docs and changelog, workflow switching and precedence over superpowers skills. Load before running or resuming any workflow.
 ---
 
 # Workflow conventions
@@ -58,6 +58,8 @@ docs/work/*/*
 
 If the project does not use git, skip this.
 
+Work artifacts are the history of one piece of work. The rest of `docs/` holds the system docs, which describe the system as it is now: see the next section.
+
 ## state.md
 
 `state.md` is the source of truth for where a workflow is. Keep it short and current:
@@ -80,11 +82,22 @@ If the project does not use git, skip this.
 
 ## Notes
 - T2 blocked on nothing; next action: dispatch implementer.
+- Doc discrepancy: docs/components/billing.md says VAT is computed in the job, it is in vat.ts.
 ```
 
 Update it at every phase transition, gate decision and completed task, before reporting to the user.
 
 **Resuming.** After a context compaction, a new session, or whenever you are unsure of the current position: re-read `state.md` and the artifacts it references, then continue from the first incomplete step. Never re-run completed tasks and never assume an approval that `state.md` does not record.
+
+## System docs and changelog
+
+Greenfield, feature, refactor and fix read the system docs at the start and bring them, and `CHANGELOG.md`, up to date at the end. Spikes do neither; `workflow-docs-init` has its own flow. The rules are in the `project-docs` and `project-changelog` skills.
+
+- **At the start**, in the discovery phase: follow the `project-docs` reading protocol, and pass the relevant doc paths to `@scout` as starting points. Record doc/code discrepancies in `state.md` Notes.
+- **At the end**, as a step of its own right before closure: **docs sync**. Dispatch `@doc-writer` with the work directory, the base branch, the workflow type and the recorded discrepancies. Its changes are committed with the work.
+- **At closure**, `@closure-reviewer` also checks that the docs match the delivered code and that the changelog entry fits the work.
+
+Docs sync adds no gate: its result is part of the diff presented at delivery.
 
 ## Workflow switching
 
@@ -99,7 +112,7 @@ A switch is a gate. On approval, close the current `state.md` (status `closed`, 
 
 ## Branches
 
-Unless the project says otherwise, create a branch at the start of implementation work: `<workflow>/<slug>` (for example `feature/csv-export`, `fix/login-500`). Greenfield projects work on the default branch of the new repository. Spikes use `spike/<slug>` and are never merged.
+Unless the project says otherwise, create a branch at the start of implementation work: `<workflow>/<slug>` (for example `feature/csv-export`, `fix/login-500`). Greenfield projects work on the default branch of the new repository. Spikes use `spike/<slug>` and are never merged. Docs bootstrapping uses `docs-init/<slug>`.
 
 Creating branches and committing are autonomous. Pushing, merging and destructive git operations are not: they happen only at the delivery gate or with explicit permission.
 
