@@ -1,0 +1,85 @@
+---
+name: workflow-greenfield
+description: Workflow for a new project from scratch - brainstorm the product, spec with stack and architecture, prototype the UI, plan starting from a walking skeleton, subagent-driven implementation, closure review and delivery gate.
+---
+
+# Greenfield workflow
+
+A new project or standalone application. Apply `workflow-conventions` throughout.
+
+Decisions made here are the most expensive to change later, so this workflow has the most gates.
+
+## Gates
+
+| Gate | When | Decides |
+|---|---|---|
+| **G1 spec** | after spec review | product scope, stack, architecture |
+| **G2 prototype** | only when the product has a UI | material UX and visual structure |
+| **G3 plan** | before implementation | slicing and order |
+| **G4 delivery** | after closure | the delivered project |
+
+## Phases
+
+### 0. Setup
+
+Create the project directory if needed, initialize git, create the work directory with `brief.md` and `state.md`. The work happens on the default branch of the new repository.
+
+### 1. Product exploration
+
+Use `superpowers:brainstorming` to understand the product: users, core journeys, constraints (hosting, budget, integrations, data, compliance), and what "first version done" means. Ask clarifying questions in batches.
+
+If a technical question blocks the design (feasibility, choice between services or libraries), propose a `workflow-spike` for it before continuing. Use `@scout` for quick documentation checks that do not need a spike.
+
+### 2. Spec
+
+Write `spec.md`:
+
+- product goal and users;
+- core user journeys;
+- requirements, keeping their modality, and acceptance criteria;
+- explicit out of scope for the first version;
+- **stack**: language, frameworks, storage, hosting target, with a short rationale per choice;
+- **architecture**: main components and boundaries, data model outline, external integrations;
+- **quality baseline**: test layers and tools, lint and format, type checking, how the app is started locally.
+
+Record significant technical choices in `decisions.md` with rejected alternatives.
+
+Dispatch `@spec-reviewer` with the request and `spec.md`. Fix BLOCKING findings.
+
+Present **G1**.
+
+### 3. Prototype (when the product has a UI)
+
+Dispatch `@ui-prototyper` with the approved spec, output in `prototype/` or, when clean, in the intended frontend stack. Present **G2** with startup command, URL and reachable states.
+
+The approved prototype becomes an authority for implementation and closure.
+
+### 4. Plan
+
+Write `plan.md` using `superpowers:writing-plans`:
+
+- **task 1 is a walking skeleton**: project scaffold, the quality baseline wired and passing (tests, lint, type check), the app starting locally, and one thin end-to-end path through the architecture with an E2E smoke test;
+- following tasks are vertical slices of the core journeys, each with its own tests and acceptance criteria;
+- every requirement in `spec.md` is owned by at least one task.
+
+Dispatch `@spec-reviewer` with spec and plan. Fix BLOCKING findings.
+
+Present **G3**.
+
+### 5. Implementation
+
+Run `superpowers:subagent-driven-development` over `plan.md`, as in `workflow-feature`: `@implementer`, then `@task-reviewer`, fix rounds, `@escalator` when the same blocking finding survives two rounds.
+
+After each accepted task, update `state.md` and give a one-line CHECKPOINT. After the walking skeleton, give a fuller CHECKPOINT: how to start the app and run the checks.
+
+### 6. Closure
+
+1. From a clean checkout, run the full verification yourself: install, build, tests, type check, lint, and application startup.
+2. Make sure the project README states how to install, run and test it.
+3. Dispatch `@closure-reviewer` with the original request, spec, plan, prototype if any, `decisions.md` and the whole repository.
+4. On FAIL, fix BLOCKING findings through the implementation loop and review again; after two failures, open an unplanned gate.
+5. Write `closure.md` and commit `spec.md` and `decisions.md`.
+
+### 7. Delivery
+
+Present **G4** with `closure.md`, how to run the project, and the remaining decisions (remote repository, first push, deployment). Execute what is approved, then set `state.md` to `closed`.
