@@ -18,11 +18,17 @@ When a project-specific `AGENTS.md`, approved specification, approved plan, appr
 
 ## Workflows
 
-Development workflows are defined as skills: `workflow-greenfield`, `workflow-feature`, `workflow-refactor`, `workflow-fix` and `workflow-spike`, with shared rules in `workflow-conventions`.
+Development workflows are defined as skills: `workflow-greenfield`, `workflow-feature`, `workflow-refactor`, `workflow-fix`, `workflow-spike` and `workflow-docs-init`, with shared rules in `workflow-conventions`.
 
 A workflow is active when it was started explicitly, selected by `workflow-router`, or recorded as active in a project's `docs/work/*/state.md`.
 
 Questions, explanations and trivial changes do not need a workflow.
+
+## System docs
+
+When a project has `docs/index.md`, start from it to find where to work: it maps the codebase to its components. Docs are a map; the code is the source of truth. Verify in the code before relying on a doc, and report discrepancies.
+
+Keeping docs and changelog current is part of finishing a change, as defined by `project-docs` and `project-changelog`.
 
 ## Autonomy
 
@@ -169,6 +175,7 @@ Normal role boundaries:
 - production implementation → implementer;
 - task-level review → task-reviewer;
 - difficult failed implementation → escalator;
+- system docs and changelog → doc-writer;
 - whole-project final review → closure-reviewer.
 
 Do not dispatch agents recursively unless a workflow explicitly requires it.
