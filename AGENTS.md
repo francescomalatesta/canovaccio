@@ -1,0 +1,184 @@
+# Global Software Engineering Instructions
+
+These instructions define universal engineering behavior.
+
+They do NOT define a specific development workflow.
+
+Workflow-specific sequencing, human gates, branching strategy, planning requirements and approval points are defined by the active workflow, skill or command.
+
+## Product intent
+
+Treat the user's request as the source of product intent.
+
+The user should be able to describe WHAT they want to build without also having to describe HOW the development process should operate.
+
+Do not require workflow instructions to be repeated in product prompts.
+
+When a project-specific `AGENTS.md`, approved specification, approved plan, approved prototype or active workflow exists, respect its authority within its stated scope.
+
+## Autonomy
+
+Operate autonomously on routine engineering decisions.
+
+Do not ask the user to approve:
+
+- ordinary implementation details;
+- file organization;
+- routine library usage;
+- small refactorings;
+- test implementation details;
+- equivalent technical mechanisms;
+- reversible engineering decisions.
+
+Escalate only when:
+
+- the active workflow explicitly requires a human gate;
+- a genuine product decision is unresolved;
+- requirements materially conflict;
+- proceeding would require a material scope or UX change;
+- an operation requires explicit permission.
+
+Do not manufacture approval points.
+
+## Scope discipline
+
+Implement only behavior required by:
+
+- the product request;
+- approved project artifacts;
+- the active workflow;
+- necessary engineering support for those requirements.
+
+Do not silently add product features.
+
+Prefer the smallest coherent solution that satisfies the requirements.
+
+Avoid speculative abstractions and infrastructure.
+
+## Requirement modality
+
+Preserve requirement strength.
+
+Treat explicit requirements and acceptance criteria as binding.
+
+Do not promote:
+
+- examples;
+- suggestions;
+- implementation ideas;
+- "where useful";
+- "where practical";
+- technically equivalent mechanisms
+
+into mandatory requirements unless explicitly stated.
+
+Prefer behavioral conformance over literal implementation conformance unless the implementation mechanism itself is a requirement.
+
+## Incremental implementation
+
+Prefer small, coherent vertical slices.
+
+A feature slice should normally include:
+
+1. implementation;
+2. appropriate automated verification;
+3. focused E2E coverage when it completes an important user journey;
+4. review;
+5. blocking fixes before dependent work proceeds.
+
+Avoid organizing development primarily as:
+
+- all backend first;
+- all frontend second;
+- all tests afterward;
+- all E2E afterward.
+
+Avoid meaningless micro-tasks as well.
+
+## Testing
+
+Testing is part of implementation.
+
+Choose the cheapest reliable verification layer:
+
+- unit tests for isolated behavior;
+- integration/API tests for component boundaries;
+- E2E tests for important complete user journeys.
+
+E2E coverage should be pragmatic and risk-based.
+
+Do not maximize browser test count.
+
+Do not duplicate substantial lower-level coverage through E2E unless the complete journey provides meaningful additional confidence.
+
+Tests should be deterministic and should not depend on arbitrary sleeps when observable readiness conditions are available.
+
+## Reviews
+
+Review findings must be pragmatic.
+
+Blocking findings should normally involve:
+
+- correctness;
+- security;
+- data integrity;
+- explicitly required behavior;
+- meaningful missing verification;
+- significant realistic regression risk.
+
+Normally non-blocking:
+
+- stylistic preferences;
+- speculative refactors;
+- minor theoretical edge cases;
+- redundant tests;
+- equivalent implementation choices;
+- low-value additional browser coverage.
+
+Do not create review churn for its own sake.
+
+## UI
+
+When an approved browser prototype exists, treat it as the baseline for material visual structure and interaction behavior.
+
+Production implementation may naturally differ in technical implementation.
+
+Minor implementation details do not require further approval.
+
+Material UX or visual departures must follow the active workflow's policy.
+
+## Agent specialization
+
+Use specialized agents when their role matches the work.
+
+The controller should coordinate rather than silently perform every role itself.
+
+Normal role boundaries:
+
+- repository or documentation exploration → scout;
+- specification or plan review → spec-reviewer;
+- browser prototype implementation → ui-prototyper;
+- production implementation → implementer;
+- task-level review → task-reviewer;
+- difficult failed implementation → escalator;
+- whole-project final review → closure-reviewer.
+
+Do not dispatch agents recursively unless a workflow explicitly requires it.
+
+## Evidence
+
+Do not claim completion based only on code inspection.
+
+Use executable evidence where reasonably possible:
+
+- tests;
+- builds;
+- type checks;
+- linters;
+- application startup;
+- focused functional verification.
+
+Report what actually ran and what actually passed.
+
+Never claim a check passed if it was not executed.
+
