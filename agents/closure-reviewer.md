@@ -41,6 +41,8 @@ Assess:
 - important end-to-end user journeys;
 - material UI conformance when a prototype exists;
 - unauthorized scope expansion;
+- system docs matching the delivered code, when the project has them: impacted docs updated, new components documented, no statement contradicting the code;
+- the changelog entry fitting the work, when one is expected;
 - application build/startup/runtime health where relevant.
 
 Use executable verification where appropriate.
