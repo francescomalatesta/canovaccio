@@ -45,6 +45,7 @@ Start a workflow explicitly:
 /refactor split the billing module
 /fix login returns 500 with an expired password
 /spike can we use SQLite with concurrent writers here?
+/docs-init
 ```
 
 Or just describe the work: the conductor classifies it with `workflow-router`, announces the choice, and you confirm it at the first gate. Questions and trivial changes run without a workflow.
@@ -58,6 +59,7 @@ Or just describe the work: the conductor classifies it with `workflow-router`, a
 | `refactor` | same behavior, better structure | scope and invariants · delivery |
 | `fix` | wrong existing behavior | fix approach, only if it changes behavior or is large · delivery |
 | `spike` | a question to answer before building | framing · decision |
+| `docs-init` | bootstrapping system docs in an existing project | map (index, architecture, components) · delivery |
 
 Shared rules are in `skills/workflow-conventions`: blocking gates vs. non-blocking checkpoints, when an unplanned gate is allowed, workflow switching, branches, and how superpowers skills are used inside a phase.
 
@@ -72,12 +74,28 @@ Each workflow works in `docs/work/<date>-<slug>/` inside the target project:
 
 The conductor adds the ignore rules to the project's `.gitignore` on first use. `state.md` records phase, approved gates and completed tasks, so a workflow can resume after a context compaction or in a new session.
 
+## System docs and changelog
+
+Projects keep a **map** of their codebase in `docs/`, defined by `skills/project-docs`:
+
+- the project `AGENTS.md` points to `docs/index.md`, a compact index of components;
+- `docs/architecture.md` gives the overview;
+- `docs/components/<name>.md` describes one component, and its frontmatter `covers` lists the code paths it describes;
+- `docs/flows/<name>.md`, optional, describes journeys across components.
+
+Docs describe what the code does not say easily (purpose, boundaries, entry points, interactions, pitfalls); the code stays the source of truth.
+
+Every workflow except spike starts from the docs to find where to work, and ends with a **docs sync** step: `@doc-writer` maps the diff to the impacted docs through `covers`, updates them, documents new areas and adds the `CHANGELOG.md` entry ([Keep a Changelog](https://keepachangelog.com), rules in `skills/project-changelog`). The closure review checks both. Projects without docs get them incrementally, as work touches the code, or all at once with `/docs-init`.
+
+`skills/project-docs/scripts/check-docs.mjs` (Node 18+, no dependencies) checks a project's docs: covers matching real files, links, index completeness, uncovered code; with `--changed <base>` it lists the docs a change impacts.
+
 ## First local check
 
 Things to verify once with `opencode2`:
 
-1. The conductor is the default agent and the five commands are listed.
+1. The conductor is the default agent and the six commands are listed.
 2. `workflow-*` skills and superpowers skills are both available.
 3. The conductor can dispatch subagents. If subagent dispatch is not available in your opencode version, the workflows fall back to inline execution (see `workflow-conventions`). Also check that the `subagent` permission action used in the agents matches your version's tool name.
 4. `git push` asks for approval.
-5. A small `/fix` on a scratch project stops at the delivery gate with a `closure.md`.
+5. A small `/fix` on a scratch project stops at the delivery gate with a `closure.md`, a `CHANGELOG.md` entry and, if the project has docs, a docs sync.
+6. `doc-writer` can edit `docs/` and `CHANGELOG.md` but not source files.
