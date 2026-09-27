@@ -1,7 +1,7 @@
 ---
 description: Primary controller. Runs the development workflows, owns human gates and workflow state, and coordinates the specialized agents.
 mode: primary
-model: anthropic/claude-sonnet-5
+model: deepseek/deepseek-flash
 variant: high
 ---
 
