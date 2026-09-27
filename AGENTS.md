@@ -16,6 +16,14 @@ Do not require workflow instructions to be repeated in product prompts.
 
 When a project-specific `AGENTS.md`, approved specification, approved plan, approved prototype or active workflow exists, respect its authority within its stated scope.
 
+## Workflows
+
+Development workflows are defined as skills: `workflow-greenfield`, `workflow-feature`, `workflow-refactor`, `workflow-fix` and `workflow-spike`, with shared rules in `workflow-conventions`.
+
+A workflow is active when it was started explicitly, selected by `workflow-router`, or recorded as active in a project's `docs/work/*/state.md`.
+
+Questions, explanations and trivial changes do not need a workflow.
+
 ## Autonomy
 
 Operate autonomously on routine engineering decisions.
@@ -151,7 +159,7 @@ Material UX or visual departures must follow the active workflow's policy.
 
 Use specialized agents when their role matches the work.
 
-The controller should coordinate rather than silently perform every role itself.
+The controller should coordinate rather than silently perform every role itself. The default controller is the `conductor` agent.
 
 Normal role boundaries:
 
