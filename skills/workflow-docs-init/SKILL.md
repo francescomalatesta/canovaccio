@@ -1,0 +1,74 @@
+---
+name: workflow-docs-init
+description: Workflow for bootstrapping system docs in an existing, undocumented or partially documented project - survey the codebase, propose the map (index, architecture, components), then write and verify the component docs. Changes no code.
+---
+
+# Docs init workflow
+
+Bring an existing project to a complete docs map in one pass, instead of letting it fill in incrementally. Apply `workflow-conventions` and `project-docs` throughout.
+
+This workflow changes only docs, `.docsignore` and the project `AGENTS.md`. It adds no changelog entry.
+
+## Gates
+
+| Gate | When | Decides |
+|---|---|---|
+| **G1 map** | before writing component docs | component boundaries, covers, flows, scope |
+| **G2 delivery** | after verification | integration of the docs |
+
+## Phases
+
+### 0. Setup
+
+Create the work directory with `brief.md` and `state.md`, and the branch.
+
+### 1. Current state
+
+Run the `project-docs` checker. If docs already exist, this workflow completes and repairs them: keep what is accurate, and list what is missing, broken or uncovered.
+
+### 2. Survey
+
+Identify the top-level areas from the repository layout, build files and entry points. Dispatch `@scout` for each area, in parallel (`superpowers:dispatching-parallel-agents`), asking for:
+
+- responsibilities and what the area does not do;
+- entry points;
+- dependencies on other areas and on external services;
+- data it owns;
+- where its tests are and how they run;
+- anything surprising: pitfalls, dead code, unclear boundaries.
+
+### 3. Map proposal
+
+From the survey, write:
+
+- `docs/architecture.md`, following the `project-docs` template;
+- `docs/index.md`, listing every proposed component with its code paths and a one-line purpose, and the proposed flows;
+- the proposed `covers` of each component, in `plan.md`, one entry per component;
+- `docs/.docsignore` for tests, generated code, fixtures and other paths no doc should cover.
+
+Aim for components that are meaningful units, typically a handful to a few dozen for a large system, not one per directory.
+
+Present **G1** with the index, the architecture, the proposed covers and the files that would remain uncovered. For large projects, the user may choose to document a priority subset now; record the choice in `state.md`.
+
+### 4. Writing
+
+Dispatch `@doc-writer` with the docs writing task for each approved component, in parallel batches, passing the approved index, architecture and the component's covers. Then dispatch it for the flows.
+
+Add the system docs pointer to the project `AGENTS.md`.
+
+### 5. Verification
+
+1. Run the checker in full mode: no errors.
+2. Dispatch `@closure-reviewer` with the approved map and the written docs. Ask it to verify accuracy against the code, checking a meaningful sample of concrete statements in every doc (entry points, dependencies, invariants), and adherence to `project-docs`.
+3. On FAIL, send the findings to `@doc-writer` and verify again; after two failures, open an unplanned gate.
+4. Write `closure.md`: docs written, coverage report, verification run, known gaps.
+5. Commit the docs.
+
+### 6. Delivery
+
+Present **G2** with `closure.md` and the integration options from `superpowers:finishing-a-development-branch`. Execute the chosen option, then set `state.md` to `closed`.
+
+## Switching
+
+- The survey finds bugs → record them in `closure.md` and propose `workflow-fix` afterwards; do not fix them here.
+- Boundaries are so unclear that documenting them would describe a mess → record it and propose `workflow-refactor` as follow-up; document the system as it is.
