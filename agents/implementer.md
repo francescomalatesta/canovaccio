@@ -1,7 +1,8 @@
 ---
 description: Implements one narrowly scoped production feature slice with appropriate tests.
 mode: subagent
-model: deepseek/deepseek-flash#high
+model: deepseek/deepseek-flash
+variant: high
 permissions:
   - action: subagent
     resource: "*"

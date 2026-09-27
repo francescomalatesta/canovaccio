@@ -1,9 +1,18 @@
 {
   "$schema": "https://opencode.ai/config.json",
 
-  // Default controller model.
-  "model": "deepseek/deepseek-flash#high",
+  // Fallback model when neither the session nor the agent selects one.
+  // Variants are not parsed from this string: set them per agent with
+  // `variant` (see `agents`).
+  "model": "deepseek/deepseek-flash",
   "default_agent": "build",
+
+  "agents": {
+    "build": {
+      "model": "deepseek/deepseek-flash",
+      "variant": "high"
+    }
+  },
 
   // Methodology/toolbox.
   // Workflow-specific behavior will live elsewhere.
@@ -47,7 +56,7 @@
       "effect": "allow"
     },
     {
-      "action": "shell",
+      "action": "bash",
       "resource": "*",
       "effect": "allow"
     },
@@ -78,23 +87,31 @@
     },
 
     // Consequential operations remain gated.
+    // Rules are matched last-wins, so these must stay after the catch-alls.
+    // `*` matches zero or more characters, but "git push *" still requires
+    // the trailing space: the bare command needs its own rule.
     {
-      "action": "shell",
+      "action": "bash",
+      "resource": "git push",
+      "effect": "ask"
+    },
+    {
+      "action": "bash",
       "resource": "git push *",
       "effect": "ask"
     },
     {
-      "action": "shell",
+      "action": "bash",
       "resource": "git reset --hard *",
       "effect": "ask"
     },
     {
-      "action": "shell",
+      "action": "bash",
       "resource": "git clean *",
       "effect": "ask"
     },
     {
-      "action": "shell",
+      "action": "bash",
       "resource": "rm -rf *",
       "effect": "ask"
     }

@@ -1,7 +1,8 @@
 ---
 description: Resolves an implementation task that failed to converge through normal implementation and review.
 mode: subagent
-model: openai/gpt-5.6-sol#high
+model: openai/gpt-5.6-sol
+variant: high
 permissions:
   - action: subagent
     resource: "*"

@@ -1,7 +1,8 @@
 ---
 description: Independently reviews one completed implementation slice for compliance, correctness and regression risk.
 mode: subagent
-model: deepseek/deepseek-flash#high
+model: deepseek/deepseek-flash
+variant: high
 permissions:
   - action: edit
     resource: "*"

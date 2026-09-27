@@ -1,7 +1,8 @@
 ---
 description: Performs fast read-only repository, documentation and implementation research.
 mode: subagent
-model: openai/gpt-5.6-luna#low
+model: openai/gpt-5.6-luna
+variant: low
 permissions:
   - action: edit
     resource: "*"

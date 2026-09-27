@@ -1,7 +1,8 @@
 ---
 description: Builds high-fidelity browser-rendered UI prototypes using representative mock data.
 mode: subagent
-model: deepseek/deepseek-flash#high
+model: deepseek/deepseek-flash
+variant: high
 permissions:
   - action: subagent
     resource: "*"

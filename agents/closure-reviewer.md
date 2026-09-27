@@ -1,7 +1,8 @@
 ---
 description: Performs an independent whole-project or whole-feature final conformance review.
 mode: subagent
-model: anthropic/claude-sonnet-5#high
+model: anthropic/claude-sonnet-5
+variant: high
 permissions:
   - action: edit
     resource: "*"

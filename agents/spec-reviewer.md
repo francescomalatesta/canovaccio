@@ -1,12 +1,13 @@
 ---
 description: Independently reviews requirements, specifications and implementation plans.
 mode: subagent
-model: openai/gpt-5.6-luna#low
+model: openai/gpt-5.6-luna
+variant: low
 permissions:
   - action: edit
     resource: "*"
     effect: deny
-  - action: shell
+  - action: bash
     resource: "*"
     effect: deny
   - action: subagent
