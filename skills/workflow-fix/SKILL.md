@@ -24,6 +24,8 @@ Create the work directory with `brief.md` and `state.md`, and the branch.
 
 ### 1. Reproduce
 
+Follow the `project-docs` reading protocol to locate the area involved.
+
 Use `superpowers:systematic-debugging`. Establish a reliable reproduction yourself, or dispatch `@scout` to run and observe (it can execute commands but not edit).
 
 Record in `repro.md`: steps, expected behavior and its source (spec, docs, tests, user report), actual behavior, environment details that matter.
@@ -32,7 +34,7 @@ If the bug cannot be reproduced after a reasonable effort, open an unplanned gat
 
 ### 2. Root cause
 
-Continue with `superpowers:systematic-debugging` until the cause is identified, not just the symptom. Record it in `repro.md`, including why existing tests did not catch it.
+Continue with `superpowers:systematic-debugging` until the cause is identified, not just the symptom. Record it in `repro.md`, including why existing tests did not catch it, and whether a wrong or missing doc contributed to the bug.
 
 Look for the same cause elsewhere in the codebase and note other occurrences; fix them only if they are the same defect.
 
@@ -58,15 +60,19 @@ Dispatch `@implementer` with `repro.md`. The task is test-first (`superpowers:te
 
 Then `@task-reviewer` with `repro.md` and the diff. Loop on "Needs fixes"; dispatch `@escalator` if the same blocking finding survives two rounds.
 
-### 5. Verification
+### 5. Docs sync
+
+Dispatch `@doc-writer` for the docs sync described in `workflow-conventions`, with the work directory, the base branch, workflow type `fix` and the discrepancies recorded in `state.md`. For a fix this is usually small: correct the docs that were wrong, and describe any behavior the fix made explicit. Review its report; commit the docs and changelog changes with the work.
+
+### 6. Verification
 
 Run the project's full verification yourself: tests, build, type check, lint, and startup when relevant.
 
-Dispatch `@closure-reviewer` only when G-fix was opened or the diff is large; otherwise the task review plus full verification is the closure.
+Dispatch `@closure-reviewer`, with the diff including docs and changelog, only when G-fix was opened or the diff is large; otherwise the task review plus full verification is the closure.
 
 Write `closure.md`: root cause in one paragraph, what changed, verification actually run with results, other occurrences found.
 
-### 6. Delivery
+### 7. Delivery
 
 Present **G2** with `closure.md` and the integration options from `superpowers:finishing-a-development-branch`. Execute the chosen option, then set `state.md` to `closed`.
 

@@ -70,16 +70,22 @@ Present **G3**.
 
 Run `superpowers:subagent-driven-development` over `plan.md`, as in `workflow-feature`: `@implementer`, then `@task-reviewer`, fix rounds, `@escalator` when the same blocking finding survives two rounds.
 
-After each accepted task, update `state.md` and give a one-line CHECKPOINT. After the walking skeleton, give a fuller CHECKPOINT: how to start the app and run the checks.
+After the walking skeleton is accepted, dispatch `@doc-writer` to scaffold the system docs from the spec and the skeleton, following `project-docs`: the pointer in the project `AGENTS.md`, `docs/index.md`, `docs/architecture.md`, component docs for the components that exist, and `CHANGELOG.md` following `project-changelog`. Later tasks then start from these docs.
 
-### 6. Closure
+After each accepted task, update `state.md` and give a one-line CHECKPOINT. After the walking skeleton and docs scaffold, give a fuller CHECKPOINT: how to start the app and run the checks.
+
+### 6. Docs sync
+
+Dispatch `@doc-writer` for the docs sync described in `workflow-conventions`, with the work directory, workflow type `greenfield` (there is no base branch: the whole repository is new, so the checker runs in full mode) and the discrepancies recorded in `state.md`. Every component in the spec architecture that now exists must have its doc, and the changelog lists the first version's capabilities. Review its report; commit the docs and changelog changes with the work.
+
+### 7. Closure
 
 1. From a clean checkout, run the full verification yourself: install, build, tests, type check, lint, and application startup.
 2. Make sure the project README states how to install, run and test it.
-3. Dispatch `@closure-reviewer` with the original request, spec, plan, prototype if any, `decisions.md` and the whole repository.
+3. Dispatch `@closure-reviewer` with the original request, spec, plan, prototype if any, `decisions.md` and the whole repository, docs and changelog included.
 4. On FAIL, fix BLOCKING findings through the implementation loop and review again; after two failures, open an unplanned gate.
 5. Write `closure.md` and commit `spec.md` and `decisions.md`.
 
-### 7. Delivery
+### 8. Delivery
 
 Present **G4** with `closure.md`, how to run the project, and the remaining decisions (remote repository, first push, deployment). Execute what is approved, then set `state.md` to `closed`.

@@ -26,7 +26,9 @@ Create the work directory with `brief.md` and `state.md`.
 
 ### 1. Discovery
 
-Dispatch `@scout` for the parts of the codebase the feature touches: relevant modules, existing conventions, test setup and commands, similar features to mirror. Skip only when you already know the area well from this session.
+Follow the `project-docs` reading protocol: `docs/index.md` first, then the docs of the components the feature touches.
+
+Dispatch `@scout` for those parts of the codebase, with the relevant doc paths as starting points: relevant modules, existing conventions, test setup and commands, similar features to mirror. Skip only when you already know the area well from this session.
 
 ### 2. Spec
 
@@ -75,15 +77,19 @@ After each accepted task, update `state.md` and give a one-line CHECKPOINT.
 
 Product decisions surfaced by agents: answer from spec and prototype when they settle it; otherwise open an unplanned gate. Record decisions in `decisions.md`.
 
-### 6. Closure
+### 6. Docs sync
+
+Dispatch `@doc-writer` for the docs sync described in `workflow-conventions`, with the work directory, the base branch, workflow type `feature` and the discrepancies recorded in `state.md`. New components introduced by the feature get their own doc. Review its report; commit the docs and changelog changes with the work.
+
+### 7. Closure
 
 1. Run the project's full verification yourself: tests, build, type check, lint, and application startup when relevant.
-2. Dispatch `@closure-reviewer` with the original request, spec, plan, prototype if any, `decisions.md`, and the full diff against the base branch.
+2. Dispatch `@closure-reviewer` with the original request, spec, plan, prototype if any, `decisions.md`, and the full diff against the base branch, docs and changelog included.
 3. On FAIL, fix BLOCKING findings through the implementation loop and review again. If closure fails twice, open an unplanned gate with the findings.
 4. Write `closure.md`: verdict, verification actually run with results, deviations, non-blocking observations.
 5. Commit `spec.md` and `decisions.md` with the work.
 
-### 7. Delivery
+### 8. Delivery
 
 Present **G2** with `closure.md`, the list of commits and the integration options from `superpowers:finishing-a-development-branch`. Execute the chosen option (push and merge need this approval), then set `state.md` to `closed`.
 

@@ -26,7 +26,9 @@ Create the work directory with `brief.md` and `state.md`.
 
 ### 1. Discovery
 
-Dispatch `@scout` to map the area: modules in scope, callers and dependents, public surface (APIs, CLI, file formats, events, DB schema), current test coverage of that surface, and the test commands.
+Follow the `project-docs` reading protocol for the area in scope; the Invariants and pitfalls sections of component docs are a starting point for `invariants.md`.
+
+Dispatch `@scout`, with the relevant doc paths as starting points, to map the area: modules in scope, callers and dependents, public surface (APIs, CLI, file formats, events, DB schema), current test coverage of that surface, and the test commands.
 
 ### 2. Invariants, target and steps
 
@@ -60,14 +62,18 @@ For each step in `invariants.md`, run the `superpowers:subagent-driven-developme
 
 Dispatch `@escalator` if a step does not converge after two fix rounds. Update `state.md` and give a one-line CHECKPOINT per step.
 
-### 5. Closure
+### 5. Docs sync
+
+Dispatch `@doc-writer` for the docs sync described in `workflow-conventions`, with the work directory, the base branch, workflow type `refactor` and the discrepancies recorded in `state.md`. A refactor changes where things live more than any other workflow: moved paths, new or merged components, changed boundaries and interactions must all be reflected, starting from the `covers` globs. Review its report; commit the docs and changelog changes with the work.
+
+### 6. Closure
 
 1. Run the project's full verification yourself, including startup when relevant.
-2. Dispatch `@closure-reviewer` with the request, `invariants.md`, `decisions.md` if any, and the full diff. Ask it to focus on behavioral equivalence: every invariant still verified, no behavior change outside mechanical ones, no test weakened, target design reached.
+2. Dispatch `@closure-reviewer` with the request, `invariants.md`, `decisions.md` if any, and the full diff, docs and changelog included. Ask it to focus on behavioral equivalence: every invariant still verified, no behavior change outside mechanical ones, no test weakened, target design reached.
 3. On FAIL, fix through the step loop and review again; after two failures, open an unplanned gate.
 4. Write `closure.md` and commit `decisions.md` if it exists.
 
-### 6. Delivery
+### 7. Delivery
 
 Present **G2** with `closure.md` and the integration options from `superpowers:finishing-a-development-branch`. Execute the chosen option, then set `state.md` to `closed`.
 
