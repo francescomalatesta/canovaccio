@@ -11,6 +11,7 @@ Versioned opencode (V2) setup: engineering principles, specialized agents and de
 | `agents/` | the conductor (primary controller) and the specialized subagents |
 | `skills/workflow-*/` | the workflows: phases, gates, artifacts |
 | `commands/` | explicit entry points to the workflows |
+| `install.sh` | installs canovaccio into a project or globally |
 
 Layers, from general to specific:
 
@@ -21,19 +22,32 @@ Layers, from general to specific:
 
 ## Install
 
-opencode reads its global configuration from `~/.config/opencode`, or from `$OPENCODE_CONFIG_DIR` when set. Either link the repository there:
+`install.sh` installs canovaccio without keeping a clone: it fetches the chosen version into a temporary directory and copies `opencode.jsonc`, `agents/`, `commands/` and `skills/` into the target. Requires `git` and `sha256sum` or `shasum`.
+
+**Into a single project** (`<project>/.opencode/`, which opencode loads on top of the global config):
 
 ```sh
-ln -s /path/to/canovaccio ~/.config/opencode
+cd my-project
+curl -fsSL https://raw.githubusercontent.com/francescomalatesta/canovaccio/main/install.sh | sh -s -- --local
 ```
 
-or point opencode at it:
+`AGENTS.md` is not copied in this mode, because opencode does not read it from `.opencode/`. Its content goes into the project's `AGENTS.md` between `<!-- canovaccio:start -->` and `<!-- canovaccio:end -->`; the rest of the file is untouched.
+
+**Globally** (`$OPENCODE_CONFIG_DIR`, or `~/.config/opencode`):
+
+```sh
+curl -fsSL https://raw.githubusercontent.com/francescomalatesta/canovaccio/main/install.sh | sh -s -- --global
+```
+
+Options: `--ref <branch|tag|commit>` to install a specific version (default `main`), `--dry-run` to preview, `--uninstall` to remove, `--force` to also replace files changed locally or not installed by canovaccio (originals are backed up as `*.canovaccio-bak.<timestamp>`). See `install.sh --help`.
+
+The target keeps a `.canovaccio-manifest` with the installed version and file checksums. Running the script again updates to the requested version: it updates files you have not changed, keeps the ones you changed (and says so), removes files dropped upstream, and never touches files it did not install. On a first install it stops if canovaccio files would overwrite existing ones, unless `--force`.
+
+**For development of canovaccio itself**, point opencode at the working copy instead:
 
 ```sh
 export OPENCODE_CONFIG_DIR=/path/to/canovaccio
 ```
-
-If opencode writes cache or dependency files into the config directory, keep them out of this repository.
 
 ## Usage
 
