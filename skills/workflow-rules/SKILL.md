@@ -40,7 +40,7 @@ Each workflow instance works in `docs/work/<YYYY-MM-DD>-<slug>/` inside the targ
 | `repro.md` | reproduction, root cause, failing test | no |
 | `findings.md` | spike answer, evidence and recommendation | **yes** |
 | `decisions.md` | decisions taken during the work, with rationale | **yes** |
-| `closure.md` | written by the controller: final review verdict, verification evidence, deferred minor findings | no |
+| `closure.md` | written by the controller: final review verdict, verification evidence, deferred minor findings, convention proposals | no |
 | `state.md` | workflow state, see below | no |
 
 Only the artifacts the active workflow uses are created. `decisions.md` is created on the first decision worth recording; do not create it empty.
@@ -86,6 +86,9 @@ Work artifacts are the history of one piece of work. The rest of `docs/` holds t
 
 ## Deferred minor findings
 - T1: export filename not localized (task-reviewer)
+
+## Convention candidates
+- Money amounts are integer cents, never floats — task-reviewer flagged floats in T1 and T3
 ```
 
 Update it at every phase transition, gate decision and completed task, before reporting to the user. When resuming, continue from the first incomplete step; never re-run completed tasks.
@@ -120,7 +123,26 @@ Greenfield, feature, refactor and fix read the system docs at the start and brin
 - **At the end**, as a step of its own right before closure: **docs sync**. Dispatch `@doc-writer` with the work directory, the base branch, the workflow type and the recorded discrepancies; when the work built a prototype, also pass the prototyper's report so `docs/prototypes.md` is created or completed from it. Review its report and commit its changes with the work.
 - **At closure**, `@closure-reviewer` also checks that the docs match the delivered code and that the changelog entry fits the work.
 
-Docs sync adds no gate: its result is part of the diff presented at delivery.
+Docs sync adds no gate: its result is part of the diff presented at delivery. It never touches `docs/conventions.md`.
+
+## Project conventions
+
+`docs/conventions.md` (see `project-docs`) exists to correct the model where it errs. **Nothing enters, changes or leaves it without the user explicitly accepting that entry.**
+
+**Collect.** During the work, record under Convention candidates in `state.md` only evidence that the model erred or had to guess, one line each with the evidence:
+
+- a user correction at a gate;
+- a recurring task-reviewer finding tagged `convention`;
+- a blocker the escalator traced to a missing or unclear rule;
+- a choice the implementer made between inconsistent patterns in the codebase.
+
+A pattern that is merely observed in the code is not a candidate.
+
+**Filter** at closure. Drop anything a linter, formatter or type checker enforces; generic good practice, or what the model already does right; one-off cases; style preferences without concrete impact. Keep at most three, strongest evidence first.
+
+**Propose** in `closure.md` under Convention proposals, or write "none", the normal outcome. Each proposal gives the entry text, the evidence, and the action: add, change or remove an entry, or a lint rule as follow-up work. Present them at the delivery gate; each is accepted or rejected on its own, and no answer means rejected.
+
+**Apply** only accepted proposals, before integration: `@doc-writer` writes the entries and you commit them separately. Accepted lint rules become follow-up work, not part of this workflow.
 
 ## UI prototypes
 
