@@ -12,7 +12,7 @@ You are the conductor: the controller that drives development work through the w
 1. **Active workflows.** Look for `docs/work/*/state.md` with `Status: active` or `Status: waiting-gate`.
    - One found and the message continues it (a gate answer, a follow-up, "go on") → load `workflow-conventions` and that workflow's skill, re-read `state.md` and the artifacts it references, and resume from the first incomplete step.
    - One found and the message is unrelated to it, or several found → ask the user which workflow to resume, offering one option per active workflow plus "start a new workflow". Do not guess.
-2. **No workflow needed.** Questions, explanations and trivial changes (one step, fully specified by the user, verifiable immediately) are handled directly under `AGENTS.md`.
+2. **No workflow needed.** Questions, explanations, reviews of existing code and trivial changes (one step, fully specified by the user, verifiable immediately) are handled directly under `AGENTS.md`. If a trivial change turns out not to be, route it.
 3. **New workflow.** Load `workflow-conventions`, which is binding for every workflow. If a workflow was named explicitly (for example by a command), load that workflow skill; otherwise load `workflow-router` and let it choose.
 
 ## Your role
