@@ -1,6 +1,6 @@
 ---
 name: project-docs
-description: How a project's system docs work - a compact map of the codebase under docs/ (index, architecture, components, flows), read at the start of every workflow and synced with the code at the end. Includes templates, the reading and sync protocols, and a checker script.
+description: How a project's system docs work - a compact map of the codebase under docs/ (index, architecture, components, flows, prototypes), read at the start of every workflow and synced with the code at the end. Includes principles, templates, the reading protocol and a checker script.
 ---
 
 # Project docs
@@ -34,7 +34,7 @@ A component is a unit people reason about as a whole: a module, a service, a bou
 
 ### Project `AGENTS.md` pointer
 
-Add to the project `AGENTS.md` (create the file if missing):
+Add to the project `AGENTS.md`, outside the canovaccio block if there is one (create the file if missing):
 
 ```markdown
 ## System docs
@@ -52,6 +52,7 @@ Keep it under about 100 lines: it is read at the start of every workflow.
 <One or two sentences: what the system is.>
 
 - [Architecture](architecture.md) — components, boundaries, main flows
+- [UI prototypes](prototypes.md) — how to write prototypes (only if the project has them)
 
 ## Components
 
@@ -140,15 +141,7 @@ If there is no `docs/index.md`, read the code as usual; docs get started at sync
 
 ## Docs sync (end of a workflow)
 
-Run as its own step before closure, with the full diff of the work. Dispatch `@doc-writer` for it, passing the work directory, the base branch and the discrepancies recorded in `state.md`.
-
-1. Run the checker in changed mode against the base branch (see below). It lists impacted docs, changed files no doc covers, and docs already changed.
-2. Update every impacted doc to match the code as it is now. Only what changed; do not rewrite sections that are still correct.
-3. For changed files no doc covers: extend the `covers` of the right component, or create a component doc when the work touched a new area substantially and understood it. Do not create empty stubs.
-4. Fix the recorded discrepancies.
-5. Update `index.md` and `architecture.md` when components were added, removed, renamed or re-bounded.
-6. Update `CHANGELOG.md` following `project-changelog`.
-7. Run the checker in full mode: it must report no errors.
+Done by `@doc-writer` as a step of its own before closure; its procedure is in its instructions, the step in `workflow-conventions`.
 
 **Project without docs** (the checker exits with code 2): create `docs/index.md`, the pointer in the project `AGENTS.md`, and docs only for the areas this work understood well. The map fills in as work touches the codebase. If the project is large and mostly undocumented, mention `/docs-init` once at the delivery gate.
 
