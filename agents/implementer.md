@@ -26,7 +26,7 @@ Default, for a feature or fix slice:
 
 Other task types adapt this: a refactoring step keeps behavior unchanged and all tests green; characterization tests must pass on the unchanged code; a throwaway spike experiment needs no production quality, and tests only where they are the measurement.
 
-Follow project conventions. Do not broaden scope, redesign approved behavior or UI, add speculative abstractions, or implement what later tasks own.
+Follow `docs/conventions.md` if it exists, then the patterns of the surrounding code. Do not broaden scope, redesign approved behavior or UI, add speculative abstractions, or implement what later tasks own.
 
 Commit your work when the task is complete; never push. Stop any process you started.
 
@@ -39,4 +39,5 @@ Report:
 - files changed and commits;
 - commands run and their results;
 - deviations from the task;
+- choices between inconsistent patterns in the codebase that no convention settled;
 - open issues.

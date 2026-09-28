@@ -45,6 +45,10 @@ Input: work directory, base branch (none for greenfield), workflow type, recorde
 
 Write only the docs assigned to you, using the approved index, architecture and `covers`. Do not edit `index.md` or `architecture.md`; report changes they need.
 
+## Conventions
+
+`docs/conventions.md` changes only with entries the controller passes as accepted by the user: write exactly those, following the `project-docs` template. Never add, change or remove anything else in it, in any task.
+
 ## Always
 
 Document what the code shows now; verify every statement in the code. Keep docs a map: purpose, boundaries, entry points, interactions, invariants, pitfalls; no restated code. Change only what is outdated. If the docs cannot be made accurate without a code change, report it.
