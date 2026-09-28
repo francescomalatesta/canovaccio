@@ -7,7 +7,7 @@ description: Workflow for bootstrapping system docs in an existing, undocumented
 
 Bring an existing project to a complete docs map in one pass, instead of letting it fill in incrementally. Apply `workflow-conventions` and `project-docs` throughout.
 
-This workflow changes only docs, `.docsignore` and the project `AGENTS.md`. It adds no changelog entry.
+This workflow changes only docs, `.docsignore` and the project `AGENTS.md`. It adds no changelog entry, and has no Review loop, so no minor-findings policy applies.
 
 ## Gates
 
@@ -20,11 +20,11 @@ This workflow changes only docs, `.docsignore` and the project `AGENTS.md`. It a
 
 ### 0. Setup
 
-Create the work directory with `brief.md` and `state.md`, and the branch.
+Create the work directory with `brief.md` (request, classification and reason) and `state.md`, and the branch.
 
 ### 1. Current state
 
-Run the `project-docs` checker. If docs already exist, this workflow completes and repairs them: keep what is accurate, and list what is missing, broken or uncovered.
+Run the `project-docs` checker. Exit code 2 is expected when the project has no docs yet. If docs already exist, this workflow completes and repairs them: keep what is accurate, and list what is missing, broken or uncovered.
 
 ### 2. Survey
 
@@ -39,7 +39,7 @@ Identify the top-level areas from the repository layout, build files and entry p
 
 ### 3. Map proposal
 
-From the survey, write:
+From the survey, write the proposal yourself: it is the gate artifact.
 
 - `docs/architecture.md`, following the `project-docs` template;
 - `docs/index.md`, listing every proposed component with its code paths and a one-line purpose, and the proposed flows;
@@ -48,21 +48,20 @@ From the survey, write:
 
 Aim for components that are meaningful units, typically a handful to a few dozen for a large system, not one per directory.
 
-Present **G1** with the index, the architecture, the proposed covers and the files that would remain uncovered. For large projects, the user may choose to document a priority subset now; record the choice in `state.md`.
+Present **G1** with the index, the architecture, the proposed covers and the files that would remain uncovered. For large projects, the user may choose to document a priority subset now; record the choice in `state.md`. After approval, `index.md` lists only the approved components and flows; the rest stays uncovered.
 
 ### 4. Writing
 
 Dispatch `@doc-writer` with the docs writing task for each approved component, in parallel batches, passing the approved index, architecture and the component's covers. Then dispatch it for the flows.
 
-Add the system docs pointer to the project `AGENTS.md`.
+Add the system docs pointer to the project `AGENTS.md` yourself, outside the canovaccio block if there is one.
 
 ### 5. Verification
 
-1. Run the checker in full mode: no errors.
+1. Commit the docs, then run the checker in full mode: no errors.
 2. Dispatch `@closure-reviewer` with the approved map and the written docs. Ask it to verify accuracy against the code, checking a meaningful sample of concrete statements in every doc (entry points, dependencies, invariants), and adherence to `project-docs`.
 3. On FAIL, send the findings to `@doc-writer` and verify again; after two failures, open an unplanned gate.
 4. Write `closure.md`: docs written, coverage report, verification run, known gaps.
-5. Commit the docs.
 
 ### 6. Delivery
 
