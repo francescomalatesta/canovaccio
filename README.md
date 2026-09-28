@@ -84,7 +84,9 @@ Push, merge and destructive git commands also require approval through the permi
 Each workflow works in `docs/work/<date>-<slug>/` inside the target project:
 
 - versioned with the work: `spec.md`, `decisions.md`, `findings.md`;
-- local only (git-ignored): `brief.md`, `plan.md`, `invariants.md`, `repro.md`, `prototype/`, `closure.md`, `state.md`.
+- local only (git-ignored): `brief.md`, `plan.md`, `invariants.md`, `repro.md`, `closure.md`, `state.md`.
+
+UI prototypes are not work artifacts: they live in the project's single prototypes area, described in `docs/prototypes.md`, and are removed once their feature is implemented.
 
 The conductor adds the ignore rules to the project's `.gitignore` on first use. `state.md` records phase, approved gates and completed tasks, so a workflow can resume after a context compaction or in a new session.
 
