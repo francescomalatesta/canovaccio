@@ -23,6 +23,7 @@ docs/
   architecture.md         # system overview
   components/<name>.md    # one per component
   flows/<name>.md         # optional: journeys spanning several components
+  prototypes.md           # when the project has UI prototypes: where and how
   .docsignore             # optional: paths no doc needs to cover
   work/                   # workflow artifacts, not system docs
 ```
@@ -103,6 +104,25 @@ covers:
 ### `docs/flows/<name>.md`
 
 For journeys that cross components: the steps, the component handling each step, where state changes, where it typically breaks. `covers` is optional.
+
+### `docs/prototypes.md`
+
+Created when the project gets its first UI prototype. It fixes where every prototype lives, so all workflows use the same place.
+
+```markdown
+---
+covers:
+  - src/prototypes/**
+---
+# UI prototypes
+
+## Location        — the prototypes area; each prototype in <area>/<slug>/
+## Running         — command and URL of the prototypes index
+## Production isolation — how the area is kept out of production builds
+## Conventions     — mock data, reuse of project components, dev-only wiring
+```
+
+Prototypes are removed once their feature is implemented, so the doc describes the area, not individual prototypes. The area's permanent index keeps `covers` matching.
 
 ## Reading protocol (start of a workflow)
 
