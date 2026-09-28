@@ -22,7 +22,7 @@ Exhausting the budget without an answer is an unplanned gate.
 
 ### 0. Setup
 
-Create the work directory with `brief.md` and `state.md`.
+Create the work directory with `brief.md` (request, classification and reason) and `state.md`, recording in it the branch checked out now: `findings.md` is committed there.
 
 ### 1. Framing
 
@@ -31,7 +31,7 @@ Write the framing at the top of `findings.md`:
 - **question** — one precise question, plus sub-questions if needed;
 - **options** — the candidates to evaluate, if it is a choice;
 - **decision criteria** — what would make an answer good enough, and how options are compared;
-- **budget** — a bound on effort, expressed as a number of experiments or a time limit;
+- **budget** — the maximum number of experiments;
 - **out of scope** — what the spike will not try to settle.
 
 Present **G1**. Keep it light: one short message.
@@ -48,7 +48,7 @@ When research is not enough, create the branch `spike/<slug>` and dispatch `@imp
 - the sub-question the experiment answers;
 - the evidence to return: commands run, outputs, measurements, observed limits.
 
-Keep experiments minimal: the smallest thing that answers the sub-question. Record each result in `findings.md` as it arrives, and track the budget in `state.md`.
+Run experiments one at a time. They skip the Review loop, so no minor-findings policy applies. Keep them minimal: the smallest thing that answers the sub-question. Record each result in `findings.md` as it arrives, and track the budget in `state.md`.
 
 If the budget runs out before the question is answered, open an unplanned gate: partial findings, what remains unknown, and whether to extend, narrow or stop.
 
@@ -66,10 +66,10 @@ There is no closure review. Check yourself that every claim in `findings.md` res
 
 ### 5. Decision
 
-Present **G2** with `findings.md`. Possible outcomes:
+Present **G2** with `findings.md` and ask, in the same message, whether to keep or delete the `spike/<slug>` branch. Possible outcomes:
 
 - **proceed** → start `workflow-feature` or `workflow-greenfield` with `findings.md` as input, in a new work directory;
 - **another spike** → frame the next question;
 - **stop** → record the reason.
 
-In every case, commit `findings.md` on the project's working branch as a standalone commit, set `state.md` to `closed`, and ask whether to keep or delete the `spike/<slug>` branch.
+Then switch back to the branch recorded in `state.md`, commit `findings.md` there as a standalone commit, apply the branch decision, and set `state.md` to `closed`.
