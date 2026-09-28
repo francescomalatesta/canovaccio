@@ -7,8 +7,6 @@ description: Workflow for fixing wrong existing behavior - reproduce, find the r
 
 Existing behavior is wrong. Apply `workflow-conventions` throughout.
 
-This is the most autonomous workflow: most fixes need no approval before the delivery gate.
-
 ## Gates
 
 | Gate | When | Decides |
@@ -20,7 +18,7 @@ This is the most autonomous workflow: most fixes need no approval before the del
 
 ### 0. Setup
 
-Create the work directory with `brief.md` and `state.md`, and the branch.
+Create the work directory with `brief.md` (request, classification and reason) and `state.md`, and the branch.
 
 ### 1. Reproduce
 
@@ -42,9 +40,10 @@ Look for the same cause elsewhere in the codebase and note other occurrences; fi
 
 Open **G-fix** when any of these holds:
 
-- the correct behavior is ambiguous or the fix changes intended product behavior;
-- the fix is large: several subsystems, a public API or schema change, a data migration or repair;
-- the fix touches security-sensitive code or requires repairing already-corrupted data.
+- the expected behavior is not established by spec, docs, tests or the user's report;
+- the fix also changes behavior others may rely on, beyond the bug;
+- it changes a public API or a schema, or needs a data migration or repair;
+- it touches security-sensitive code.
 
 Present `repro.md` with root cause and the proposed fix. If the fix is really new behavior, propose `workflow-feature` instead.
 
@@ -52,13 +51,13 @@ Otherwise give a CHECKPOINT with root cause and intended fix, and continue.
 
 ### 4. Fix
 
-Dispatch `@implementer` with `repro.md`. The task is test-first (`superpowers:test-driven-development`):
+Run the Review loop of `workflow-conventions` with one task: give `@implementer` `repro.md`, the minor-findings policy and these instructions (`superpowers:test-driven-development`):
 
 1. add a regression test at the cheapest layer that reproduces the bug, and show it failing;
-2. fix the root cause;
+2. fix the root cause, and other occurrences of the same defect;
 3. show the regression test passing, and run the related tests.
 
-Then `@task-reviewer` with `repro.md` and the diff. Loop on "Needs fixes"; dispatch `@escalator` if the same blocking finding survives two rounds.
+Give `@task-reviewer` `repro.md` and the commit range.
 
 ### 5. Docs sync
 
@@ -68,9 +67,9 @@ Dispatch `@doc-writer` for the docs sync described in `workflow-conventions`, wi
 
 Run the project's full verification yourself: tests, build, type check, lint, and startup when relevant.
 
-Dispatch `@closure-reviewer`, with the diff including docs and changelog, only when G-fix was opened or the diff is large; otherwise the task review plus full verification is the closure.
+Dispatch `@closure-reviewer` only when G-fix was opened, with your verification results and the full diff, docs and changelog included. Otherwise the task review plus full verification is the closure.
 
-Write `closure.md`: root cause in one paragraph, what changed, verification actually run with results, other occurrences found.
+Write `closure.md`: root cause in one paragraph, what changed, verification run with results, other occurrences found, deferred minor findings.
 
 ### 7. Delivery
 
