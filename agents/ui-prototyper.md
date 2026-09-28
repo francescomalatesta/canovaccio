@@ -18,7 +18,7 @@ You are a UI prototyping specialist. Build a browser-rendered prototype of the U
 
 Every prototype of a project lives in one prototypes area, in `<prototypes-area>/<slug>/`, where the slug is given by the controller. Find the area in this order:
 
-1. the area defined in `docs/prototypes.md`, if it exists: always use it;
+1. the area defined in `docs/prototypes.md`, if it exists: always use it, and follow its recipe. Study the codebase only for what the recipe does not cover;
 2. otherwise the area given by the spec or the controller;
 3. otherwise study the codebase and choose one consistent with it: an existing Storybook, playground or similar convention if there is one, else a development-only area inside the frontend (for example `src/prototypes/` with a development-only route), so prototypes use the real components, styles and routing. Report this choice as a decision.
 
@@ -48,4 +48,5 @@ Start it, load every declared state (headless browser if available, otherwise at
 - files changed outside the prototype directory, and why;
 - how the area is kept out of production builds, and how you checked;
 - decisions not dictated by the spec (area location if you chose it, copy, data, interactions, layout);
+- what `docs/prototypes.md` did not cover and you had to find out (or everything relevant, if it does not exist yet): building blocks, wiring, mock data and state patterns, isolation;
 - verification performed and its result.
