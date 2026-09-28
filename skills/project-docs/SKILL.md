@@ -24,6 +24,7 @@ docs/
   components/<name>.md    # one per component
   flows/<name>.md         # optional: journeys spanning several components
   prototypes.md           # when the project has UI prototypes: where and how
+  conventions.md          # coding conventions the user explicitly accepted
   .docsignore             # optional: paths no doc needs to cover
   work/                   # workflow artifacts, not system docs
 ```
@@ -53,6 +54,7 @@ Keep it under about 100 lines: it is read at the start of every workflow.
 
 - [Architecture](architecture.md) — components, boundaries, main flows
 - [UI prototypes](prototypes.md) — how to write prototypes (only if the project has them)
+- [Conventions](conventions.md) — how code is written here (only if the file exists)
 
 ## Components
 
@@ -131,9 +133,27 @@ covers:
 
 More prescriptive than other docs, but still no copied code: point to reference files in the project instead, so the checker catches them when they move. Prototypes are removed once their feature ships, so the doc describes the area and how to work in it, not individual prototypes; the area's permanent index keeps `covers` matching.
 
+### `docs/conventions.md`
+
+How code is written in this project, where the model would otherwise get it wrong. Unlike other docs it prescribes, and **it contains only entries the user explicitly accepted**; nothing is added, changed or removed without that. It exists only once the first entry is accepted. How entries are proposed is in `workflow-rules`.
+
+```markdown
+# Conventions
+
+## Code structure       — where new code goes, module and file naming
+## Errors               — how errors are raised, wrapped, surfaced
+## Data and persistence — query patterns, migrations, transactions
+## APIs                 — request and response shapes, validation, versioning
+## Testing              — layers, naming, fixtures, what to mock
+## Dependencies         — when adding one is acceptable
+## Git                  — commit and branch conventions
+```
+
+Only the sections that have entries. One entry per line: the rule, a short reason, and a reference file as example. Nothing a linter, formatter or type checker already enforces. Keep it under about 150 lines: it is read for every task.
+
 ## Reading protocol (start of a workflow)
 
-1. If `docs/index.md` exists, read it first, then the component and flow docs relevant to the request.
+1. If `docs/index.md` exists, read it first, then `conventions.md` if it exists, then the component and flow docs relevant to the request.
 2. Use them to target the code reading; dispatch `@scout` with the relevant doc paths as starting points.
 3. Verify in the code before relying on a doc statement. Record any discrepancy in `state.md` Notes: it is fixed at docs sync.
 
