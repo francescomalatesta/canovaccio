@@ -90,4 +90,4 @@ Dispatch `@doc-writer` for the docs sync described in `workflow-rules`, with the
 
 ### 8. Delivery
 
-Present **G4** with `closure.md`, how to run the project, and the remaining decisions (remote repository, first push, deployment; inside an existing repository, the integration options from `superpowers:finishing-a-development-branch`). Execute what is approved, then set `state.md` to `closed`.
+Present **G4** with `closure.md`, how to run the project, and the remaining decisions (remote repository, first push, deployment; inside an existing repository, the integration options from `superpowers:finishing-a-development-branch`). Its convention proposals are accepted or rejected one by one, as in every workflow (see Project conventions in `workflow-rules`): `docs/conventions.md` is created only with the first accepted entry. Execute what is approved, then set `state.md` to `closed`.

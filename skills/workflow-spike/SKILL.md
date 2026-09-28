@@ -60,7 +60,8 @@ Complete `findings.md`:
 - evidence per option or sub-question, with references to experiments and sources;
 - comparison against the decision criteria;
 - recommendation, risks and remaining unknowns;
-- the suggested follow-up workflow and what it would take as input.
+- the suggested follow-up workflow and what it would take as input;
+- convention candidates, if the spike produced evidence for any: they are input for the follow-up workflow, not proposed here.
 
 There is no closure review. Check yourself that every claim in `findings.md` rests on evidence gathered in this spike or a cited source, and mark anything else as an assumption.
 

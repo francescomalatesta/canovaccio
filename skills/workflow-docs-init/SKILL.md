@@ -50,6 +50,8 @@ Aim for components that are meaningful units, typically a handful to a few dozen
 
 Present **G1** with the index, the architecture, the proposed covers and the files that would remain uncovered. For large projects, the user may choose to document a priority subset now; record the choice in `state.md`. After approval, `index.md` lists only the approved components and flows; the rest stays uncovered.
 
+G1 may also propose up to three entries for `docs/conventions.md`: the least obvious patterns of the project, the ones a model would most likely get wrong. This is the one case without an error history; the filter of `workflow-rules` still applies, and each entry is accepted or rejected on its own. `@doc-writer` writes accepted ones in phase 4.
+
 ### 4. Writing
 
 Dispatch `@doc-writer` with the docs writing task for each approved component, in parallel batches, passing the approved index, architecture and the component's covers. Then dispatch it for the flows.

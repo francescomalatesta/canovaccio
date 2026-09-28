@@ -73,7 +73,7 @@ Dispatch `@doc-writer` for the docs sync described in `workflow-rules`, with the
 
 ### 7. Delivery
 
-Present **G2** with `closure.md` and the integration options from `superpowers:finishing-a-development-branch`. Execute the chosen option, then set `state.md` to `closed`.
+Present **G2** with `closure.md` and the integration options from `superpowers:finishing-a-development-branch`; its convention proposals are accepted or rejected one by one, and accepted ones applied before integration (see Project conventions in `workflow-rules`). Execute the chosen option, then set `state.md` to `closed`.
 
 ## Switching
 
