@@ -1,5 +1,8 @@
 ![](https://github.com/francescomalatesta/canovaccio/blob/main/canovaccio.png)
 
+> **canovaccio** /ka.noˈvat.tʃo/ *(Italian, noun)* — the plot outline of a *commedia dell'arte*
+> play: a sketch of scenes and entrances on which the actors improvised the dialogue.
+
 ## What it is
 
 canovaccio turns a coding agent into a small, disciplined development team. You describe *what* you want; the setup decides *how* the work proceeds.
