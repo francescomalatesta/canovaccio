@@ -7,7 +7,7 @@ description: Workflow for restructuring code without changing behavior - map the
 
 Improve structure without changing observable behavior. Apply `workflow-conventions` throughout.
 
-The defining rule: **invariants are pinned by tests before the code changes.** Without that, a refactor is a rewrite on hope.
+The defining rule: **invariants are pinned by tests before the code changes.**
 
 ## Gates
 
@@ -22,7 +22,7 @@ Any need to change an invariant during the work is an unplanned gate.
 
 ### 0. Setup
 
-Create the work directory with `brief.md` and `state.md`.
+Create the work directory with `brief.md` (request, classification and reason) and `state.md`. The branch is created in phase 3, before the first change to project files.
 
 ### 1. Discovery
 
@@ -40,27 +40,25 @@ Write `invariants.md`:
 - **target design** — the intended structure and why it is better;
 - **steps** — an ordered sequence of small refactoring steps, each leaving the build and all tests green, each independently committable.
 
-Dispatch `@spec-reviewer` with the request and `invariants.md`: are the invariants complete for the perimeter, is each one verified, are the steps small and safe? Fix BLOCKING findings.
+Dispatch `@spec-reviewer` with the request and `invariants.md`: are the invariants complete for the perimeter, is each one verified, are the steps small and safe? Fix BLOCKING findings; list at the gate any finding you chose not to address, with the reason.
 
 Present **G1**.
 
 ### 3. Characterization tests
 
-Create the branch. Dispatch `@implementer` to add the missing characterization tests. They must pass against the unchanged code; a characterization test that needs a code change to pass has found a bug, which is reported, not fixed here.
+Create the branch. Run the Review loop of `workflow-conventions` with one task: `@implementer` adds the missing characterization tests, which pin current behavior even where it looks wrong, and must pass on the unchanged code; `@task-reviewer` checks that they pin the invariants, including edge cases and error paths. Record suspected bugs in `state.md` Notes: propose `workflow-fix` after the refactor, or open an unplanned gate if the bug blocks it.
 
-Dispatch `@task-reviewer`: do the tests actually pin the invariants, including edge cases and error paths?
-
-Commit the tests on their own, before any refactoring commit.
+The tests are committed on their own, before any refactoring commit.
 
 ### 4. Refactoring steps
 
-For each step in `invariants.md`, run the `superpowers:subagent-driven-development` loop with `@implementer` and `@task-reviewer`:
+Run the Review loop of `workflow-conventions` for each step in `invariants.md`, passing the minor-findings policy and the commit range. Each step:
 
-- the full relevant test suite passes after every step;
-- existing tests are not modified to make them pass, except for mechanical changes the refactor itself requires (renamed imports, moved paths), which the reviewer checks explicitly;
-- a step that cannot be completed without changing an invariant stops the loop: open an unplanned gate.
+- leaves the full test suite green;
+- modifies existing tests only mechanically (renamed imports, moved paths), which the reviewer checks;
+- stops at an unplanned gate if it cannot be completed without changing an invariant.
 
-Dispatch `@escalator` if a step does not converge after two fix rounds. Update `state.md` and give a one-line CHECKPOINT per step.
+Update `state.md` and give a one-line CHECKPOINT per step.
 
 ### 5. Docs sync
 
@@ -68,10 +66,10 @@ Dispatch `@doc-writer` for the docs sync described in `workflow-conventions`, wi
 
 ### 6. Closure
 
-1. Run the project's full verification yourself, including startup when relevant.
-2. Dispatch `@closure-reviewer` with the request, `invariants.md`, `decisions.md` if any, and the full diff, docs and changelog included. Ask it to focus on behavioral equivalence: every invariant still verified, no behavior change outside mechanical ones, no test weakened, target design reached.
-3. On FAIL, fix through the step loop and review again; after two failures, open an unplanned gate.
-4. Write `closure.md` and commit `decisions.md` if it exists.
+1. Commit `decisions.md` if it exists, then run the project's full verification yourself, including startup when relevant.
+2. Dispatch `@closure-reviewer` with the request, `invariants.md`, `decisions.md` if any, your verification results, and the full diff, docs and changelog included. Ask it to focus on behavioral equivalence: every invariant still verified, no behavior change outside mechanical ones, no test weakened, target design reached.
+3. On FAIL, fix through the Review loop and review again; after two failures, open an unplanned gate.
+4. Write `closure.md`: verdict, verification run with results, deviations, non-blocking observations, deferred minor findings.
 
 ### 7. Delivery
 
@@ -80,4 +78,4 @@ Present **G2** with `closure.md` and the integration options from `superpowers:f
 ## Switching
 
 - A behavior change turns out to be desired → stop at a safe step and propose `workflow-feature` for it.
-- Characterization reveals a bug → record it; propose `workflow-fix` after the refactor, or before it if it blocks.
+- Characterization reveals a suspected bug → see phase 3.
