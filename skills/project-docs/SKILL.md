@@ -107,7 +107,7 @@ For journeys that cross components: the steps, the component handling each step,
 
 ### `docs/prototypes.md`
 
-Created when the project gets its first UI prototype. It fixes where every prototype lives, so all workflows use the same place.
+Created when the project gets its first UI prototype. It is the recipe for writing a prototype in this project: with it and the spec, a new prototype needs no further research.
 
 ```markdown
 ---
@@ -116,13 +116,19 @@ covers:
 ---
 # UI prototypes
 
-## Location        — the prototypes area; each prototype in <area>/<slug>/
-## Running         — command and URL of the prototypes index
-## Production isolation — how the area is kept out of production builds
-## Conventions     — mock data, reuse of project components, dev-only wiring
+## Location              — the area; each prototype in <area>/<slug>/
+## Adding a prototype    — steps: create the directory, register it in the index,
+                           wire the dev-only route; reference files to copy from
+## Building blocks       — components, layout, theme, icons to use and where they
+                           are imported from; what not to use
+## Mock data and states  — where mock data lives and its shape; how loading, error
+                           and empty states are simulated and exposed
+## Running               — command and URL of the prototypes index
+## Production isolation  — how the area stays out of production builds, how to verify
+## Removal               — what to delete when the feature ships, what must stay
 ```
 
-Prototypes are removed once their feature is implemented, so the doc describes the area, not individual prototypes. The area's permanent index keeps `covers` matching.
+More prescriptive than other docs, but still no copied code: point to reference files in the project instead, so the checker catches them when they move. Prototypes are removed once their feature ships, so the doc describes the area and how to work in it, not individual prototypes; the area's permanent index keeps `covers` matching.
 
 ## Reading protocol (start of a workflow)
 
