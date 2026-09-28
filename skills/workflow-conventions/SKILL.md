@@ -35,7 +35,6 @@ Each workflow instance works in `docs/work/<YYYY-MM-DD>-<slug>/` inside the targ
 |---|---|---|
 | `brief.md` | original request, chosen workflow and why, known constraints | no |
 | `spec.md` | what to build: requirements, acceptance criteria, out of scope, technical choices | **yes** |
-| `prototype/` | browser prototype under approval | no |
 | `plan.md` | tasks as vertical slices, each with its verification | no |
 | `invariants.md` | behavior that must not change, and how it is verified | no |
 | `repro.md` | reproduction, root cause, failing test | no |
@@ -99,6 +98,14 @@ Greenfield, feature, refactor and fix read the system docs at the start and brin
 
 Docs sync adds no gate: its result is part of the diff presented at delivery.
 
+## UI prototypes
+
+Prototypes live in the project, not in the work directory: one prototypes area per project, described in `docs/prototypes.md`, each prototype in `<area>/<slug>/`. `@ui-prototyper` finds or proposes the area.
+
+- When the prototype is approved, commit it and record the commit in `state.md`; record the area in `decisions.md` if it was chosen in this workflow.
+- The approved prototype is an authority for implementation and closure. Reviewers read it from the recorded commit (`git show <commit>:<path>`) once it has been removed.
+- The plan's last task removes the prototype and its dev-only wiring, keeping the area's index. Prototypes never outlive their feature.
+
 ## Workflow switching
 
 Stop and propose a switch when the work turns out to be of a different kind, for example:
@@ -112,7 +119,7 @@ A switch is a gate. On approval, close the current `state.md` (status `closed`, 
 
 ## Branches
 
-Unless the project says otherwise, create a branch at the start of implementation work: `<workflow>/<slug>` (for example `feature/csv-export`, `fix/login-500`). Greenfield projects work on the default branch of the new repository. Spikes use `spike/<slug>` and are never merged. Docs bootstrapping uses `docs-init/<slug>`.
+Unless the project says otherwise, create a branch before the first change to project files (a prototype or implementation): `<workflow>/<slug>` (for example `feature/csv-export`, `fix/login-500`). Greenfield projects work on the default branch of the new repository. Spikes use `spike/<slug>` and are never merged. Docs bootstrapping uses `docs-init/<slug>`.
 
 Creating branches and committing are autonomous. Pushing, merging and destructive git operations are not: they happen only at the delivery gate or with explicit permission.
 
