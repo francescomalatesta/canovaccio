@@ -12,17 +12,17 @@ New or changed behavior in an existing project. Apply `workflow-conventions` thr
 | Gate | When | Decides |
 |---|---|---|
 | **G1 spec+plan** | before implementation | what to build and how it is sliced |
-| **G1a spec**, **G1b plan** | instead of G1, when the feature is large or needs a prototype | same, in two steps |
+| **G1a spec**, **G1b plan** | instead of G1, when a prototype is needed | same, in two steps |
 | **G-proto** | only when a prototype is built | material UX and visual structure |
 | **G2 delivery** | after closure | integration of the finished work |
 
-Use the split G1a/G1b when a prototype is needed, when the plan exceeds about six tasks, or when the feature spans several subsystems. Otherwise present spec and plan together at G1.
+Split into G1a and G1b only when a prototype is needed, since it must be built on an approved spec. Otherwise present spec and plan together at G1.
 
 ## Phases
 
 ### 0. Setup
 
-Create the work directory with `brief.md` and `state.md`.
+Create the work directory with `brief.md` (request, classification and reason) and `state.md`.
 
 ### 1. Discovery
 
@@ -43,7 +43,7 @@ Write `spec.md` using `superpowers:brainstorming` as technique. Clarifying quest
 - affected areas and technical approach, at the level needed to plan;
 - UX changes, and whether they are material (new screens, changed flows, changed layout).
 
-Dispatch `@spec-reviewer` with the request, `brief.md` and `spec.md`. Fix BLOCKING findings; consider the rest.
+Dispatch `@spec-reviewer` with the request, `brief.md` and `spec.md`. Fix BLOCKING findings; list at the next gate any finding you chose not to address, with the reason.
 
 ### 3. Prototype (only for material UX changes)
 
@@ -61,22 +61,15 @@ Write `plan.md` using `superpowers:writing-plans`:
 - every requirement in `spec.md` is owned by at least one task;
 - when a prototype exists, the last task removes it and its dev-only wiring, keeping the prototypes area's index.
 
-Dispatch `@spec-reviewer` with spec and plan. Fix BLOCKING findings.
+Dispatch `@spec-reviewer` with spec and plan. Fix BLOCKING findings; list at the gate any finding you chose not to address, with the reason.
 
 Present **G1** (spec+plan) or **G1b** (plan).
 
 ### 5. Implementation
 
-Create the branch if it does not exist yet. Run `superpowers:subagent-driven-development` over `plan.md`, task by task:
+Create the branch if it does not exist yet. Run `superpowers:subagent-driven-development` over `plan.md` with the Review loop of `workflow-conventions`. Give `@implementer` the task, the relevant spec sections, the prototype commit if any, the project conventions and the minor-findings policy; give `@task-reviewer` the task, its requirements and the commit range.
 
-1. `@implementer` with the task, the relevant spec sections, approved prototype if any, and project conventions;
-2. `@task-reviewer` with the task, its requirements and the diff;
-3. on "Needs fixes", back to `@implementer` with the findings;
-4. if the same blocking finding survives two fix rounds, or the implementer reports it cannot converge, dispatch `@escalator`.
-
-After each accepted task, update `state.md` and give a one-line CHECKPOINT.
-
-Product decisions surfaced by agents: answer from spec and prototype when they settle it; otherwise open an unplanned gate. Record decisions in `decisions.md`.
+After each accepted task, update `state.md` and give a one-line CHECKPOINT. Answer product decisions from spec and prototype when they settle them; otherwise open an unplanned gate. Record decisions in `decisions.md`.
 
 ### 6. Docs sync
 
@@ -84,11 +77,10 @@ Dispatch `@doc-writer` for the docs sync described in `workflow-conventions`, wi
 
 ### 7. Closure
 
-1. Run the project's full verification yourself: tests, build, type check, lint, and application startup when relevant.
-2. Dispatch `@closure-reviewer` with the original request, spec, plan, the prototype commit if any, `decisions.md`, and the full diff against the base branch, docs and changelog included.
-3. On FAIL, fix BLOCKING findings through the implementation loop and review again. If closure fails twice, open an unplanned gate with the findings.
-4. Write `closure.md`: verdict, verification actually run with results, deviations, non-blocking observations.
-5. Commit `spec.md` and `decisions.md` with the work.
+1. Commit `spec.md` and `decisions.md`, then run the project's full verification yourself: tests, build, type check, lint, and application startup when relevant.
+2. Dispatch `@closure-reviewer` with the original request, spec, plan, the prototype commit if any, `decisions.md`, your verification results, and the full diff against the base branch, docs and changelog included.
+3. On FAIL, fix BLOCKING findings through the Review loop and review again. If closure fails twice, open an unplanned gate with the findings.
+4. Write `closure.md`: verdict, verification run with results, deviations, non-blocking observations, deferred minor findings.
 
 ### 8. Delivery
 
