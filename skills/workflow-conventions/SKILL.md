@@ -93,7 +93,7 @@ Update it at every phase transition, gate decision and completed task, before re
 Greenfield, feature, refactor and fix read the system docs at the start and bring them, and `CHANGELOG.md`, up to date at the end. Spikes do neither; `workflow-docs-init` has its own flow. The rules are in the `project-docs` and `project-changelog` skills.
 
 - **At the start**, in the discovery phase: follow the `project-docs` reading protocol, and pass the relevant doc paths to `@scout` as starting points. Record doc/code discrepancies in `state.md` Notes.
-- **At the end**, as a step of its own right before closure: **docs sync**. Dispatch `@doc-writer` with the work directory, the base branch, the workflow type and the recorded discrepancies. Its changes are committed with the work.
+- **At the end**, as a step of its own right before closure: **docs sync**. Dispatch `@doc-writer` with the work directory, the base branch, the workflow type and the recorded discrepancies; when the work built a prototype, also pass the prototyper's report so `docs/prototypes.md` is created or completed from it. Its changes are committed with the work.
 - **At closure**, `@closure-reviewer` also checks that the docs match the delivered code and that the changelog entry fits the work.
 
 Docs sync adds no gate: its result is part of the diff presented at delivery.

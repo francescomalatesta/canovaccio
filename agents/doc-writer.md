@@ -33,7 +33,7 @@ Load the `project-docs` skill before starting, and `project-changelog` when the 
 
 You receive one of two tasks from the controller:
 
-- **docs sync** — the work directory, the base branch, the workflow type, and any doc/code discrepancies recorded during the work;
+- **docs sync** — the work directory, the base branch, the workflow type, any doc/code discrepancies recorded during the work, and the prototyper's report when a prototype was built (create or complete `docs/prototypes.md` from it);
 - **docs writing** — during docs bootstrapping, the components or flows to document, with the approved index and architecture.
 
 For docs sync:
