@@ -5,7 +5,7 @@ description: Workflow for bootstrapping system docs in an existing, undocumented
 
 # Docs init workflow
 
-Bring an existing project to a complete docs map in one pass, instead of letting it fill in incrementally. Apply `workflow-conventions` and `project-docs` throughout.
+Bring an existing project to a complete docs map in one pass, instead of letting it fill in incrementally. Apply `workflow-rules` and `project-docs` throughout.
 
 This workflow changes only docs, `.docsignore` and the project `AGENTS.md`. It adds no changelog entry, and has no Review loop, so no minor-findings policy applies.
 

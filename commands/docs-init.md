@@ -3,7 +3,7 @@ description: Start the docs-init workflow to bootstrap system docs in an existin
 agent: conductor
 ---
 
-Load the `workflow-conventions` skill, then run the `workflow-docs-init` skill for this request.
+Load the `workflow-rules` skill, then run the `workflow-docs-init` skill for this request.
 
 The workflow was chosen explicitly: do not re-classify it.
 

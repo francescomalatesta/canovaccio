@@ -5,7 +5,7 @@ description: Workflow for a new project from scratch - brainstorm the product, s
 
 # Greenfield workflow
 
-A new project or standalone application. Apply `workflow-conventions` throughout.
+A new project or standalone application. Apply `workflow-rules` throughout.
 
 ## Gates
 
@@ -71,7 +71,7 @@ Present **G3**.
 
 ### 5. Implementation
 
-Run `superpowers:subagent-driven-development` over `plan.md` with the Review loop of `workflow-conventions`. Give `@implementer` the task, the relevant spec sections, the prototype commit if any and the minor-findings policy; give `@task-reviewer` the task, its requirements and the commit range.
+Run `superpowers:subagent-driven-development` over `plan.md` with the Review loop of `workflow-rules`. Give `@implementer` the task, the relevant spec sections, the prototype commit if any and the minor-findings policy; give `@task-reviewer` the task, its requirements and the commit range.
 
 After the walking skeleton is accepted, dispatch `@doc-writer` to scaffold the system docs from the spec and the skeleton, following `project-docs`: the pointer in the project `AGENTS.md`, `docs/index.md`, `docs/architecture.md`, component docs for the components that exist, and `CHANGELOG.md` following `project-changelog`. Review its report and commit its changes; later tasks start from these docs.
 
@@ -79,7 +79,7 @@ After each accepted task, update `state.md` and give a one-line CHECKPOINT. Afte
 
 ### 6. Docs sync
 
-Dispatch `@doc-writer` for the docs sync described in `workflow-conventions`, with the work directory, workflow type `greenfield` (there is no base branch: the whole repository is new, so the checker runs in full mode) and the discrepancies recorded in `state.md`. Every component in the spec architecture that now exists must have its doc, and the changelog lists the first version's capabilities. Review its report; commit the docs and changelog changes with the work.
+Dispatch `@doc-writer` for the docs sync described in `workflow-rules`, with the work directory, workflow type `greenfield` (there is no base branch: the whole repository is new, so the checker runs in full mode) and the discrepancies recorded in `state.md`. Every component in the spec architecture that now exists must have its doc, and the changelog lists the first version's capabilities. Review its report; commit the docs and changelog changes with the work.
 
 ### 7. Closure
 

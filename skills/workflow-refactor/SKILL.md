@@ -5,7 +5,7 @@ description: Workflow for restructuring code without changing behavior - map the
 
 # Refactor workflow
 
-Improve structure without changing observable behavior. Apply `workflow-conventions` throughout.
+Improve structure without changing observable behavior. Apply `workflow-rules` throughout.
 
 The defining rule: **invariants are pinned by tests before the code changes.**
 
@@ -46,13 +46,13 @@ Present **G1**.
 
 ### 3. Characterization tests
 
-Create the branch. Run the Review loop of `workflow-conventions` with one task: `@implementer` adds the missing characterization tests, which pin current behavior even where it looks wrong, and must pass on the unchanged code; `@task-reviewer` checks that they pin the invariants, including edge cases and error paths. Record suspected bugs in `state.md` Notes: propose `workflow-fix` after the refactor, or open an unplanned gate if the bug blocks it.
+Create the branch. Run the Review loop of `workflow-rules` with one task: `@implementer` adds the missing characterization tests, which pin current behavior even where it looks wrong, and must pass on the unchanged code; `@task-reviewer` checks that they pin the invariants, including edge cases and error paths. Record suspected bugs in `state.md` Notes: propose `workflow-fix` after the refactor, or open an unplanned gate if the bug blocks it.
 
 The tests are committed on their own, before any refactoring commit.
 
 ### 4. Refactoring steps
 
-Run the Review loop of `workflow-conventions` for each step in `invariants.md`, passing the minor-findings policy and the commit range. Each step:
+Run the Review loop of `workflow-rules` for each step in `invariants.md`, passing the minor-findings policy and the commit range. Each step:
 
 - leaves the full test suite green;
 - modifies existing tests only mechanically (renamed imports, moved paths), which the reviewer checks;
@@ -62,7 +62,7 @@ Update `state.md` and give a one-line CHECKPOINT per step.
 
 ### 5. Docs sync
 
-Dispatch `@doc-writer` for the docs sync described in `workflow-conventions`, with the work directory, the base branch, workflow type `refactor` and the discrepancies recorded in `state.md`. A refactor changes where things live more than any other workflow: moved paths, new or merged components, changed boundaries and interactions must all be reflected, starting from the `covers` globs. Review its report; commit the docs and changelog changes with the work.
+Dispatch `@doc-writer` for the docs sync described in `workflow-rules`, with the work directory, the base branch, workflow type `refactor` and the discrepancies recorded in `state.md`. A refactor changes where things live more than any other workflow: moved paths, new or merged components, changed boundaries and interactions must all be reflected, starting from the `covers` globs. Review its report; commit the docs and changelog changes with the work.
 
 ### 6. Closure
 

@@ -18,7 +18,7 @@ When a project-specific `AGENTS.md`, approved specification, approved plan, appr
 
 ## Workflows
 
-Development workflows are defined as skills: `workflow-greenfield`, `workflow-feature`, `workflow-refactor`, `workflow-fix`, `workflow-spike` and `workflow-docs-init`, with shared rules in `workflow-conventions`.
+Development workflows are defined as skills: `workflow-greenfield`, `workflow-feature`, `workflow-refactor`, `workflow-fix`, `workflow-spike` and `workflow-docs-init`, with shared rules in `workflow-rules`.
 
 A workflow is active when it was started explicitly, selected by `workflow-router`, or recorded as active in a project's `docs/work/*/state.md`.
 

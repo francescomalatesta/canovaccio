@@ -141,7 +141,7 @@ If there is no `docs/index.md`, read the code as usual; docs get started at sync
 
 ## Docs sync (end of a workflow)
 
-Done by `@doc-writer` as a step of its own before closure; its procedure is in its instructions, the step in `workflow-conventions`.
+Done by `@doc-writer` as a step of its own before closure; its procedure is in its instructions, the step in `workflow-rules`.
 
 **Project without docs** (the checker exits with code 2): create `docs/index.md`, the pointer in the project `AGENTS.md`, and docs only for the areas this work understood well. The map fills in as work touches the codebase. If the project is large and mostly undocumented, mention `/docs-init` once at the delivery gate.
 

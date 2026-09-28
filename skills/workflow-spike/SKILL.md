@@ -5,7 +5,7 @@ description: Workflow for answering a question before building - frame the quest
 
 # Spike workflow
 
-Answer a question that must be settled before building: feasibility, choice between options, how something behaves. Apply `workflow-conventions` throughout.
+Answer a question that must be settled before building: feasibility, choice between options, how something behaves. Apply `workflow-rules` throughout.
 
 The output is `findings.md`. Experiment code is throwaway and is never merged.
 

@@ -5,7 +5,7 @@ description: Workflow for adding or changing behavior in an existing project - s
 
 # Feature workflow
 
-New or changed behavior in an existing project. Apply `workflow-conventions` throughout.
+New or changed behavior in an existing project. Apply `workflow-rules` throughout.
 
 ## Gates
 
@@ -47,7 +47,7 @@ Dispatch `@spec-reviewer` with the request, `brief.md` and `spec.md`. Fix BLOCKI
 
 ### 3. Prototype (only for material UX changes)
 
-If the spec contains material UX changes, present spec at **G1a** first. Then create the branch and dispatch `@ui-prototyper` with the approved spec and the work slug; it works in the project's prototypes area (see UI prototypes in `workflow-conventions`). Present it at **G-proto** with: startup command and URL, reachable states, files changed outside the prototype directory, how it is kept out of production builds, and decisions not dictated by the spec.
+If the spec contains material UX changes, present spec at **G1a** first. Then create the branch and dispatch `@ui-prototyper` with the approved spec and the work slug; it works in the project's prototypes area (see UI prototypes in `workflow-rules`). Present it at **G-proto** with: startup command and URL, reachable states, files changed outside the prototype directory, how it is kept out of production builds, and decisions not dictated by the spec.
 
 On approval, commit the prototype and record the commit in `state.md`. It becomes an authority for implementation and closure.
 
@@ -67,13 +67,13 @@ Present **G1** (spec+plan) or **G1b** (plan).
 
 ### 5. Implementation
 
-Create the branch if it does not exist yet. Run `superpowers:subagent-driven-development` over `plan.md` with the Review loop of `workflow-conventions`. Give `@implementer` the task, the relevant spec sections, the prototype commit if any, the project conventions and the minor-findings policy; give `@task-reviewer` the task, its requirements and the commit range.
+Create the branch if it does not exist yet. Run `superpowers:subagent-driven-development` over `plan.md` with the Review loop of `workflow-rules`. Give `@implementer` the task, the relevant spec sections, the prototype commit if any, the project conventions and the minor-findings policy; give `@task-reviewer` the task, its requirements and the commit range.
 
 After each accepted task, update `state.md` and give a one-line CHECKPOINT. Answer product decisions from spec and prototype when they settle them; otherwise open an unplanned gate. Record decisions in `decisions.md`.
 
 ### 6. Docs sync
 
-Dispatch `@doc-writer` for the docs sync described in `workflow-conventions`, with the work directory, the base branch, workflow type `feature` and the discrepancies recorded in `state.md`. New components introduced by the feature get their own doc. Review its report; commit the docs and changelog changes with the work.
+Dispatch `@doc-writer` for the docs sync described in `workflow-rules`, with the work directory, the base branch, workflow type `feature` and the discrepancies recorded in `state.md`. New components introduced by the feature get their own doc. Review its report; commit the docs and changelog changes with the work.
 
 ### 7. Closure
 

@@ -90,7 +90,7 @@ Or just describe the work: the conductor classifies it with `workflow-router`, a
 | `spike` | a question to answer before building | framing · decision |
 | `docs-init` | bootstrapping system docs in an existing project | map (index, architecture, components) · delivery |
 
-Shared rules are in `skills/workflow-conventions`: blocking gates vs. non-blocking checkpoints, when an unplanned gate is allowed, workflow switching, branches, and how superpowers skills are used inside a phase.
+Shared rules are in `skills/workflow-rules`: blocking gates vs. non-blocking checkpoints, when an unplanned gate is allowed, workflow switching, branches, and how superpowers skills are used inside a phase.
 
 Push, merge and destructive git commands also require approval through the permissions in `opencode.jsonc`.
 
@@ -126,7 +126,7 @@ Things to verify once with `opencode2`:
 
 1. The conductor is the default agent and the six commands are listed.
 2. `workflow-*` skills and superpowers skills are both available.
-3. The conductor can dispatch subagents. If subagent dispatch is not available in your opencode version, the workflows fall back to inline execution (see `workflow-conventions`). Also check that the `subagent` permission action used in the agents matches your version's tool name.
+3. The conductor can dispatch subagents. If subagent dispatch is not available in your opencode version, the workflows fall back to inline execution (see `workflow-rules`). Also check that the `subagent` permission action used in the agents matches your version's tool name.
 4. `git push` asks for approval.
 5. A small `/fix` on a scratch project stops at the delivery gate with a `closure.md`, a `CHANGELOG.md` entry and, if the project has docs, a docs sync.
 6. `doc-writer` can edit `docs/` and `CHANGELOG.md` but not source files.

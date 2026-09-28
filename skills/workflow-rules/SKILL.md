@@ -1,9 +1,9 @@
 ---
-name: workflow-conventions
+name: workflow-rules
 description: Shared rules for every development workflow (greenfield, feature, refactor, fix, spike, docs-init) - gates, checkpoints, artifacts, state, resumption, system docs and changelog, workflow switching and precedence over superpowers skills. Load before running or resuming any workflow.
 ---
 
-# Workflow conventions
+# Workflow rules
 
 These rules apply to every workflow. A workflow skill defines its phases and gates; this skill defines what those words mean.
 
