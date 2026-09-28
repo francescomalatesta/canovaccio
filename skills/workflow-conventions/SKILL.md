@@ -11,10 +11,10 @@ These rules apply to every workflow. A workflow skill defines its phases and gat
 
 **GATE** — a blocking human decision.
 
-1. Make sure the artifact under decision is written to disk and `state.md` is current.
+1. Make sure the artifact under decision is written to disk, `state.md` is current, and set `Status: waiting-gate`.
 2. Present it: file path, a short summary of what it decides, open questions, and what you will do after approval.
 3. Stop and wait for an explicit answer (use the `question` tool when it fits, otherwise end the turn). Do not continue in the same turn.
-4. Handle the answer:
+4. Handle the answer, then set `Status: active` again:
    - **approved** → record it in `state.md` (gate, date, artifact) and proceed;
    - **approved with changes** → apply them; if a change is material to what was approved, present the result again, otherwise record and proceed;
    - **rejected or redirected** → revise, or propose another workflow, and present again.
@@ -40,7 +40,7 @@ Each workflow instance works in `docs/work/<YYYY-MM-DD>-<slug>/` inside the targ
 | `repro.md` | reproduction, root cause, failing test | no |
 | `findings.md` | spike answer, evidence and recommendation | **yes** |
 | `decisions.md` | decisions taken during the work, with rationale | **yes** |
-| `closure.md` | final review verdict and verification evidence | no |
+| `closure.md` | written by the controller: final review verdict, verification evidence, deferred minor findings | no |
 | `state.md` | workflow state, see below | no |
 
 Only the artifacts the active workflow uses are created. `decisions.md` is created on the first decision worth recording; do not create it empty.
@@ -88,9 +88,20 @@ Work artifacts are the history of one piece of work. The rest of `docs/` holds t
 - T1: export filename not localized (task-reviewer)
 ```
 
-Update it at every phase transition, gate decision and completed task, before reporting to the user.
+Update it at every phase transition, gate decision and completed task, before reporting to the user. When resuming, continue from the first incomplete step; never re-run completed tasks.
 
-**Resuming.** After a context compaction, a new session, or whenever you are unsure of the current position: re-read `state.md` and the artifacts it references, then continue from the first incomplete step. Never re-run completed tasks and never assume an approval that `state.md` does not record.
+If the user stops a workflow, set `Status: abandoned` with the reason in Notes and leave its branch as is. Closed and abandoned workflows are never resumed.
+
+## Review loop
+
+For every implementation task:
+
+1. `@implementer`, then `@task-reviewer` on its commits;
+2. Needs fixes → back to `@implementer` with the findings; if the same blocking finding survives two fix rounds, or the implementer cannot converge, dispatch `@escalator`;
+3. after `@escalator`, `@task-reviewer` again; if it still needs fixes, open an unplanned gate with the findings and the escalator's diagnosis;
+4. Approved with Minor findings: under `fix`, one `@implementer` round for them and a scoped re-review; under `defer`, record them.
+
+This replaces the fix-round limits of `superpowers:subagent-driven-development`.
 
 ## Minor findings policy
 
@@ -106,7 +117,7 @@ Use the user's choice if the request states one, otherwise the default. State th
 Greenfield, feature, refactor and fix read the system docs at the start and bring them, and `CHANGELOG.md`, up to date at the end. Spikes do neither; `workflow-docs-init` has its own flow. The rules are in the `project-docs` and `project-changelog` skills.
 
 - **At the start**, in the discovery phase: follow the `project-docs` reading protocol, and pass the relevant doc paths to `@scout` as starting points. Record doc/code discrepancies in `state.md` Notes.
-- **At the end**, as a step of its own right before closure: **docs sync**. Dispatch `@doc-writer` with the work directory, the base branch, the workflow type and the recorded discrepancies; when the work built a prototype, also pass the prototyper's report so `docs/prototypes.md` is created or completed from it. Its changes are committed with the work.
+- **At the end**, as a step of its own right before closure: **docs sync**. Dispatch `@doc-writer` with the work directory, the base branch, the workflow type and the recorded discrepancies; when the work built a prototype, also pass the prototyper's report so `docs/prototypes.md` is created or completed from it. Review its report and commit its changes with the work.
 - **At closure**, `@closure-reviewer` also checks that the docs match the delivered code and that the changelog entry fits the work.
 
 Docs sync adds no gate: its result is part of the diff presented at delivery.
@@ -134,7 +145,7 @@ A switch is a gate. On approval, close the current `state.md` (status `closed`, 
 
 Unless the project says otherwise, create a branch before the first change to project files (a prototype or implementation): `<workflow>/<slug>` (for example `feature/csv-export`, `fix/login-500`). Greenfield projects work on the default branch of the new repository. Spikes use `spike/<slug>` and are never merged. Docs bootstrapping uses `docs-init/<slug>`.
 
-Creating branches and committing are autonomous. Pushing, merging and destructive git operations are not: they happen only at the delivery gate or with explicit permission.
+Work on a branch in the current checkout; use worktrees only if the user asks. Creating branches and committing are autonomous. Pushing, merging and destructive git operations are not: they happen only at the delivery gate or with explicit permission.
 
 ## Superpowers skills
 
@@ -142,9 +153,9 @@ Workflows decide sequencing, gates and artifacts. Superpowers skills supply tech
 
 - `superpowers:brainstorming` — use its exploration and questioning. Its approval steps are replaced by the workflow gates, and its design document is the workflow's `spec.md`, not a file under `docs/superpowers/`.
 - `superpowers:writing-plans` — use it to write `plan.md` in the work directory. The execution method is already chosen: subagent-driven. Do not ask the user to choose it.
-- `superpowers:subagent-driven-development` — use its loop with the named agents: implementer → `@implementer`, task reviewer → `@task-reviewer`, fresh and more capable implementer after repeated failed rounds → `@escalator`, final whole-branch reviewer → `@closure-reviewer`. Keep its ledger in the Tasks and Notes sections of `state.md`.
+- `superpowers:subagent-driven-development` — use its loop with the named agents and the Review loop above: implementer → `@implementer`, task reviewer → `@task-reviewer`, more capable implementer → `@escalator`, final whole-branch reviewer → `@closure-reviewer`. Keep its ledger in the Tasks and Notes sections of `state.md`.
 - `superpowers:finishing-a-development-branch` — its integration choice (merge, PR, keep, discard) is part of the workflow's delivery gate.
-- `superpowers:test-driven-development`, `superpowers:systematic-debugging`, `superpowers:verification-before-completion`, `superpowers:receiving-code-review`, `superpowers:using-git-worktrees` — use them as techniques whenever they apply.
+- `superpowers:test-driven-development`, `superpowers:systematic-debugging`, `superpowers:verification-before-completion`, `superpowers:receiving-code-review` — use them as techniques whenever they apply.
 
 If subagent dispatch is not available in the running environment, say so at the first gate, run implementation inline with `superpowers:executing-plans`, and keep review as a separate explicit pass against the task's requirements before moving on.
 
