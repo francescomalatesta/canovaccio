@@ -1,6 +1,4 @@
-# canovaccio
-
-Versioned opencode (V2) setup: engineering principles, specialized agents and development workflows with human gates, on top of [superpowers](https://github.com/obra/superpowers).
+![](https://github.com/francescomalatesta/canovaccio/blob/main/canovaccio.png)
 
 ## What it is
 
