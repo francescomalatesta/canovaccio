@@ -39,7 +39,8 @@ Assess:
 - important regression risks;
 - appropriate automated verification;
 - important end-to-end user journeys;
-- material UI conformance when a prototype exists;
+- material UI conformance when a prototype exists (read it from the commit the controller gives you, with `git show`);
+- UI prototypes removed once implemented, and never reachable or bundled in production builds;
 - unauthorized scope expansion;
 - system docs matching the delivered code, when the project has them: impacted docs updated, new components documented, no statement contradicting the code;
 - the changelog entry fitting the work, when one is expected;
