@@ -40,7 +40,8 @@ Write `spec.md`:
 - explicit out of scope for the first version;
 - **stack**: language, frameworks, storage, hosting target, with a short rationale per choice;
 - **architecture**: main components and boundaries, data model outline, external integrations;
-- **quality baseline**: test layers and tools, lint and format, type checking, how the app is started locally.
+- **quality baseline**: test layers and tools, lint and format, type checking, how the app is started locally;
+- **prototypes area** (when the product has a UI): where UI prototypes live and how they are kept out of production builds.
 
 Record significant technical choices in `decisions.md` with rejected alternatives.
 
@@ -50,17 +51,18 @@ Present **G1**.
 
 ### 3. Prototype (when the product has a UI)
 
-Dispatch `@ui-prototyper` with the approved spec, output in `prototype/` or, when clean, in the intended frontend stack. Present **G2** with startup command, URL and reachable states.
+Dispatch `@ui-prototyper` with the approved spec and the work slug; it works in the prototypes area defined by the spec, with the chosen stack and UI kit. The project is not scaffolded yet: the prototype sets up only what it needs to run there, and the walking skeleton later integrates the area. Present it at **G2** with: startup command and URL, reachable states, files changed outside the prototype directory, how it is kept out of production builds, and decisions not dictated by the spec.
 
-The approved prototype becomes an authority for implementation and closure.
+On approval, commit the prototype and record the commit in `state.md`. It becomes an authority for implementation and closure.
 
 ### 4. Plan
 
 Write `plan.md` using `superpowers:writing-plans`:
 
-- **task 1 is a walking skeleton**: project scaffold, the quality baseline wired and passing (tests, lint, type check), the app starting locally, and one thin end-to-end path through the architecture with an E2E smoke test;
+- **task 1 is a walking skeleton**: project scaffold, the quality baseline wired and passing (tests, lint, type check), the app starting locally, one thin end-to-end path through the architecture with an E2E smoke test, and the prototypes area integrated with its index and dev-only wiring when the product has a UI;
 - following tasks are vertical slices of the core journeys, each with its own tests and acceptance criteria;
-- every requirement in `spec.md` is owned by at least one task.
+- every requirement in `spec.md` is owned by at least one task;
+- when a prototype exists, the last task removes it and its dev-only wiring, keeping the prototypes area's index.
 
 Dispatch `@spec-reviewer` with spec and plan. Fix BLOCKING findings.
 
@@ -82,7 +84,7 @@ Dispatch `@doc-writer` for the docs sync described in `workflow-conventions`, wi
 
 1. From a clean checkout, run the full verification yourself: install, build, tests, type check, lint, and application startup.
 2. Make sure the project README states how to install, run and test it.
-3. Dispatch `@closure-reviewer` with the original request, spec, plan, prototype if any, `decisions.md` and the whole repository, docs and changelog included.
+3. Dispatch `@closure-reviewer` with the original request, spec, plan, the prototype commit if any, `decisions.md` and the whole repository, docs and changelog included.
 4. On FAIL, fix BLOCKING findings through the implementation loop and review again; after two failures, open an unplanned gate.
 5. Write `closure.md` and commit `spec.md` and `decisions.md`.
 

@@ -47,9 +47,9 @@ Dispatch `@spec-reviewer` with the request, `brief.md` and `spec.md`. Fix BLOCKI
 
 ### 3. Prototype (only for material UX changes)
 
-If the spec contains material UX changes, present spec at **G1a** first. Then dispatch `@ui-prototyper` with the approved spec and the existing UI conventions, output in `prototype/`. Present it at **G-proto** with the startup command, URL and reachable states.
+If the spec contains material UX changes, present spec at **G1a** first. Then create the branch and dispatch `@ui-prototyper` with the approved spec and the work slug; it works in the project's prototypes area (see UI prototypes in `workflow-conventions`). Present it at **G-proto** with: startup command and URL, reachable states, files changed outside the prototype directory, how it is kept out of production builds, and decisions not dictated by the spec.
 
-The approved prototype becomes an authority for implementation and closure.
+On approval, commit the prototype and record the commit in `state.md`. It becomes an authority for implementation and closure.
 
 ### 4. Plan
 
@@ -58,7 +58,8 @@ Write `plan.md` using `superpowers:writing-plans`:
 - tasks are vertical slices, each delivering observable behavior with its own tests;
 - each task names its acceptance criteria and verification (unit, integration, E2E where it completes an important journey);
 - dependencies between tasks are explicit;
-- every requirement in `spec.md` is owned by at least one task.
+- every requirement in `spec.md` is owned by at least one task;
+- when a prototype exists, the last task removes it and its dev-only wiring, keeping the prototypes area's index.
 
 Dispatch `@spec-reviewer` with spec and plan. Fix BLOCKING findings.
 
@@ -66,7 +67,7 @@ Present **G1** (spec+plan) or **G1b** (plan).
 
 ### 5. Implementation
 
-Create the branch. Run `superpowers:subagent-driven-development` over `plan.md`, task by task:
+Create the branch if it does not exist yet. Run `superpowers:subagent-driven-development` over `plan.md`, task by task:
 
 1. `@implementer` with the task, the relevant spec sections, approved prototype if any, and project conventions;
 2. `@task-reviewer` with the task, its requirements and the diff;
@@ -84,7 +85,7 @@ Dispatch `@doc-writer` for the docs sync described in `workflow-conventions`, wi
 ### 7. Closure
 
 1. Run the project's full verification yourself: tests, build, type check, lint, and application startup when relevant.
-2. Dispatch `@closure-reviewer` with the original request, spec, plan, prototype if any, `decisions.md`, and the full diff against the base branch, docs and changelog included.
+2. Dispatch `@closure-reviewer` with the original request, spec, plan, the prototype commit if any, `decisions.md`, and the full diff against the base branch, docs and changelog included.
 3. On FAIL, fix BLOCKING findings through the implementation loop and review again. If closure fails twice, open an unplanned gate with the findings.
 4. Write `closure.md`: verdict, verification actually run with results, deviations, non-blocking observations.
 5. Commit `spec.md` and `decisions.md` with the work.
