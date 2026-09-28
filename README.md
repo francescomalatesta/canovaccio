@@ -2,6 +2,23 @@
 
 Versioned opencode (V2) setup: engineering principles, specialized agents and development workflows with human gates, on top of [superpowers](https://github.com/obra/superpowers).
 
+## What it is
+
+canovaccio turns a coding agent into a small, disciplined development team. You describe *what* you want; the setup decides *how* the work proceeds.
+
+A controller agent, the **conductor**, recognizes the kind of work you asked for and runs the matching workflow. It delegates each role to a specialized agent: one researches the codebase, one reviews specifications, one builds UI prototypes, one implements, one reviews each change, one steps in when a fix does not converge, one keeps the docs current, and one does the final review. The conductor stops at a few **human gates**, where you approve a spec, a prototype or the delivery, and works autonomously everywhere else.
+
+Every piece of work leaves a trail: a spec or findings, the decisions taken, a changelog entry, and project docs updated to match the code. The next piece of work starts from those docs instead of rediscovering the codebase. Progress is saved to disk, so work resumes where it stopped, even in a new session.
+
+The workflows:
+
+- **greenfield** — a new project from scratch: explores the product with you, fixes stack and architecture in a spec, prototypes the UI, then builds it starting from a minimal end-to-end skeleton.
+- **feature** — new or changed behavior in an existing project: spec and plan approved together (separately when a UI prototype is needed), then implementation task by task, each one reviewed.
+- **fix** — something works wrong: reproduces it, finds the root cause, fixes it test-first. The most autonomous workflow: it asks you only when the fix is risky or the expected behavior is unclear.
+- **refactor** — better structure, same behavior: pins current behavior with tests before touching the code, then restructures in small steps that keep every test green.
+- **spike** — a question to answer before building (is it feasible? which library?): researches and runs throwaway experiments within a set budget, and ends with a written recommendation.
+- **docs-init** — brings an existing project to a complete docs map in one pass, instead of letting it fill in as work goes.
+
 ## Layout
 
 | Path | Role |
@@ -69,9 +86,9 @@ Or just describe the work: the conductor classifies it with `workflow-router`, a
 | Workflow | For | Human gates |
 |---|---|---|
 | `greenfield` | new project | spec (with stack and architecture) · prototype, if UI · plan · delivery |
-| `feature` | new or changed behavior | spec+plan (split when large or with prototype) · prototype, if material UX · delivery |
+| `feature` | new or changed behavior | spec+plan (split only when a prototype is needed) · prototype, if material UX · delivery |
 | `refactor` | same behavior, better structure | scope and invariants · delivery |
-| `fix` | wrong existing behavior | fix approach, only if it changes behavior or is large · delivery |
+| `fix` | wrong existing behavior | fix approach, only when the expected behavior is unclear or the fix is risky · delivery |
 | `spike` | a question to answer before building | framing · decision |
 | `docs-init` | bootstrapping system docs in an existing project | map (index, architecture, components) · delivery |
 
