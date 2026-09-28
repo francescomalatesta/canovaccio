@@ -25,7 +25,7 @@ Read the request and, when the answer depends on the codebase, do a quick read-o
 | `workflow-docs-init` | document an existing codebase as a whole: "document this project", "map the system", "create the docs"; no code change requested |
 | `workflow-spike` | the request is a question to answer before building: "is it feasible", "which library", "how would we", "evaluate", "compare", "prototype to find out" |
 | `workflow-fix` | existing behavior is wrong: bug, error, crash, regression, failing test, "it should do X but does Y" |
-| `workflow-refactor` | improve structure without changing behavior: restructure, extract, rename, migrate internals, pay down debt, upgrade with no functional change |
+| `workflow-refactor` | improve structure without changing behavior: restructure, extract, rename, migrate internals, pay down debt, upgrade with no functional change. A redesign the user can see is a feature |
 | `workflow-greenfield` | no existing project, or a new standalone application or service |
 | `workflow-feature` | new or changed behavior in an existing project |
 
