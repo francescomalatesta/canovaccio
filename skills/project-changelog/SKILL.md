@@ -5,7 +5,7 @@ description: How workflows record their changes in the project CHANGELOG.md, fol
 
 # Project changelog
 
-Workflows record notable changes in `CHANGELOG.md` at the project root, in the [Keep a Changelog 1.1.0](https://keepachangelog.com/en/1.1.0/) format.
+Workflows record notable changes in `CHANGELOG.md` at the project root (for a greenfield project inside an existing repository, its own directory), in the [Keep a Changelog 1.1.0](https://keepachangelog.com/en/1.1.0/) format.
 
 ## If the project already has a changelog
 
@@ -48,7 +48,7 @@ Sections, in this order, only when they have entries:
 ## How to write an entry
 
 - One line per change, describing the effect for the reader (user, operator, library consumer), not the implementation.
-- Present tense, no trailing period needed, consistent with existing entries.
+- Present tense, no trailing period, consistent with existing entries.
 - Group related changes of one workflow into as few entries as reads naturally; a feature is usually one or two lines, not one per task.
 - Reference an issue or ticket only if the project does so.
 
