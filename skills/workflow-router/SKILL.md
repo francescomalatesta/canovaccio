@@ -17,7 +17,7 @@ When the answer depends on the codebase, take a quick look or dispatch `@scout`.
 | `workflow-spike` | a question to answer before building: feasibility, which library, how would we, compare. Questions about wrong behavior are fixes |
 | `workflow-fix` | existing behavior is wrong: bug, error, crash, regression, failing test |
 | `workflow-refactor` | better structure, same behavior: restructure, extract, rename, migrate internals, upgrade with no functional change. A redesign the user can see is a feature |
-| `workflow-greenfield` | no repository yet, or a new application that needs its own stack and architecture decisions |
+| `workflow-greenfield` | no project yet (no repository, or one holding only the agent harness), or a new application that needs its own stack and architecture decisions |
 | `workflow-feature` | new or changed behavior in an existing project |
 
 Mixed requests: classify by the main intent and note the rest for `brief.md`. If the parts are independent and large, propose separate workflows in sequence.

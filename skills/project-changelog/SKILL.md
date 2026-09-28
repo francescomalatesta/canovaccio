@@ -5,7 +5,7 @@ description: How workflows record their changes in the project CHANGELOG.md, fol
 
 # Project changelog
 
-Workflows record notable changes in `CHANGELOG.md` at the project root (for a greenfield project inside an existing repository, its own directory), in the [Keep a Changelog 1.1.0](https://keepachangelog.com/en/1.1.0/) format.
+Workflows record notable changes in `CHANGELOG.md` at the project root (for a greenfield project built inside a repository that already holds another project, its own directory), in the [Keep a Changelog 1.1.0](https://keepachangelog.com/en/1.1.0/) format.
 
 ## If the project already has a changelog
 

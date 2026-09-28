@@ -20,8 +20,13 @@ A new project or standalone application. Apply `workflow-rules` throughout.
 
 ### 0. Setup
 
-- No repository yet: create the project directory, initialize git, work on its default branch.
-- Inside an existing repository: do not initialize git; create the branch `greenfield/<slug>` and the project in its own directory, which is the root for its docs, changelog, README and prototypes area. The work directory stays in `docs/work/` at the repository root.
+Decide the layout from what the directory holds:
+
+- **No repository yet**: create the project directory if needed, initialize git, work on its default branch.
+- **A repository with no project yet**: it has no commits, or it holds only the agent harness and repository metadata (`.git/`, `.opencode/`, `AGENTS.md`, `README`, `LICENSE`, `.gitignore`, `.gitattributes`, `.editorconfig`, `docs/work/`). The repository root is the project root: work there, on the default branch. Do not create a subdirectory. The project's docs pointer goes into the existing `AGENTS.md`, outside the canovaccio block; an existing `README` is rewritten for the project.
+- **A repository with an existing project** (source code, package manifests or other application files): do not initialize git; create the branch `greenfield/<slug>` and the project in its own directory, which is the root for its docs, changelog, README and prototypes area. The work directory stays in `docs/work/` at the repository root.
+
+If the contents do not clearly fit one case, ask the user before creating anything. Record the chosen layout and the reason in `brief.md`.
 
 Create the work directory with `brief.md` (request, classification and reason) and `state.md`.
 
@@ -90,4 +95,4 @@ Dispatch `@doc-writer` for the docs sync described in `workflow-rules`, with the
 
 ### 8. Delivery
 
-Present **G4** with `closure.md`, how to run the project, and the remaining decisions (remote repository, first push, deployment; inside an existing repository, the integration options from `superpowers:finishing-a-development-branch`). Its convention proposals are accepted or rejected one by one, as in every workflow (see Project conventions in `workflow-rules`): `docs/conventions.md` is created only with the first accepted entry. Execute what is approved, then set `state.md` to `closed`.
+Present **G4** with `closure.md`, how to run the project, and the remaining decisions (remote repository, first push, deployment; when the project was built on a `greenfield/<slug>` branch inside a repository with an existing project, the integration options from `superpowers:finishing-a-development-branch`). Its convention proposals are accepted or rejected one by one, as in every workflow (see Project conventions in `workflow-rules`): `docs/conventions.md` is created only with the first accepted entry. Execute what is approved, then set `state.md` to `closed`.
