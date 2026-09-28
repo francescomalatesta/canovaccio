@@ -70,6 +70,7 @@ Work artifacts are the history of one piece of work. The rest of `docs/` holds t
 - Status: active            <!-- active | waiting-gate | closed | abandoned -->
 - Phase: implementation
 - Branch: feature/csv-export
+- Minor findings: defer     <!-- fix | defer -->
 
 ## Gates
 - [x] G1 spec+plan — approved 2026-09-27 — spec.md, plan.md
@@ -82,11 +83,23 @@ Work artifacts are the history of one piece of work. The rest of `docs/` holds t
 ## Notes
 - T2 blocked on nothing; next action: dispatch implementer.
 - Doc discrepancy: docs/components/billing.md says VAT is computed in the job, it is in vat.ts.
+
+## Deferred minor findings
+- T1: export filename not localized (task-reviewer)
 ```
 
 Update it at every phase transition, gate decision and completed task, before reporting to the user.
 
 **Resuming.** After a context compaction, a new session, or whenever you are unsure of the current position: re-read `state.md` and the artifacts it references, then continue from the first incomplete step. Never re-run completed tasks and never assume an approval that `state.md` does not record.
+
+## Minor findings policy
+
+Decides what happens to Minor review findings, so the flow is never interrupted for them:
+
+- `defer` (default) — not fixed during the work. Record each one in `state.md` under Deferred minor findings; `closure.md` lists them for the user at the delivery gate.
+- `fix` — fixed in the review loop like Critical and Important findings.
+
+Use the user's choice if the request states one, otherwise the default. State the policy in one line at the workflow's first gate, where the user can change it; workflows without an initial gate use it as is. Record it in `state.md` and pass it to `@implementer` with review findings.
 
 ## System docs and changelog
 
