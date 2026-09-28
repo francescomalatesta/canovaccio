@@ -7,8 +7,6 @@ description: Workflow for a new project from scratch - brainstorm the product, s
 
 A new project or standalone application. Apply `workflow-conventions` throughout.
 
-Decisions made here are the most expensive to change later, so this workflow has the most gates.
-
 ## Gates
 
 | Gate | When | Decides |
@@ -22,7 +20,10 @@ Decisions made here are the most expensive to change later, so this workflow has
 
 ### 0. Setup
 
-Create the project directory if needed, initialize git, create the work directory with `brief.md` and `state.md`. The work happens on the default branch of the new repository.
+- No repository yet: create the project directory, initialize git, work on its default branch.
+- Inside an existing repository: do not initialize git; create the branch `greenfield/<slug>` and the project in its own directory, which is the root for its docs, changelog, README and prototypes area. The work directory stays in `docs/work/` at the repository root.
+
+Create the work directory with `brief.md` (request, classification and reason) and `state.md`.
 
 ### 1. Product exploration
 
@@ -45,7 +46,7 @@ Write `spec.md`:
 
 Record significant technical choices in `decisions.md` with rejected alternatives.
 
-Dispatch `@spec-reviewer` with the request and `spec.md`. Fix BLOCKING findings.
+Dispatch `@spec-reviewer` with the request and `spec.md`. Fix BLOCKING findings; list at the gate any finding you chose not to address, with the reason.
 
 Present **G1**.
 
@@ -59,20 +60,20 @@ On approval, commit the prototype and record the commit in `state.md`. It become
 
 Write `plan.md` using `superpowers:writing-plans`:
 
-- **task 1 is a walking skeleton**: project scaffold, the quality baseline wired and passing (tests, lint, type check), the app starting locally, one thin end-to-end path through the architecture with an E2E smoke test, and the prototypes area integrated with its index and dev-only wiring when the product has a UI;
+- **task 1 is a walking skeleton**: project scaffold, the quality baseline wired and passing (tests, lint, type check), the app starting locally, one thin end-to-end path through the architecture with an E2E smoke test, the prototypes area integrated with its index and dev-only wiring when the product has a UI, and a README stating how to install, run and test the project;
 - following tasks are vertical slices of the core journeys, each with its own tests and acceptance criteria;
 - every requirement in `spec.md` is owned by at least one task;
 - when a prototype exists, the last task removes it and its dev-only wiring, keeping the prototypes area's index.
 
-Dispatch `@spec-reviewer` with spec and plan. Fix BLOCKING findings.
+Dispatch `@spec-reviewer` with spec and plan. Fix BLOCKING findings; list at the gate any finding you chose not to address, with the reason.
 
 Present **G3**.
 
 ### 5. Implementation
 
-Run `superpowers:subagent-driven-development` over `plan.md`, as in `workflow-feature`: `@implementer`, then `@task-reviewer`, fix rounds, `@escalator` when the same blocking finding survives two rounds.
+Run `superpowers:subagent-driven-development` over `plan.md` with the Review loop of `workflow-conventions`. Give `@implementer` the task, the relevant spec sections, the prototype commit if any and the minor-findings policy; give `@task-reviewer` the task, its requirements and the commit range.
 
-After the walking skeleton is accepted, dispatch `@doc-writer` to scaffold the system docs from the spec and the skeleton, following `project-docs`: the pointer in the project `AGENTS.md`, `docs/index.md`, `docs/architecture.md`, component docs for the components that exist, and `CHANGELOG.md` following `project-changelog`. Later tasks then start from these docs.
+After the walking skeleton is accepted, dispatch `@doc-writer` to scaffold the system docs from the spec and the skeleton, following `project-docs`: the pointer in the project `AGENTS.md`, `docs/index.md`, `docs/architecture.md`, component docs for the components that exist, and `CHANGELOG.md` following `project-changelog`. Review its report and commit its changes; later tasks start from these docs.
 
 After each accepted task, update `state.md` and give a one-line CHECKPOINT. After the walking skeleton and docs scaffold, give a fuller CHECKPOINT: how to start the app and run the checks.
 
@@ -82,12 +83,11 @@ Dispatch `@doc-writer` for the docs sync described in `workflow-conventions`, wi
 
 ### 7. Closure
 
-1. From a clean checkout, run the full verification yourself: install, build, tests, type check, lint, and application startup.
-2. Make sure the project README states how to install, run and test it.
-3. Dispatch `@closure-reviewer` with the original request, spec, plan, the prototype commit if any, `decisions.md` and the whole repository, docs and changelog included.
-4. On FAIL, fix BLOCKING findings through the implementation loop and review again; after two failures, open an unplanned gate.
-5. Write `closure.md` and commit `spec.md` and `decisions.md`.
+1. Commit everything, including `spec.md` and `decisions.md`. Clone the repository into a temporary directory and run the full verification there: install, build, tests, type check, lint, startup; also check that the README instructions work.
+2. Dispatch `@closure-reviewer` with the original request, spec, plan, the prototype commit if any, `decisions.md`, your verification results, and the whole project.
+3. On FAIL, fix BLOCKING findings through the Review loop and review again; after two failures, open an unplanned gate.
+4. Write `closure.md`: verdict, verification run with results, deviations, non-blocking observations, deferred minor findings.
 
 ### 8. Delivery
 
-Present **G4** with `closure.md`, how to run the project, and the remaining decisions (remote repository, first push, deployment). Execute what is approved, then set `state.md` to `closed`.
+Present **G4** with `closure.md`, how to run the project, and the remaining decisions (remote repository, first push, deployment; inside an existing repository, the integration options from `superpowers:finishing-a-development-branch`). Execute what is approved, then set `state.md` to `closed`.

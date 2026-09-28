@@ -143,7 +143,7 @@ A switch is a gate. On approval, close the current `state.md` (status `closed`, 
 
 ## Branches
 
-Unless the project says otherwise, create a branch before the first change to project files (a prototype or implementation): `<workflow>/<slug>` (for example `feature/csv-export`, `fix/login-500`). Greenfield projects work on the default branch of the new repository. Spikes use `spike/<slug>` and are never merged. Docs bootstrapping uses `docs-init/<slug>`.
+Unless the project says otherwise, create a branch before the first change to project files (a prototype or implementation): `<workflow>/<slug>` (for example `feature/csv-export`, `fix/login-500`). Greenfield works on the default branch of a new repository, or on `greenfield/<slug>` inside an existing one. Spikes use `spike/<slug>` and are never merged. Docs bootstrapping uses `docs-init/<slug>`.
 
 Work on a branch in the current checkout; use worktrees only if the user asks. Creating branches and committing are autonomous. Pushing, merging and destructive git operations are not: they happen only at the delivery gate or with explicit permission.
 
