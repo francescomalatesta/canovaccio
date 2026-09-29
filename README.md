@@ -99,7 +99,15 @@ Push, merge and destructive git commands also require approval through the permi
 
 ## Session cost
 
-`/cost <session-id>` (or `skills/session-cost/scripts/session-cost.mjs`) reports total cost, a cost tree and breakdowns by agent and model for a session and all its subagent sessions, read from the local opencode database. `--list` shows recent sessions.
+Sessions with many subagents are hard to budget. `skills/session-cost/scripts/session-cost.mjs` reads the local opencode database (`~/.local/share/opencode/opencode.db`) and, given the id of the parent session, follows every sub-session to report total cost, a cost tree, and breakdowns by agent and by model, with token and cache-hit stats.
+
+```sh
+/cost <session-id>                                            # from inside opencode
+node skills/session-cost/scripts/session-cost.mjs --list      # find a session id
+node skills/session-cost/scripts/session-cost.mjs <id> --json # machine-readable
+```
+
+Requires Node 22.5+, no dependencies; the database is opened read-only. Costs are the ones opencode records: if a provider reports no pricing they show as 0.
 
 ## Artifacts
 
