@@ -28,7 +28,7 @@ The workflows:
 | `opencode.jsonc` | models, plugins, permissions, compaction |
 | `agents/` | the conductor (primary controller) and the specialized subagents |
 | `skills/workflow-*/` | the workflows: phases, gates, artifacts |
-| `commands/` | explicit entry points to the workflows |
+| `commands/` | explicit entry points to the workflows, plus `/cost` |
 | `install.sh` | installs canovaccio into a project or globally |
 
 Layers, from general to specific:
@@ -96,6 +96,10 @@ Or just describe the work: the conductor classifies it with `workflow-router`, a
 Shared rules are in `skills/workflow-rules`: blocking gates vs. non-blocking checkpoints, when an unplanned gate is allowed, workflow switching, branches, and how superpowers skills are used inside a phase.
 
 Push, merge and destructive git commands also require approval through the permissions in `opencode.jsonc`.
+
+## Session cost
+
+`/cost <session-id>` (or `skills/session-cost/scripts/session-cost.mjs`) reports total cost, a cost tree and breakdowns by agent and model for a session and all its subagent sessions, read from the local opencode database. `--list` shows recent sessions.
 
 ## Artifacts
 
