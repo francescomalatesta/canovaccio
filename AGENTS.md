@@ -176,7 +176,7 @@ Normal role boundaries:
 - task-level review → task-reviewer;
 - difficult failed implementation → escalator;
 - system docs and changelog → doc-writer;
-- whole-project final review → closure-reviewer.
+- whole-project final review → closure-reviewer, with closure-auditor collecting its evidence.
 
 Do not dispatch agents recursively unless a workflow explicitly requires it.
 

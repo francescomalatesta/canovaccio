@@ -67,7 +67,7 @@ Dispatch `@doc-writer` for the docs sync described in `workflow-rules`, with the
 
 Run the project's full verification yourself: tests, build, type check, lint, and startup when relevant.
 
-Dispatch `@closure-reviewer` only when G-fix was opened, with your verification results and the full diff, docs and changelog included. Otherwise the task review plus full verification is the closure.
+Run the closure review (see Closure review in `workflow-rules`) only when G-fix was opened, against the base branch, with `repro.md` and the approved fix approach; docs and changelog are part of the change. Otherwise the task review plus full verification is the closure.
 
 Write `closure.md`: root cause in one paragraph, what changed, verification run with results, other occurrences found, deferred minor findings.
 

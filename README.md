@@ -114,7 +114,7 @@ Requires Node 22.5+, no dependencies; the database is opened read-only. Costs ar
 Each workflow works in `docs/work/<date>-<slug>/` inside the target project:
 
 - versioned with the work: `spec.md`, `decisions.md`, `findings.md`;
-- local only (git-ignored): `brief.md`, `plan.md`, `invariants.md`, `repro.md`, `closure.md`, `state.md`.
+- local only (git-ignored): `brief.md`, `plan.md`, `invariants.md`, `repro.md`, `closure-plan.md`, `closure-evidence.md`, `closure.md`, `state.md`.
 
 UI prototypes are not work artifacts: they live in the project's single prototypes area, described in `docs/prototypes.md`, and are removed once their feature is implemented.
 

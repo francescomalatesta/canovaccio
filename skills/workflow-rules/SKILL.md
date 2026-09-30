@@ -40,6 +40,8 @@ Each workflow instance works in `docs/work/<YYYY-MM-DD>-<slug>/` inside the targ
 | `repro.md` | reproduction, root cause, failing test | no |
 | `findings.md` | spike answer, evidence and recommendation | **yes** |
 | `decisions.md` | decisions taken during the work, with rationale | **yes** |
+| `closure-plan.md` | closure review plan, saved by the controller | no |
+| `closure-evidence.md` | evidence collected for the closure review by `@closure-auditor` | no |
 | `closure.md` | written by the controller: final review verdict, verification evidence, deferred minor findings, convention proposals | no |
 | `state.md` | workflow state, see below | no |
 
@@ -121,9 +123,21 @@ Greenfield, feature, refactor and fix read the system docs at the start and brin
 
 - **At the start**, in the discovery phase: follow the `project-docs` reading protocol, and pass the relevant doc paths to `@scout` as starting points. Record doc/code discrepancies in `state.md` Notes.
 - **At the end**, as a step of its own right before closure: **docs sync**. Dispatch `@doc-writer` with the work directory, the base branch, the workflow type and the recorded discrepancies; when the work built a prototype, also pass the prototyper's report so `docs/prototypes.md` is created or completed from it. Review its report and commit its changes with the work.
-- **At closure**, `@closure-reviewer` also checks that the docs match the delivered code and that the changelog entry fits the work.
+- **At closure**, the closure review also checks that the docs match the delivered code and that the changelog entry fits the work.
 
 Docs sync adds no gate: its result is part of the diff presented at delivery. It never touches `docs/conventions.md`.
+
+## Closure review
+
+Where a workflow runs the closure review, it names the authorities to pass and any focus. The review is split so that the strongest model plans and judges while a cheaper one does the volume: running the verification and collecting evidence. Each phase leaves its result on disk, so any phase can be repeated alone.
+
+1. **Plan.** Dispatch `@closure-reviewer` in plan mode with the authorities, the focus, your verification results, the deferred minor findings from `state.md` and an outline of the change: `git diff --stat <base>...HEAD` and the commit list, or the file tree when there is no base. Not the full diff. Save its plan as `closure-plan.md` in the work directory.
+2. **Evidence.** Dispatch `@closure-auditor` with the work directory and the base branch. It executes the plan and writes `closure-evidence.md`.
+3. **Verdict.** Dispatch `@closure-reviewer` in verdict mode with the authorities, `closure-plan.md` and `closure-evidence.md`, or continue its planning session with the evidence when the environment lets you resume a subagent. On NEEDS-EVIDENCE, send its requests to `@closure-auditor`, then ask for the verdict again; at most once per review round.
+
+On FAIL, fix the BLOCKING findings as the workflow says, then review again, scoped: the auditor on the fix commits and the previous findings, appended to the evidence, and the verdict on the previous findings and the new changes; the plan is not rewritten. The workflow says what happens after repeated failures.
+
+A phase that fails for a reason outside the review, such as a harness or provider error, is repeated alone from the saved artifacts. It does not count as a closure failure.
 
 ## Project conventions
 
@@ -175,7 +189,7 @@ Workflows decide sequencing, gates and artifacts. Superpowers skills supply tech
 
 - `superpowers:brainstorming` — use its exploration and questioning. Its approval steps are replaced by the workflow gates, and its design document is the workflow's `spec.md`, not a file under `docs/superpowers/`.
 - `superpowers:writing-plans` — use it to write `plan.md` in the work directory. The execution method is already chosen: subagent-driven. Do not ask the user to choose it.
-- `superpowers:subagent-driven-development` — use its loop with the named agents and the Review loop above: implementer → `@implementer`, task reviewer → `@task-reviewer`, more capable implementer → `@escalator`, final whole-branch reviewer → `@closure-reviewer`. Keep its ledger in the Tasks and Notes sections of `state.md`.
+- `superpowers:subagent-driven-development` — use its loop with the named agents and the Review loop above: implementer → `@implementer`, task reviewer → `@task-reviewer`, more capable implementer → `@escalator`, final whole-branch reviewer → the Closure review above. Keep its ledger in the Tasks and Notes sections of `state.md`.
 - `superpowers:finishing-a-development-branch` — its integration choice (merge, PR, keep, discard) is part of the workflow's delivery gate.
 - `superpowers:test-driven-development`, `superpowers:systematic-debugging`, `superpowers:verification-before-completion`, `superpowers:receiving-code-review` — use them as techniques whenever they apply.
 

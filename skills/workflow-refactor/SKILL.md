@@ -67,7 +67,7 @@ Dispatch `@doc-writer` for the docs sync described in `workflow-rules`, with the
 ### 6. Closure
 
 1. Commit `decisions.md` if it exists, then run the project's full verification yourself, including startup when relevant.
-2. Dispatch `@closure-reviewer` with the request, `invariants.md`, `decisions.md` if any, your verification results, and the full diff, docs and changelog included. Ask it to focus on behavioral equivalence: every invariant still verified, no behavior change outside mechanical ones, no test weakened, target design reached.
+2. Run the closure review (see Closure review in `workflow-rules`) against the base branch, with the request, `invariants.md` and `decisions.md` if any. Docs and changelog are part of the change. The focus is behavioral equivalence: every invariant still verified, no behavior change outside mechanical ones, no test weakened, target design reached.
 3. On FAIL, fix through the Review loop and review again; after two failures, open an unplanned gate.
 4. Write `closure.md`: verdict, verification run with results, deviations, non-blocking observations, deferred minor findings.
 

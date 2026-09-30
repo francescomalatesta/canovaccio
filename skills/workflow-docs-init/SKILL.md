@@ -61,7 +61,7 @@ Add the system docs pointer to the project `AGENTS.md` yourself, outside the can
 ### 5. Verification
 
 1. Commit the docs, then run the checker in full mode: no errors.
-2. Dispatch `@closure-reviewer` with the approved map and the written docs. Ask it to verify accuracy against the code, checking a meaningful sample of concrete statements in every doc (entry points, dependencies, invariants), and adherence to `project-docs`.
+2. Run the closure review (see Closure review in `workflow-rules`) against the base branch, with the approved map; the change is the written docs. The focus is accuracy against the code, checking a meaningful sample of concrete statements in every doc (entry points, dependencies, invariants), and adherence to `project-docs`.
 3. On FAIL, send the findings to `@doc-writer` and verify again; after two failures, open an unplanned gate.
 4. Write `closure.md`: docs written, coverage report, verification run, known gaps.
 
