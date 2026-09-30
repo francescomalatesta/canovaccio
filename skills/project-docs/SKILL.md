@@ -23,7 +23,7 @@ docs/
   architecture.md         # system overview
   components/<name>.md    # one per component
   flows/<name>.md         # optional: journeys spanning several components
-  prototypes.md           # when the project has UI prototypes: where and how
+  prototypes.md           # when the project has a prototype system: which and how
   conventions.md          # coding conventions the user explicitly accepted
   .docsignore             # optional: paths no doc needs to cover
   work/                   # workflow artifacts, not system docs
@@ -110,7 +110,7 @@ For journeys that cross components: the steps, the component handling each step,
 
 ### `docs/prototypes.md`
 
-Created when the project gets its first UI prototype. It is the recipe for writing a prototype in this project: with it and the spec, a new prototype needs no further research.
+Created when the project's prototype system is set up (see `project-prototypes`), before its first prototype is judged. It is the recipe for writing a prototype in this project: with it and the spec, a new prototype needs no further research, and every workflow uses the same system.
 
 ```markdown
 ---
@@ -119,19 +119,23 @@ covers:
 ---
 # UI prototypes
 
-## Location              — the area; each prototype in <area>/<slug>/
+## System                — the tool and why it was chosen, how it meets each point
+                           of the contract, the decision it comes from
+## Location              — the area; each prototype in <area>/<work>/ with its PROTOTYPE.md
 ## Adding a prototype    — steps: create the directory, register it in the index,
                            wire the dev-only route; reference files to copy from
 ## Building blocks       — components, layout, theme, icons to use and where they
                            are imported from; what not to use
 ## Mock data and states  — where mock data lives and its shape; how loading, error
-                           and empty states are simulated and exposed
-## Running               — command and URL of the prototypes index
+                           and empty states are simulated and given their own URL
+## Running               — command and URL of the prototypes index; how to check
+                           every kept prototype still loads
 ## Production isolation  — how the area stays out of production builds, how to verify
-## Removal               — what to delete when the feature ships, what must stay
+## Keep or remove        — what removing a prototype deletes, what always stays
+                           (the system), how a kept one is marked and grouped
 ```
 
-More prescriptive than other docs, but still no copied code: point to reference files in the project instead, so the checker catches them when they move. Prototypes are removed once their feature ships, so the doc describes the area and how to work in it, not individual prototypes; the area's permanent index keeps `covers` matching.
+More prescriptive than other docs, but still no copied code: point to reference files in the project instead, so the checker catches them when they move. The doc describes the system and how to work in it, not individual prototypes: those are listed by the area's index, which is permanent and keeps `covers` matching.
 
 ### `docs/conventions.md`
 

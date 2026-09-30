@@ -116,9 +116,15 @@ Each workflow works in `docs/work/<date>-<slug>/` inside the target project:
 - versioned with the work: `spec.md`, `decisions.md`, `findings.md`;
 - local only (git-ignored): `brief.md`, `plan.md`, `invariants.md`, `repro.md`, `closure-plan.md`, `closure-evidence.md`, `closure.md`, `state.md`.
 
-UI prototypes are not work artifacts: they live in the project's single prototypes area, described in `docs/prototypes.md`, and are removed once their feature is implemented.
+UI prototypes are not work artifacts: they live in the project's prototype system, described below.
 
 The conductor adds the ignore rules to the project's `.gitignore` on first use. `state.md` records phase, approved gates and completed tasks, so a workflow can resume after a context compaction or in a new session.
+
+## UI prototypes
+
+Each project has **one prototype system**, defined by `skills/project-prototypes`: a tool and an area where every UI prototype lives, such as Storybook for a React or Vue frontend, or a dev-only route area for server-rendered templates. It is chosen once, in the spec of the first work that needs a prototype (you approve it with the spec), documented in `docs/prototypes.md`, and reused by every later workflow. Whatever the tool, it starts with one command, lists the prototypes in an index, uses the project's real components, gives every state its own URL and stays out of production builds.
+
+At the prototype gate the conductor starts the system and gives you the URLs to open in the browser: no screenshots or one-off formats. At delivery you keep or remove each prototype (default remove); kept ones stay in the index, grouped apart, as a record of the approved design. The system itself always stays.
 
 ## System docs and changelog
 

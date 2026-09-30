@@ -122,7 +122,7 @@ Use the user's choice if the request states one, otherwise the default. State th
 Greenfield, feature, refactor and fix read the system docs at the start and bring them, and `CHANGELOG.md`, up to date at the end. Spikes do neither; `workflow-docs-init` has its own flow. The rules are in the `project-docs` and `project-changelog` skills.
 
 - **At the start**, in the discovery phase: follow the `project-docs` reading protocol, and pass the relevant doc paths to `@scout` as starting points. Record doc/code discrepancies in `state.md` Notes.
-- **At the end**, as a step of its own right before closure: **docs sync**. Dispatch `@doc-writer` with the work directory, the base branch, the workflow type and the recorded discrepancies; when the work built a prototype, also pass the prototyper's report so `docs/prototypes.md` is created or completed from it. Review its report and commit its changes with the work.
+- **At the end**, as a step of its own right before closure: **docs sync**. Dispatch `@doc-writer` with the work directory, the base branch, the workflow type and the recorded discrepancies; when the work built a prototype, also pass the prototyper's report so `docs/prototypes.md` is completed from it. Review its report and commit its changes with the work.
 - **At closure**, the closure review also checks that the docs match the delivered code and that the changelog entry fits the work.
 
 Docs sync adds no gate: its result is part of the diff presented at delivery. It never touches `docs/conventions.md`.
@@ -160,11 +160,13 @@ A pattern that is merely observed in the code is not a candidate.
 
 ## UI prototypes
 
-Prototypes live in the project, not in the work directory: one prototypes area per project, described in `docs/prototypes.md`, each prototype in `<area>/<slug>/`. `@ui-prototyper` finds or proposes the area.
+Prototypes live in the project, not in the work directory: in the project's one prototype system, described in `docs/prototypes.md` and defined by the `project-prototypes` skill. The system is chosen once, in an approved spec; `@ui-prototyper` sets it up, builds prototypes in it and never chooses it.
 
-- When the prototype is approved, commit it and record the commit in `state.md`; record the area in `decisions.md` if it was chosen in this workflow.
+- A prototype is shown live at its gate as `project-prototypes` describes: the controller starts the system and presents the URLs.
+- When the prototype is approved, commit it and record the commit in `state.md`.
 - The approved prototype is an authority for implementation and closure. Reviewers read it from the recorded commit (`git show <commit>:<path>`) once it has been removed.
-- The plan's last task removes the prototype and its dev-only wiring, keeping the area's index. Prototypes never outlive their feature.
+- Plans do not remove prototypes. At the delivery gate the user keeps or removes each one (default remove), and the decision is applied before integration.
+- The system itself is permanent: removing a prototype never removes the system.
 
 ## Workflow switching
 
@@ -187,7 +189,7 @@ Work on a branch in the current checkout; use worktrees only if the user asks. C
 
 Workflows decide sequencing, gates and artifacts. Superpowers skills supply technique inside a phase. Where they overlap, the workflow wins:
 
-- `superpowers:brainstorming` — use its exploration and questioning. Its approval steps are replaced by the workflow gates, and its design document is the workflow's `spec.md`, not a file under `docs/superpowers/`.
+- `superpowers:brainstorming` — use its exploration and questioning. Its approval steps are replaced by the workflow gates, and its design document is the workflow's `spec.md`, not a file under `docs/superpowers/`. Its visual companion is not used for UI mockups or layouts: when a UI question needs to be seen, it is settled with a prototype in the project's prototype system.
 - `superpowers:writing-plans` — use it to write `plan.md` in the work directory. The execution method is already chosen: subagent-driven. Do not ask the user to choose it.
 - `superpowers:subagent-driven-development` — use its loop with the named agents and the Review loop above: implementer → `@implementer`, task reviewer → `@task-reviewer`, more capable implementer → `@escalator`, final whole-branch reviewer → the Closure review above. Keep its ledger in the Tasks and Notes sections of `state.md`.
 - `superpowers:finishing-a-development-branch` — its integration choice (merge, PR, keep, discard) is part of the workflow's delivery gate.

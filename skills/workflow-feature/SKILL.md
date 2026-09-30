@@ -28,7 +28,7 @@ Create the work directory with `brief.md` (request, classification and reason) a
 
 Follow the `project-docs` reading protocol: `docs/index.md` first, then the docs of the components the feature touches.
 
-Dispatch `@scout` for those parts of the codebase, with the relevant doc paths as starting points: relevant modules, existing conventions, test setup and commands, similar features to mirror. Skip only when you already know the area well from this session.
+Dispatch `@scout` for those parts of the codebase, with the relevant doc paths as starting points: relevant modules, existing conventions, test setup and commands, similar features to mirror, and, when the feature may change the UI, the prototype system if `docs/prototypes.md` does not describe one (an existing Storybook or similar tool). Skip only when you already know the area well from this session.
 
 ### 2. Spec
 
@@ -41,13 +41,16 @@ Write `spec.md` using `superpowers:brainstorming` as technique. Clarifying quest
 - acceptance criteria, each verifiable;
 - out of scope;
 - affected areas and technical approach, at the level needed to plan;
-- UX changes, and whether they are material (new screens, changed flows, changed layout).
+- UX changes, and whether they are material (new screens, changed flows, changed layout);
+- when a prototype is needed and the project has no prototype system: the system to adopt or set up, following `project-prototypes`.
 
 Dispatch `@spec-reviewer` with the request, `brief.md` and `spec.md`. Fix BLOCKING findings; list at the next gate any finding you chose not to address, with the reason.
 
 ### 3. Prototype (only for material UX changes)
 
-If the spec contains material UX changes, present spec at **G1a** first. Then create the branch and dispatch `@ui-prototyper` with the approved spec and the work slug; it works in the project's prototypes area (see UI prototypes in `workflow-rules`). Present it at **G-proto** with: startup command and URL, reachable states, files changed outside the prototype directory, how it is kept out of production builds, and decisions not dictated by the spec.
+If the spec contains material UX changes, present spec at **G1a** first. Then create the branch. If the project has no prototype system yet, dispatch `@ui-prototyper` in setup mode with the approved spec, commit the setup, then dispatch `@doc-writer` to write `docs/prototypes.md` from the setup report and commit it (see `project-prototypes`).
+
+Dispatch `@ui-prototyper` in prototype mode with the approved spec and the work directory name. Start the system and present the prototype at **G-proto** as `project-prototypes` describes: index URL, prototype URL, a direct URL per state, files changed outside the prototype directory, how it is kept out of production builds, and decisions not dictated by the spec.
 
 On approval, commit the prototype and record the commit in `state.md`. It becomes an authority for implementation and closure.
 
@@ -58,8 +61,7 @@ Write `plan.md` using `superpowers:writing-plans`:
 - tasks are vertical slices, each delivering observable behavior with its own tests;
 - each task names its acceptance criteria and verification (unit, integration, E2E where it completes an important journey);
 - dependencies between tasks are explicit;
-- every requirement in `spec.md` is owned by at least one task;
-- when a prototype exists, the last task removes it and its dev-only wiring, keeping the prototypes area's index.
+- every requirement in `spec.md` is owned by at least one task.
 
 Dispatch `@spec-reviewer` with spec and plan. Fix BLOCKING findings; list at the gate any finding you chose not to address, with the reason.
 
@@ -77,14 +79,14 @@ Dispatch `@doc-writer` for the docs sync described in `workflow-rules`, with the
 
 ### 7. Closure
 
-1. Commit `spec.md` and `decisions.md`, then run the project's full verification yourself: tests, build, type check, lint, and application startup when relevant.
+1. Commit `spec.md` and `decisions.md`, then run the project's full verification yourself: tests, build, type check, lint, and application startup when relevant; when the project has a prototype system, the index and every kept prototype load.
 2. Run the closure review (see Closure review in `workflow-rules`) against the base branch, with the original request, spec, plan, the prototype commit if any, and `decisions.md`. Docs and changelog are part of the change.
 3. On FAIL, fix BLOCKING findings through the Review loop and review again. If closure fails twice, open an unplanned gate with the findings.
 4. Write `closure.md`: verdict, verification run with results, deviations, non-blocking observations, deferred minor findings.
 
 ### 8. Delivery
 
-Present **G2** with `closure.md`, the list of commits and the integration options from `superpowers:finishing-a-development-branch`; its convention proposals are accepted or rejected one by one, and accepted ones applied before integration (see Project conventions in `workflow-rules`). Execute the chosen option (push and merge need this approval), then set `state.md` to `closed`.
+Present **G2** with `closure.md`, the list of commits and the integration options from `superpowers:finishing-a-development-branch`; its convention proposals are accepted or rejected one by one, and accepted ones applied before integration (see Project conventions in `workflow-rules`). When a prototype was built, the user also keeps or removes it (see Keep or remove in `project-prototypes`). Execute the chosen option (push and merge need this approval), then set `state.md` to `closed`.
 
 ## Switching
 

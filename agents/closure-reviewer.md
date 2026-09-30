@@ -37,7 +37,7 @@ Whole-work checks:
 - every requirement and acceptance criterion met; nothing beyond the approved scope;
 - correctness, security, data integrity, important regression risks;
 - adequate automated verification and important end-to-end journeys (adequate, not exhaustive);
-- material UI conformance with the prototype (read it with `git show` at its commit); prototypes removed and never reachable or bundled in production builds;
+- material UI conformance with the prototype (read it with `git show` at its commit); prototypes built in the project's prototype system, never reachable or bundled in production builds, and the system and kept prototypes still loading;
 - system docs matching the code, and the changelog entry fitting the work, when expected;
 - build, startup and runtime health where relevant.
 

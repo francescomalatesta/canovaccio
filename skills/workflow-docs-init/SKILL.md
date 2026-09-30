@@ -35,6 +35,7 @@ Identify the top-level areas from the repository layout, build files and entry p
 - dependencies on other areas and on external services;
 - data it owns;
 - where its tests are and how they run;
+- for UI areas, any tool for previewing UI in isolation (Storybook, a dev-only playground);
 - anything surprising: pitfalls, dead code, unclear boundaries.
 
 ### 3. Map proposal
@@ -44,7 +45,8 @@ From the survey, write the proposal yourself: it is the gate artifact.
 - `docs/architecture.md`, following the `project-docs` template;
 - `docs/index.md`, listing every proposed component with its code paths and a one-line purpose, and the proposed flows;
 - the proposed `covers` of each component, in `plan.md`, one entry per component;
-- `docs/.docsignore` for tests, generated code, fixtures and other paths no doc should cover.
+- `docs/.docsignore` for tests, generated code, fixtures and other paths no doc should cover;
+- when the project has a tool meeting the prototype system contract of `project-prototypes` (Storybook or similar), `docs/prototypes.md` in the index, adopting it as the project's prototype system.
 
 Aim for components that are meaningful units, typically a handful to a few dozen for a large system, not one per directory.
 
@@ -54,7 +56,7 @@ G1 may also propose up to three entries for `docs/conventions.md`: the least obv
 
 ### 4. Writing
 
-Dispatch `@doc-writer` with the docs writing task for each approved component, in parallel batches, passing the approved index, architecture and the component's covers. Then dispatch it for the flows.
+Dispatch `@doc-writer` with the docs writing task for each approved component, in parallel batches, passing the approved index, architecture and the component's covers. Then dispatch it for the flows, and for `docs/prototypes.md` when the map includes it.
 
 Add the system docs pointer to the project `AGENTS.md` yourself, outside the canovaccio block if there is one.
 
