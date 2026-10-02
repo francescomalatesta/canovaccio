@@ -1,6 +1,6 @@
 ---
 name: workflow-rules
-description: Shared rules for every development workflow (greenfield, feature, refactor, fix, spike, docs-init) - gates, checkpoints, artifacts, state, resumption, system docs and changelog, the Impeccable choice, workflow switching and precedence over superpowers skills. Load before running or resuming any workflow.
+description: Shared rules for every development workflow (greenfield, feature, refactor, fix, spike, docs-init, design-init) - gates, checkpoints, artifacts, state, resumption, system docs and changelog, the Impeccable choice, workflow switching and precedence over superpowers skills. Load before running or resuming any workflow.
 ---
 
 # Workflow rules
@@ -38,8 +38,10 @@ Each workflow instance works in `docs/work/<YYYY-MM-DD>-<slug>/` inside the targ
 | `plan.md` | tasks as vertical slices, each with its verification | no |
 | `invariants.md` | behavior that must not change, and how it is verified | no |
 | `repro.md` | reproduction, root cause, failing test | no |
-| `findings.md` | spike answer, evidence and recommendation | **yes** |
+| `findings.md` | spike answer, evidence and recommendation; in design-init, the critique of the interface | **yes** |
 | `decisions.md` | decisions taken during the work, with rationale | **yes** |
+| `design-interview.md` | questions and answers of the design context interview, by round | no |
+| `design-review.md` | design review report, with its captures in `design-review/` | no |
 | `closure-plan.md` | closure review plan, saved by the controller | no |
 | `closure-evidence.md` | evidence collected for the closure review by `@closure-auditor` | no |
 | `closure.md` | written by the controller: final review verdict, verification evidence, deferred minor findings, convention proposals, detector ignore proposals | no |
@@ -75,6 +77,7 @@ Work artifacts are the history of one piece of work. The rest of `docs/` holds t
 - Minor findings: defer     <!-- fix | defer -->
 - Impeccable: on            <!-- on | off -->
 - Advisory: exclude         <!-- minor | exclude; only when Impeccable is on -->
+- Design review: on         <!-- on | off; only when Impeccable is on -->
 
 ## Gates
 - [x] G1 spec+plan — approved 2026-09-27 — spec.md, plan.md
@@ -121,7 +124,7 @@ Use the user's choice if the request states one, otherwise the default. State th
 
 ## Impeccable
 
-[Impeccable](https://impeccable.style) supports UI work with design guidance while building (the `design-craft` skill) and a deterministic detector on the result (the `design-check` skill). Whether a project uses it is the user's choice, made once per project.
+[Impeccable](https://impeccable.style) supports UI work with design guidance while building (the `design-craft` skill), a deterministic detector on the result (`design-check`), the project's `PRODUCT.md` and `DESIGN.md` (`design-context`) and an optional design review before closure (`design-review`). Whether a project uses it is the user's choice, made once per project.
 
 **Project preference.** It lives in the project `AGENTS.md`, outside the canovaccio block:
 
@@ -130,6 +133,7 @@ Use the user's choice if the request states one, otherwise the default. State th
 
 - Use: on            <!-- on | off -->
 - Advisory: exclude  <!-- minor | exclude -->
+- Design review: on  <!-- on | off: design review before closure of greenfield and feature work -->
 
 Set by canovaccio from your answer. Edit it, or ask, to change it.
 ```
@@ -137,14 +141,24 @@ Set by canovaccio from your answer. Edit it, or ask, to change it.
 **For each workflow** whose work touches the UI (greenfield with a UI, feature, refactor, fix):
 
 - **preference present**: use it, without asking;
-- **no preference**: greenfield, feature and refactor ask at their first gate (G1, or G1a), never at a gate of their own. Three answers: no · yes, advisory findings as Minor · yes, advisory findings excluded. Advisory findings are the detector's soft signals, which may be deliberate choices. Write the answer, `off` included, as the project preference and commit it with the work, so it is never asked again. A fix never asks: without a preference it runs with Impeccable off;
-- **the request says otherwise** ("without impeccable", "advisory included"): that applies to this work only. When the user asks to change the preference itself, update `AGENTS.md`.
+- **no preference**: greenfield, feature and refactor ask at their first gate (G1, or G1a), never at a gate of their own. Three answers: no · yes, advisory findings as Minor · yes, advisory findings excluded. Advisory findings are the detector's soft signals, which may be deliberate choices. With a yes, also ask: design review before closure, yes or no? Write the answers, `off` included, as the project preference and commit it with the work, so it is never asked again. A fix never asks: without a preference it runs with Impeccable off;
+- **`Use: on` without a `Design review` line**: greenfield and feature ask that question alone at their first gate, then add the line; other workflows treat it as off;
+- **the request says otherwise** ("without impeccable", "advisory included", "with design review"): that applies to this work only. When the user asks to change the preference itself, update `AGENTS.md`.
 
-Spike, docs-init and work that does not touch the UI run with Impeccable off, ask nothing and leave the preference as it is. Record the setting of this work in `state.md` as `Impeccable` and `Advisory`.
+Spike, docs-init and work that does not touch the UI run with Impeccable off, ask nothing and leave the preference as it is. Record the setting of this work in `state.md` as `Impeccable`, `Advisory` and `Design review`. `workflow-design-init` has its own rules for the preference.
 
 **Availability.** When Impeccable is on, run `design-check.mjs --check` at the start of the work. If the detector cannot run, say so in a CHECKPOINT with the reason: the work continues, the guidance still applies, and every design check is reported as not run.
 
-**Dispatch.** With Impeccable on, add `Impeccable: on, advisory: <minor|exclude>` to every dispatch of `@implementer`, `@task-reviewer`, `@ui-prototyper` and `@closure-reviewer` in plan mode, besides what the workflow lists; give `@implementer` the commit the task starts from. With Impeccable off, do not mention it: agents use neither guidance nor design checks.
+**Dispatch.** With Impeccable on, add `Impeccable: on, advisory: <minor|exclude>` to every dispatch of `@implementer`, `@task-reviewer`, `@ui-prototyper`, `@doc-writer` for the docs sync and `@closure-reviewer` in plan mode, besides what the workflow lists; give `@implementer` the commit the task starts from. With Impeccable off, do not mention it: agents use neither guidance nor design checks, and the docs sync leaves `PRODUCT.md` and `DESIGN.md` alone.
+
+**Design context.** `PRODUCT.md` and `DESIGN.md` are built by greenfield before its prototype and by `workflow-design-init` on an existing project, through the interview of `design-context`. With Impeccable on, every role that writes or reviews UI follows them when they exist.
+
+**Design review.** In greenfield and feature work that changed the UI, with `Design review: on`, after the last implementation task and before the docs sync:
+
+1. Start the app detached, or the prototype system when the app cannot run, and note it in `state.md`.
+2. Dispatch `@design-reviewer` in change mode with the URLs of the screens the work added or changed and what each is for, the work directory, the base branch, the approved prototype commit if any and the advisory setting (see `design-review`). Stop what you started.
+3. Important findings become one fix task through the Review loop; Minor ones follow the minor-findings policy.
+4. Give a CHECKPOINT with the heuristics score and the findings. There is no second design review: the closure review verifies the fixes.
 
 **Delivery.** When an agent reports a finding that is a deliberate choice or a recurring false positive, record it in `state.md` Notes as a detector ignore candidate. `closure.md` lists the detector ignore proposals, or "none". They are presented at the delivery gate with the convention proposals and decided the same way: one by one, no answer means rejected, accepted ones applied before integration and committed separately.
 
@@ -212,7 +226,7 @@ A switch is a gate. On approval, close the current `state.md` (status `closed`, 
 
 ## Branches
 
-Unless the project says otherwise, create a branch before the first change to project files (a prototype or implementation): `<workflow>/<slug>` (for example `feature/csv-export`, `fix/login-500`). Greenfield works on the default branch of a new repository or of one with no project yet (no commits, or only the agent harness), and on `greenfield/<slug>` inside a repository that already holds a project. Spikes use `spike/<slug>` and are never merged. Docs bootstrapping uses `docs-init/<slug>`.
+Unless the project says otherwise, create a branch before the first change to project files (a prototype or implementation): `<workflow>/<slug>` (for example `feature/csv-export`, `fix/login-500`). Greenfield works on the default branch of a new repository or of one with no project yet (no commits, or only the agent harness), and on `greenfield/<slug>` inside a repository that already holds a project. Spikes use `spike/<slug>` and are never merged. Docs bootstrapping uses `docs-init/<slug>`, design context bootstrapping `design-init/<slug>`.
 
 Work on a branch in the current checkout; use worktrees only if the user asks. Creating branches and committing are autonomous. Pushing, merging and destructive git operations are not: they happen only at the delivery gate or with explicit permission.
 

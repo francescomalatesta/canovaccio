@@ -1,6 +1,6 @@
 ---
 name: design-craft
-description: Design guidance for writing UI when a workflow runs with Impeccable on - the quality floor, how to commit to a visual direction, and guidance per kind of surface (app, landing and marketing, docs), taken from Impeccable, with the precedence that keeps it within approved scope.
+description: Design guidance for writing UI when a workflow runs with Impeccable on - the project's PRODUCT.md and DESIGN.md, the quality floor, how to commit to a visual direction, and guidance per kind of surface (app, landing and marketing, docs), taken from Impeccable, with the precedence that keeps it within approved scope.
 ---
 
 # Design craft
@@ -16,6 +16,13 @@ What is already decided wins over this guidance:
 3. this guidance.
 
 It applies to what the task builds, never as a reason to restyle UI outside the task. In implementation after an approved prototype, the prototype is the design: the guidance fills only what it leaves open, such as states, responsive details and browser surfaces.
+
+## Project context
+
+When the project has them, read `PRODUCT.md` and `DESIGN.md` at its root before anything else (see `design-context`):
+
+- `PRODUCT.md`: who the page is for and in what situation, the voice of its copy, the brand commitments, and the claims it must not make;
+- `DESIGN.md`: the visual system. Its frontmatter tokens are normative: use them instead of new values, and report a token you needed and did not find. A seed `DESIGN.md` (with the SEED marker) sets the direction; the values it leaves to be resolved are yours to resolve, within that direction.
 
 ## What to read
 

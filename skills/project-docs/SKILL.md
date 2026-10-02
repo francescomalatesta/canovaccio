@@ -55,6 +55,7 @@ Keep it under about 100 lines: it is read at the start of every workflow.
 - [Architecture](architecture.md) — components, boundaries, main flows
 - [UI prototypes](prototypes.md) — how to write prototypes (only if the project has them)
 - [Conventions](conventions.md) — how code is written here (only if the file exists)
+- [Product](../PRODUCT.md) and [design system](../DESIGN.md) — who the product is for and how its UI looks (only if the files exist, see `design-context`)
 
 ## Components
 

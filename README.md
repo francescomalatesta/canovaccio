@@ -7,7 +7,7 @@
 
 canovaccio turns a coding agent into a small, disciplined development team. You describe *what* you want; the setup decides *how* the work proceeds.
 
-A controller agent, the **conductor**, recognizes the kind of work you asked for and runs the matching workflow. It delegates each role to a specialized agent: one researches the codebase, one reviews specifications, one builds UI prototypes, one implements, one reviews each change, one steps in when a fix does not converge, one keeps the docs current, and one does the final review. The conductor stops at a few **human gates**, where you approve a spec, a prototype or the delivery, and works autonomously everywhere else.
+A controller agent, the **conductor**, recognizes the kind of work you asked for and runs the matching workflow. It delegates each role to a specialized agent: one researches the codebase, one reviews specifications, one builds UI prototypes, one implements, one reviews each change, one steps in when a fix does not converge, one keeps the docs current, and one does the final review; with [Impeccable](#impeccable), one also captures the product and its design system, and one reviews the design. The conductor stops at a few **human gates**, where you approve a spec, a prototype or the delivery, and works autonomously everywhere else.
 
 Every piece of work leaves a trail: a spec or findings, the decisions taken, a changelog entry, and project docs updated to match the code. The next piece of work starts from those docs instead of rediscovering the codebase. Progress is saved to disk, so work resumes where it stopped, even in a new session.
 
@@ -19,6 +19,7 @@ The workflows:
 - **refactor** — better structure, same behavior: pins current behavior with tests before touching the code, then restructures in small steps that keep every test green.
 - **spike** — a question to answer before building (is it feasible? which library?): researches and runs throwaway experiments within a set budget, and ends with a written recommendation.
 - **docs-init** — brings an existing project to a complete docs map in one pass, instead of letting it fill in as work goes.
+- **design-init** — captures an existing project's product and visual system in `PRODUCT.md` and `DESIGN.md`, asking only what the code cannot tell, and optionally critiques its current interface.
 
 ## Layout
 
@@ -79,6 +80,7 @@ Start a workflow explicitly:
 /fix login returns 500 with an expired password
 /spike can we use SQLite with concurrent writers here?
 /docs-init
+/design-init
 ```
 
 Or just describe the work: the conductor classifies it with `workflow-router`, announces the choice, and you confirm it at the first gate. Questions and trivial changes run without a workflow.
@@ -93,6 +95,7 @@ Or just describe the work: the conductor classifies it with `workflow-router`, a
 | `fix` | wrong existing behavior | fix approach, only when the expected behavior is unclear or the fix is risky · delivery |
 | `spike` | a question to answer before building | framing · decision |
 | `docs-init` | bootstrapping system docs in an existing project | map (index, architecture, components) · delivery |
+| `design-init` | capturing an existing project's `PRODUCT.md` and `DESIGN.md` | delivery (with the optional critique) |
 
 Shared rules are in `skills/workflow-rules`: blocking gates vs. non-blocking checkpoints, when an unplanned gate is allowed, workflow switching, branches, and how superpowers skills are used inside a phase.
 
@@ -115,7 +118,7 @@ Requires Node 22.5+, no dependencies; the database is opened read-only. Costs ar
 Each workflow works in `docs/work/<date>-<slug>/` inside the target project:
 
 - versioned with the work: `spec.md`, `decisions.md`, `findings.md`;
-- local only (git-ignored): `brief.md`, `plan.md`, `invariants.md`, `repro.md`, `closure-plan.md`, `closure-evidence.md`, `closure.md`, `state.md`.
+- local only (git-ignored): `brief.md`, `plan.md`, `invariants.md`, `repro.md`, `design-interview.md`, `design-review.md`, `closure-plan.md`, `closure-evidence.md`, `closure.md`, `state.md`.
 
 UI prototypes are not work artifacts: they live in the project's prototype system, described below.
 
@@ -132,33 +135,44 @@ At the prototype gate the conductor starts the system and gives you the URLs to 
 What canovaccio uses of [Impeccable](https://impeccable.style), and where. Integrated so far:
 
 - the **design detector**, about sixty deterministic rules for design defects (low contrast, skipped headings, cramped padding, text overflow) and for the tells of generated UI (nested cards, gradient text, overused fonts, bounce easing). No LLM involved;
-- the **design guidance** for whoever writes UI (`skills/design-craft`): Impeccable's quality floor, how to commit to a palette, faces and light or dark instead of the category default, and guidance per kind of page: app (Operate), landing and marketing (Persuade), docs (Read).
+- the **design guidance** for whoever writes UI (`skills/design-craft`): Impeccable's quality floor, how to commit to a palette, faces and light or dark instead of the category default, and guidance per kind of page: app (Operate), landing and marketing (Persuade), docs (Read);
+- the **design context**: `PRODUCT.md` (who the product is for, its purpose, voice and constraints) and `DESIGN.md` (the visual system, with machine-readable tokens), at the project root in Impeccable's format. `@design-director` builds them through a short interview; every later UI work follows them (`skills/design-context`);
+- the **design review**, optional: `@design-reviewer` looks at captures of the changed screens and scores them with Impeccable's critique method (heuristics, design specificity, personas) before closure (`skills/design-review`).
 
-Neither needs `PRODUCT.md` or `DESIGN.md`. Impeccable's own skill, its commands and its interactive process are not used: no extra questions, the direction of a new page is judged at the prototype gate.
+Impeccable's own skill and commands are not installed: canovaccio takes its guidance and its tools, and keeps its own gates.
 
 ### The choice
 
-Once per project, yours. The first time a greenfield, feature or refactor touches the UI, its first gate also asks: no · yes, advisory findings as Minor · yes, advisory findings excluded. Advisory findings are the detector's soft signals, possibly deliberate (em-dash overuse, numbered section labels). The answer is saved in the project `AGENTS.md` and used by every later workflow without asking again; a fix never asks. Say it in a request to override it for that work (`/feature pricing page, without impeccable`), edit `AGENTS.md` or ask to change it for good.
+Once per project, yours. The first time a greenfield, feature or refactor touches the UI, its first gate also asks: no · yes, advisory findings as Minor · yes, advisory findings excluded; with a yes, also whether to run the design review before closure. Advisory findings are the detector's soft signals, possibly deliberate (em-dash overuse, numbered section labels). The answers are saved in the project `AGENTS.md` and used by every later workflow without asking again; a fix never asks. Say it in a request to override it for that work (`/feature pricing page, without impeccable`, `... with design review`), edit `AGENTS.md` or ask to change it for good.
+
+### Design context
+
+- **greenfield**: after the spec gate, `@design-director` writes `PRODUCT.md` from the spec and asks only what it leaves open, then offers two or three visual directions to choose from (or "decide for me") and writes a seed `DESIGN.md`. The prototype is built on it; after its approval, `DESIGN.md` is aligned with what you approved.
+- **`/design-init`**, on an existing project: reads what the code says (tokens, components, styles, rendered pages), asks only what it cannot (intentions, what to keep, what you dislike), writes both files. At delivery it offers a critique of the current interface, a report to start improving from; it changes no code.
+- The interview asks only necessary questions, each with a proposed answer so "ok" accepts them all, and "decide for me" always closes a choice. At most 3 rounds of 5 questions per file; what stays unknown is written as assumed or open, not asked again.
+- Every later UI work follows the files; the docs sync keeps `DESIGN.md` current with the tokens and components a work adds.
 
 ### Coverage
 
-| Workflow | Preference asked | Guidance while building | Checked |
-|---|---|---|---|
-| greenfield | at G1, if the product has a UI and no preference exists | prototype, every task | prototype states in the browser, every task, closure review |
-| feature | at the first gate (G1 or G1a), if the UI changes and no preference exists | prototype if any, every task | prototype states in the browser if there is a prototype, every task, closure review |
-| refactor | at G1, if the perimeter includes UI code and no preference exists | every step | every step, closure review |
-| fix | never: follows the preference, off without one | the fix task | the fix task; closure review only when G-fix was opened |
-| spike, docs-init | never: always off | — | — |
+| Workflow | Preference asked | Design context | Guidance while building | Checked |
+|---|---|---|---|---|
+| greenfield | at G1, if the product has a UI and no preference exists | built before the prototype | prototype, every task | prototype states in the browser, every task, design review if on, closure review |
+| feature | at the first gate (G1 or G1a), if the UI changes and no preference exists | followed, kept current | prototype if any, every task | prototype states in the browser if there is a prototype, every task, design review if on, closure review |
+| refactor | at G1, if the perimeter includes UI code and no preference exists | followed | every step | every step, closure review |
+| fix | never: follows the preference, off without one | followed | the fix task | the fix task; closure review only when G-fix was opened |
+| design-init | at its first round, only the missing answers | built from the code | — | optional critique |
+| spike, docs-init | never: always off | — | — | — |
 
-Every task is checked twice: `@implementer` on its own diff before committing, `@task-reviewer` on the commits. Prototype states are scanned by `@ui-prototyper` at desktop and mobile width, and the prototype gate shows what is left.
+Every task is checked twice: `@implementer` on its own diff before committing, `@task-reviewer` on the commits. Prototype states are scanned by `@ui-prototyper` at desktop and mobile width, and the prototype gate shows what is left. The design review runs once per work, after the last task; its P0–P1 issues are fixed like Important findings.
 
 ### Rules
 
-- The approved prototype, the spec, `docs/conventions.md` and the project's existing style win over the guidance; it never restyles UI outside the task.
+- The approved prototype, the spec, `docs/conventions.md`, `DESIGN.md` and the project's existing style win over the guidance; it never restyles UI outside the task.
 - Only findings the work introduced count. Breakage and accessibility are Important; everything else is Minor and follows the minor-findings policy (fix or defer).
 - A choice approved in the prototype is never a finding.
 - Agents never silence the detector: ignores are proposed at delivery and accepted one by one.
-- When the detector cannot run, checks are reported as not run, never as passed.
+- When the detector cannot run, checks are reported as not run, never as passed. A design review whose model cannot see the captures says so in its first line.
+- `@design-director` and `@design-reviewer` use a model that reads images; change it in their files if your providers differ.
 
 ### Running it
 
@@ -168,14 +182,15 @@ Every task is checked twice: `@implementer` on its own diff before committing, `
 node skills/design-check/scripts/design-check.mjs --check                          # can it run here
 node skills/design-check/scripts/design-check.mjs --changed main --advisory minor  # UI files changed since main
 node skills/design-check/scripts/design-check.mjs --url http://localhost:6006/... --advisory exclude
+node skills/design-check/scripts/design-check.mjs --screenshot http://localhost:3000/ --out shots/  # captures for a review
 ```
 
 ### Updating Impeccable
 
-The guidance in `skills/design-craft/reference/` is extracted from an Impeccable release (Apache 2.0, license alongside), the detector is pinned in `skills/design-check`. `scripts/update-impeccable.mjs` regenerates the guidance from the latest release, or `--tag skill-vX.Y.Z`, and reports the latest detector on npm; `--detector latest` pins it. Review the diff before committing: an upstream rewording reaches every project.
+The `reference/` files of `design-craft`, `design-context` and `design-review` are extracted from an Impeccable release (Apache 2.0, license alongside), the detector is pinned in `skills/design-check`. `scripts/update-impeccable.mjs` regenerates them from the latest release, or `--tag skill-vX.Y.Z`, and reports the latest detector on npm; `--detector latest` pins it. Review the diff before committing: an upstream rewording reaches every project.
 
 ```sh
-node scripts/update-impeccable.mjs                       # guidance from the latest release, detector version report
+node scripts/update-impeccable.mjs                       # references from the latest release, detector version report
 node scripts/update-impeccable.mjs --detector latest     # also pin the latest detector
 ```
 
@@ -200,7 +215,7 @@ Every workflow except spike starts from the docs to find where to work, and ends
 
 Things to verify once with `opencode2`:
 
-1. The conductor is the default agent and the six commands are listed.
+1. The conductor is the default agent and the workflow commands are listed.
 2. `workflow-*` skills and superpowers skills are both available.
 3. The conductor can dispatch subagents. If subagent dispatch is not available in your opencode version, the workflows fall back to inline execution (see `workflow-rules`). Also check that the `subagent` permission action used in the agents matches your version's tool name.
 4. `git push` asks for approval.

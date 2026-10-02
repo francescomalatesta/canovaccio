@@ -16,12 +16,14 @@ It does not need `PRODUCT.md` or `DESIGN.md`. When the project has a `DESIGN.md`
 ```sh
 node <skill-dir>/scripts/design-check.mjs --changed <base> --advisory minor|exclude   # source of the UI files changed since <base>, uncommitted included
 node <skill-dir>/scripts/design-check.mjs --url <url> [--url <url>...] --advisory minor|exclude   # rendered pages, desktop and mobile
+node <skill-dir>/scripts/design-check.mjs --screenshot <url> [--screenshot <url>...] --out <dir>   # PNG captures for a visual review
 node <skill-dir>/scripts/design-check.mjs --check                                       # can the detector, and a browser, run here
 ```
 
 Exit codes: 0 nothing to review, 2 findings to review, 1 the check did not run, or not on every target. `--json` gives the full classification.
 
 - **`--changed`** scans the UI files (`.html`, stylesheets, `.jsx/.tsx/.js/.ts`, `.vue`, `.svelte`, `.astro`, `.blade.php`) changed since the base, and attributes each finding: **introduced** by the change (on a changed line, in a new file, or absent from a scan of the base version), or **pre-existing**. Pre-existing findings are context, never findings of the work. **Unattributed** ones (no line and no baseline) must be checked by hand.
+- **`--screenshot`** captures each page with a local Chrome, Chromium, Edge or Brave: the first viewport at 1280×800, a long desktop page at 1280×3000 and a 390×844 window. The narrow window is not device emulation. A URL that does not answer is reported, never captured as an error page.
 - **`--url`** scans rendered pages at 1280×800 and 390×844. It is the more reliable mode for contrast, overflow and line length, but it cannot attribute: the agent judges whether the work caused each finding. It needs a Chromium-based browser; the script falls back to a Playwright Chromium and handles running as root.
 
 ## Severity

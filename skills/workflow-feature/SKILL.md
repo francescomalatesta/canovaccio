@@ -75,6 +75,8 @@ Create the branch if it does not exist yet. Run `superpowers:subagent-driven-dev
 
 After each accepted task, update `state.md` and give a one-line CHECKPOINT. Answer product decisions from spec and prototype when they settle them; otherwise open an unplanned gate. Record decisions in `decisions.md`.
 
+When the feature changed the UI and `Design review: on`, run the Design review of `workflow-rules` after the last task.
+
 ### 6. Docs sync
 
 Dispatch `@doc-writer` for the docs sync described in `workflow-rules`, with the work directory, the base branch, workflow type `feature` and the discrepancies recorded in `state.md`. New components introduced by the feature get their own doc. Review its report; commit the docs and changelog changes with the work.

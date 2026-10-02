@@ -18,7 +18,7 @@ When a project-specific `AGENTS.md`, approved specification, approved plan, appr
 
 ## Workflows
 
-Development workflows are defined as skills: `workflow-greenfield`, `workflow-feature`, `workflow-refactor`, `workflow-fix`, `workflow-spike` and `workflow-docs-init`, with shared rules in `workflow-rules`.
+Development workflows are defined as skills: `workflow-greenfield`, `workflow-feature`, `workflow-refactor`, `workflow-fix`, `workflow-spike`, `workflow-docs-init` and `workflow-design-init`, with shared rules in `workflow-rules`.
 
 A workflow is active when it was started explicitly, selected by `workflow-router`, or recorded as active in a project's `docs/work/*/state.md`.
 
@@ -176,6 +176,8 @@ Normal role boundaries:
 - task-level review → task-reviewer;
 - difficult failed implementation → escalator;
 - system docs and changelog → doc-writer;
+- product and design context (`PRODUCT.md`, `DESIGN.md`) → design-director;
+- design review of rendered UI → design-reviewer;
 - whole-project final review → closure-reviewer, with closure-auditor collecting its evidence.
 
 Do not dispatch agents recursively unless a workflow explicitly requires it.

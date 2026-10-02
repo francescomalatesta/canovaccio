@@ -57,11 +57,13 @@ Present **G1**. When the product has a UI and the project has no Impeccable pref
 
 ### 3. Prototype (when the product has a UI)
 
+With Impeccable on, first build the design context: dispatch `@design-director` in seed mode with the approved spec, the brief and the work directory, and relay its questions as `design-context` describes until it writes `PRODUCT.md` and a seed `DESIGN.md`. Commit them. The prototype follows them.
+
 Follow `project-prototypes`. Dispatch `@ui-prototyper` in setup mode with the approved spec: it creates the minimal project scaffold the prototype system needs and installs the system, which the walking skeleton later builds on instead of replacing. Commit the setup, then dispatch `@doc-writer` to write `docs/prototypes.md` from the setup report and commit it.
 
 Dispatch `@ui-prototyper` in prototype mode with the approved spec and the work directory name. Start the system and present the prototype at **G2** as `project-prototypes` describes: index URL, prototype URL, a direct URL per state, files changed outside the prototype directory, how it is kept out of production builds, and decisions not dictated by the spec.
 
-On approval, commit the prototype and record the commit in `state.md`. It becomes an authority for implementation and closure.
+On approval, commit the prototype and record the commit in `state.md`. It becomes an authority for implementation and closure. With Impeccable on, dispatch `@design-director` in sync mode with the prototype commit, so that `DESIGN.md` records what was approved, and commit it.
 
 ### 4. Plan
 
@@ -82,6 +84,8 @@ Run `superpowers:subagent-driven-development` over `plan.md` with the Review loo
 After the walking skeleton is accepted, dispatch `@doc-writer` to scaffold the system docs from the spec and the skeleton, following `project-docs`: the pointer in the project `AGENTS.md`, `docs/index.md`, `docs/architecture.md`, component docs for the components that exist, a link to `docs/prototypes.md` when it exists, and `CHANGELOG.md` following `project-changelog`. Review its report and commit its changes; later tasks start from these docs.
 
 After each accepted task, update `state.md` and give a one-line CHECKPOINT. After the walking skeleton and docs scaffold, give a fuller CHECKPOINT: how to start the app and run the checks.
+
+With `Design review: on`, run the Design review of `workflow-rules` after the last task.
 
 ### 6. Docs sync
 

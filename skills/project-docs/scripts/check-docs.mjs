@@ -22,7 +22,7 @@ const changedBase = option("--changed")
 
 const DOCS = "docs"
 const WORK = "docs/work/"
-const META = new Set(["README.md", "CHANGELOG.md", "AGENTS.md", "CLAUDE.md", "LICENSE", "LICENSE.md"])
+const META = new Set(["README.md", "CHANGELOG.md", "AGENTS.md", "CLAUDE.md", "LICENSE", "LICENSE.md", "PRODUCT.md", "DESIGN.md"])
 
 const git = (...a) => execFileSync("git", a, { cwd: root, encoding: "utf8", stdio: ["ignore", "pipe", "ignore"] })
 const isGit = (() => {

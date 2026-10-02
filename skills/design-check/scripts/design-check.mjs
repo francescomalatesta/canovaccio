@@ -5,10 +5,12 @@
 //       UI files changed since BASE (uncommitted included); findings attributed to the change
 //   node design-check.mjs --url URL [--url URL...] [--advisory minor|exclude] [--json]
 //       rendered pages, at a desktop and a mobile viewport
+//   node design-check.mjs --screenshot URL [--screenshot URL...] --out DIR
+//       PNG captures for a visual review: first viewport at desktop and mobile width, and a long desktop page
 //   node design-check.mjs --check
-//       whether the detector, and a browser for --url, can run here
+//       whether the detector, and a browser for --url and --screenshot, can run here
 //
-// Exit codes: 0 no findings to review, 2 findings to review, 1 the check could not run (fully).
+// Exit codes: 0 no findings to review (or captures written), 2 findings to review, 1 the check could not run (fully).
 // No dependencies: Node 22.18+ (required by the detector, fetched with npx).
 
 import { spawnSync } from "node:child_process"
@@ -44,6 +46,8 @@ const options = (name) => args.flatMap((a, i) => (a === name && args[i + 1] ? [a
 const root = fs.realpathSync(path.resolve(option("--root") ?? "."))
 const changedBase = option("--changed")
 const urls = options("--url")
+const shots = options("--screenshot")
+const outDir = option("--out")
 const advisory = option("--advisory") ?? "minor"
 const asJson = args.includes("--json")
 
@@ -110,6 +114,83 @@ function playwrightChromium() {
       }
     }
   }
+}
+
+// A Chromium-based browser for captures: explicit variables first, then the usual names on PATH and the
+// usual install locations, then a Playwright Chromium.
+function findBrowser() {
+  for (const name of ["IMPECCABLE_BROWSER", "PUPPETEER_EXECUTABLE_PATH", "CHROME_PATH"]) {
+    if (process.env[name] && fs.existsSync(process.env[name])) return process.env[name]
+  }
+  const names = ["google-chrome", "google-chrome-stable", "chromium", "chromium-browser", "chrome", "microsoft-edge", "brave-browser"]
+  for (const dir of (process.env.PATH ?? "").split(path.delimiter)) {
+    for (const name of names) {
+      const candidate = path.join(dir, name)
+      if (dir && fs.existsSync(candidate)) return candidate
+    }
+  }
+  const apps = [
+    "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome",
+    "/Applications/Chromium.app/Contents/MacOS/Chromium",
+    "/Applications/Microsoft Edge.app/Contents/MacOS/Microsoft Edge",
+  ]
+  return apps.find((a) => fs.existsSync(a)) ?? playwrightChromium()
+}
+
+const CAPTURES = { desktop: [1280, 800], page: [1280, 3000], mobile: [390, 844] }
+
+// An http(s) URL that does not answer would be captured as the browser's error page.
+async function unreachable(url) {
+  if (!/^https?:\/\//i.test(url)) return null
+  try {
+    const res = await fetch(url, { signal: AbortSignal.timeout(15000) })
+    return res.ok ? null : `HTTP ${res.status}`
+  } catch (e) {
+    return e.cause?.code ?? e.message
+  }
+}
+
+// Headless Chrome's own --screenshot: a window of the given size, no device emulation.
+async function capture() {
+  const browser = findBrowser()
+  if (!browser) fail("no Chrome, Chromium, Edge or Brave found; set IMPECCABLE_BROWSER to one.")
+  fs.mkdirSync(outDir, { recursive: true })
+  const errors = []
+  for (const [i, url] of shots.entries()) {
+    const problem = await unreachable(url)
+    if (problem) {
+      errors.push(`${url}: not reachable (${problem})`)
+      continue
+    }
+    const slug = url.replace(/^[a-z]+:\/\/[^/]*/i, "").replace(/[^a-z0-9]+/gi, "-").replace(/^-|-$/g, "") || "index"
+    for (const [name, [w, h]] of Object.entries(CAPTURES)) {
+      const file = path.resolve(outDir, `${String(i + 1).padStart(2, "0")}-${slug}-${name}.png`)
+      const profile = fs.mkdtempSync(path.join(os.tmpdir(), "design-check-profile-"))
+      const flags = [
+        "--headless=new",
+        "--disable-gpu",
+        "--hide-scrollbars",
+        "--no-first-run",
+        "--no-default-browser-check",
+        "--disable-background-networking",
+        "--disable-component-update",
+        "--disable-extensions",
+        "--disable-sync",
+        "--no-pings",
+      ]
+      if (process.getuid?.() === 0) flags.push("--no-sandbox")
+      const r = spawnSync(
+        browser,
+        [...flags, `--user-data-dir=${profile}`, "--virtual-time-budget=3000", `--window-size=${w},${h}`, `--screenshot=${file}`, url],
+        { encoding: "utf8", timeout: 60000 },
+      )
+      fs.rmSync(profile, { recursive: true, force: true })
+      if (r.status === 0 && fs.existsSync(file)) console.log(`${path.relative(root, file) || file}  (${url}, ${name} ${w}x${h})`)
+      else errors.push(`${url} ${name}: ${r.error?.message ?? tail((r.stderr || "").trim())}`)
+    }
+  }
+  for (const e of errors) console.log(`NOT CAPTURED: ${e}`)
+  process.exit(errors.length ? 1 : 0)
 }
 
 // Browser scans: as root, Chromium only starts without its sandbox, which the detector adds under CI.
@@ -306,13 +387,19 @@ function check() {
   const probe = detectRendered([`file://${page}`], [])
   fs.rmSync(dir, { recursive: true, force: true })
   console.log(`browser for --url scans: ${probe.error ? `unavailable — ${probe.error}` : "ok"}`)
+  const browser = findBrowser()
+  console.log(`browser for --screenshot: ${browser ?? "unavailable — set IMPECCABLE_BROWSER to a Chromium-based browser"}`)
 }
 
 if (args.includes("--check")) {
   check()
   process.exit(0)
 }
-if (!changedBase && urls.length === 0) fail("give --changed BASE, --url URL or --check (see the header of this script).")
+if (shots.length) {
+  if (!outDir) fail("--screenshot needs --out DIR.")
+  await capture()
+}
+if (!changedBase && urls.length === 0) fail("give --changed BASE, --url URL, --screenshot URL or --check (see the header of this script).")
 if (changedBase && urls.length) fail("use --changed or --url, not both.")
 if (nodeTooOld()) fail(`not run: Node ${process.versions.node}, the detector needs ${MIN_NODE.join(".")}+.`)
 
