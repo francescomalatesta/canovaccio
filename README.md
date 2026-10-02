@@ -126,20 +126,36 @@ Each project has **one prototype system**, defined by `skills/project-prototypes
 
 At the prototype gate the conductor starts the system and gives you the URLs to open in the browser: no screenshots or one-off formats. At delivery you keep or remove each prototype (default remove); kept ones stay in the index, grouped apart, as a record of the approved design. The system itself always stays.
 
-## Impeccable design checks
+## Impeccable
 
-Work that touches the UI can be checked with the detector of [Impeccable](https://impeccable.style): about sixty deterministic rules for design defects (low contrast, skipped headings, cramped padding, text overflow) and for the tells of generated UI (nested cards, gradient text, overused fonts, bounce easing). No LLM is involved, and it needs neither `PRODUCT.md` nor `DESIGN.md`.
+What canovaccio uses of [Impeccable](https://impeccable.style), and where. Integrated so far: the **design detector**, about sixty deterministic rules for design defects (low contrast, skipped headings, cramped padding, text overflow) and for the tells of generated UI (nested cards, gradient text, overused fonts, bounce easing). No LLM involved; it needs neither `PRODUCT.md` nor `DESIGN.md`. The Impeccable skill, its commands and its design context files are not used yet.
 
-It is your choice, per workflow. When the work touches the UI, the conductor asks at the first gate (in a fix, at the start) between three answers: no; yes, with advisory findings as Minor; yes, with advisory findings excluded. Advisory findings are the detector's soft signals, which may be deliberate choices (em-dash overuse, numbered section labels). Say it in the request to skip the question: `/feature export orders as CSV, with impeccable, advisory excluded`.
+### The choice
 
-With Impeccable on:
+Per workflow, yours. When the work touches the UI, the conductor asks: no · yes, advisory findings as Minor · yes, advisory findings excluded. Advisory findings are the detector's soft signals, possibly deliberate (em-dash overuse, numbered section labels). Say it in the request to skip the question: `/feature export orders as CSV, with impeccable, advisory excluded`. The answer is recorded in `state.md`.
 
-- `@implementer` checks its own diff before committing, `@task-reviewer` checks each task's commits, the closure review checks the whole change;
-- `@ui-prototyper` checks every state of a prototype in the browser, at desktop and mobile width, and the prototype gate shows what is left;
-- only findings the work introduced count: breakage and accessibility are Important, everything else Minor, which then follows the minor-findings policy (fix or defer);
-- a choice you approved in the prototype is never a finding, and agents never silence the detector: ignores are proposed at delivery and you accept them one by one.
+### Coverage
 
-`skills/design-check/scripts/design-check.mjs` runs the detector through `npx` at a pinned version, so nothing is installed in the project. Requires Node 22.18+, and a Chromium-based browser for the rendered checks. When it cannot run, the checks are reported as not run, never as passed.
+| Workflow | Asked | Checked |
+|---|---|---|
+| greenfield | at G1, if the product has a UI | prototype states in the browser, every task, closure review |
+| feature | at the first gate (G1 or G1a), if the UI changes | prototype states in the browser if there is a prototype, every task, closure review |
+| refactor | at G1, if the perimeter includes UI code | every step, closure review |
+| fix | at the start, if the bug concerns the UI (or when that emerges) | the fix task; closure review only when G-fix was opened |
+| spike, docs-init | never | — |
+
+Every task is checked twice: `@implementer` on its own diff before committing, `@task-reviewer` on the commits. Prototype states are scanned by `@ui-prototyper` at desktop and mobile width, and the prototype gate shows what is left.
+
+### Rules
+
+- Only findings the work introduced count. Breakage and accessibility are Important; everything else is Minor and follows the minor-findings policy (fix or defer).
+- A choice approved in the prototype is never a finding.
+- Agents never silence the detector: ignores are proposed at delivery and accepted one by one.
+- When the detector cannot run, checks are reported as not run, never as passed.
+
+### Running it
+
+`skills/design-check/scripts/design-check.mjs` runs the detector through `npx` at a pinned version: nothing is installed in the project. Requires Node 22.18+, and a Chromium-based browser for rendered checks.
 
 ```sh
 node skills/design-check/scripts/design-check.mjs --check                          # can it run here
