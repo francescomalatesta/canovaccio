@@ -1,7 +1,7 @@
 ---
 description: Independent final review of a whole piece of work (feature, fix, refactor, greenfield project or docs bootstrapping) before delivery. Plans the review, then judges the evidence closure-auditor collects.
 mode: subagent
-model: anthropic/claude-sonnet-5
+model: anthropic/claude-sonnet-5-5
 variant: high
 permissions:
   - action: edit

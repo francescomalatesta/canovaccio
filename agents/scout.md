@@ -1,7 +1,7 @@
 ---
 description: Researches the repository, docs and runtime behavior without changing anything; can run commands to observe.
 mode: subagent
-model: openai/gpt-5.6-luna
+model: openai/gpt-6-luna
 variant: low
 permissions:
   - action: edit
