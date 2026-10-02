@@ -101,6 +101,8 @@ Shared rules are in `skills/workflow-rules`: blocking gates vs. non-blocking che
 
 Push, merge and destructive git commands also require approval through the permissions in `opencode.jsonc`.
 
+Work stays inside the project. Temporary files (scratch scripts, logs, captures, the clean clone of the greenfield closure) go in `.canovaccio/tmp/`, whose own `.gitignore` keeps the directory versioned and its content out of git; each workflow uses a subdirectory named after its work directory and deletes it when it closes. The permissions in `opencode.jsonc` deny the system temporary directories (`/tmp`, `/var/tmp` and their macOS equivalents) instead of asking, so a stray path fails and the agent retries inside the project without stopping for approval.
+
 ## Session cost
 
 Sessions with many subagents are hard to budget. `skills/session-cost/scripts/session-cost.mjs` reads the local opencode database (`~/.local/share/opencode/opencode.db`) and, given the id of the parent session, follows every sub-session to report total cost, a cost tree, and breakdowns by agent and by model, with token and cache-hit stats.
@@ -218,6 +220,6 @@ Things to verify once with `opencode2`:
 1. The conductor is the default agent and the workflow commands are listed.
 2. `workflow-*` skills and superpowers skills are both available.
 3. The conductor can dispatch subagents. If subagent dispatch is not available in your opencode version, the workflows fall back to inline execution (see `workflow-rules`). Also check that the `subagent` permission action used in the agents matches your version's tool name.
-4. `git push` asks for approval.
+4. `git push` asks for approval; reading a file under `/tmp` is refused without asking.
 5. A small `/fix` on a scratch project stops at the delivery gate with a `closure.md`, a `CHANGELOG.md` entry and, if the project has docs, a docs sync.
 6. `doc-writer` can edit `docs/` and `CHANGELOG.md` but not source files.

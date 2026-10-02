@@ -93,7 +93,7 @@ Dispatch `@doc-writer` for the docs sync described in `workflow-rules`, with the
 
 ### 7. Closure
 
-1. Commit everything, including `spec.md` and `decisions.md`. Clone the repository into a temporary directory and run the full verification there: install, build, tests, type check, lint, startup, the prototype system's index when there is one; also check that the README instructions work.
+1. Commit everything, including `spec.md` and `decisions.md`. Clone the repository into `.canovaccio/tmp/<work directory name>/verify/` (never outside the project) and run the full verification there: install, build, tests, type check, lint, startup, the prototype system's index when there is one; also check that the README instructions work. Stop anything it started and delete the clone right after, so the project's own tools never pick it up.
 2. Run the closure review (see Closure review in `workflow-rules`) with the original request, spec, plan, the prototype commit if any, and `decisions.md`. The change is the whole project: against the base branch when built on `greenfield/<slug>`, otherwise outlined by its file tree.
 3. On FAIL, fix BLOCKING findings through the Review loop and review again; after two failures, open an unplanned gate.
 4. Write `closure.md`: verdict, verification run with results, deviations, non-blocking observations, deferred minor findings.

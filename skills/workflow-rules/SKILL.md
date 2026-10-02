@@ -61,6 +61,8 @@ docs/work/*/*
 
 If the project does not use git, skip this.
 
+Temporary files of a workflow go in `.canovaccio/tmp/<work directory name>/`, never outside the project (see Temporary files in `AGENTS.md`). On the first workflow in a project, create `.canovaccio/tmp/.gitignore` as described there and commit it with the work. Whenever `state.md` becomes `closed` or `abandoned`, delete the workflow's temporary directory with `rm -rf .canovaccio/tmp/<work directory name>`.
+
 Work artifacts are the history of one piece of work. The rest of `docs/` holds the system docs, which describe the system as it is now: see the next section.
 
 ## state.md

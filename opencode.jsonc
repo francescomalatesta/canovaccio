@@ -110,6 +110,44 @@
       "action": "bash",
       "resource": "rm -rf *",
       "effect": "ask"
+    },
+
+    // Work stays inside the project: temporary files go to .canovaccio/tmp/
+    // (see AGENTS.md). System temp directories are denied rather than asked,
+    // so a stray path fails and the agent retries inside the project instead
+    // of stopping for approval. Resources are canonical directories: macOS
+    // resolves /tmp and $TMPDIR under /private. This covers file tools and
+    // bash workdirs; paths inside a bash command are not checked.
+    {
+      "action": "external_directory",
+      "resource": "/tmp/*",
+      "effect": "deny"
+    },
+    {
+      "action": "external_directory",
+      "resource": "/var/tmp/*",
+      "effect": "deny"
+    },
+    {
+      "action": "external_directory",
+      "resource": "/private/tmp/*",
+      "effect": "deny"
+    },
+    {
+      "action": "external_directory",
+      "resource": "/private/var/tmp/*",
+      "effect": "deny"
+    },
+    {
+      "action": "external_directory",
+      "resource": "/private/var/folders/*",
+      "effect": "deny"
+    },
+    // Cleaning the project's own temp directory needs no approval.
+    {
+      "action": "bash",
+      "resource": "rm -rf .canovaccio/tmp/*",
+      "effect": "allow"
     }
   ]
 }

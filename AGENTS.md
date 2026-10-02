@@ -69,6 +69,21 @@ Prefer the smallest coherent solution that satisfies the requirements.
 
 Avoid speculative abstractions and infrastructure.
 
+## Temporary files
+
+Work only inside the project directory. Never write to or work in `/tmp`, `$TMPDIR` or any other directory outside the project: not for scratch scripts, logs, server output, captures, downloads, clones or checkouts of other revisions. This also applies when a skill, including a superpowers skill, suggests a system temporary directory.
+
+Temporary files go in `.canovaccio/tmp/`. If it does not exist, create it with a `.gitignore` that keeps the directory versioned and its content out of version control:
+
+```gitignore
+*
+!.gitignore
+```
+
+Inside a workflow, use `.canovaccio/tmp/<work directory name>/`. Delete what you put there once it is no longer needed, with `rm -rf .canovaccio/tmp/<name>`; keep `.canovaccio/tmp/.gitignore`.
+
+To read a file at another revision, prefer `git show <rev>:<path>` to a checkout.
+
 ## Requirement modality
 
 Preserve requirement strength.

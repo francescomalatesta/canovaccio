@@ -70,6 +70,15 @@ const git = (...a) => {
 }
 const lines = (text) => text.split("\n").map((l) => l.trim()).filter(Boolean)
 
+// Temporary directories live inside the project, in .canovaccio/tmp/, never in the system temp directory.
+function scratch(prefix) {
+  const dir = path.join(root, ".canovaccio", "tmp")
+  fs.mkdirSync(dir, { recursive: true })
+  const ignore = path.join(dir, ".gitignore")
+  if (!fs.existsSync(ignore)) fs.writeFileSync(ignore, "*\n!.gitignore\n")
+  return fs.mkdtempSync(path.join(dir, prefix))
+}
+
 const scannable = (file) => {
   const lower = file.toLowerCase()
   return SCANNABLE.some((ext) => lower.endsWith(ext)) && !file.split("/").some((part) => SKIP_DIRS.has(part))
@@ -165,7 +174,7 @@ async function capture() {
     const slug = url.replace(/^[a-z]+:\/\/[^/]*/i, "").replace(/[^a-z0-9]+/gi, "-").replace(/^-|-$/g, "") || "index"
     for (const [name, [w, h]] of Object.entries(CAPTURES)) {
       const file = path.resolve(outDir, `${String(i + 1).padStart(2, "0")}-${slug}-${name}.png`)
-      const profile = fs.mkdtempSync(path.join(os.tmpdir(), "design-check-profile-"))
+      const profile = scratch("design-check-profile-")
       const flags = [
         "--headless=new",
         "--disable-gpu",
@@ -251,7 +260,7 @@ function baselineKeys(base, files, extra) {
   const context = tracked.filter((f) => /\.(css|scss|sass|less)$/i.test(f) || f === "DESIGN.md" || f.startsWith(".impeccable/config"))
   const wanted = [...new Set([...files.filter((f) => tracked.includes(f)), ...context])]
   if (wanted.length === 0) return new Set()
-  const dir = fs.realpathSync(fs.mkdtempSync(path.join(os.tmpdir(), "design-check-base-")))
+  const dir = fs.realpathSync(scratch("design-check-base-"))
   try {
     const tar = spawnSync("git", ["archive", "--format=tar", base, "--", ...wanted], { cwd: root, maxBuffer: 512 << 20 })
     if (tar.status !== 0) return null
@@ -381,7 +390,7 @@ function check() {
     process.exit(1)
   }
   console.log(`detector (impeccable ${IMPECCABLE}): ok`)
-  const dir = fs.mkdtempSync(path.join(os.tmpdir(), "design-check-"))
+  const dir = scratch("design-check-")
   const page = path.join(dir, "probe.html")
   fs.writeFileSync(page, "<!doctype html><html><body><h1>probe</h1></body></html>\n")
   const probe = detectRendered([`file://${page}`], [])
