@@ -172,7 +172,7 @@ Every task is checked twice: `@implementer` on its own diff before committing, `
 - A choice approved in the prototype is never a finding.
 - Agents never silence the detector: ignores are proposed at delivery and accepted one by one.
 - When the detector cannot run, checks are reported as not run, never as passed. A design review whose model cannot see the captures says so in its first line.
-- `@design-director` and `@design-reviewer` use a model that reads images; change it in their files if your providers differ.
+- `@design-reviewer` uses a model that reads images, needed for the captures; `@design-director` reads only text and code. Change them in their agent files if your providers differ.
 
 ### Running it
 

@@ -46,7 +46,7 @@ There is no closure review: the user reviews the files themselves at G1.
 Present **G1** with `closure.md`, both files, the assumed and open items, the integration options from `superpowers:finishing-a-development-branch`, and one offer: **critique the current interface?** (default no).
 
 - Corrections to the files: dispatch `@design-director` in document mode with them, without new questions, then commit.
-- Critique: start the app, or report that it cannot run, and dispatch `@design-reviewer` in critique mode with the main screens (at most eight, from the navigation or the routes; the user may name them). Stop the app, commit `findings.md`, and summarize scores and the top issues. Nothing is fixed here: the findings are the input of later `feature` or `fix` work, which you may propose.
+- Critique: start the app, or report that it cannot run, and dispatch `@design-reviewer` in critique mode with the main screens (at most five, from the navigation or the routes; the user may name them). Stop the app, commit `findings.md`, and summarize scores and the top issues. Nothing is fixed here: the findings are the input of later `feature` or `fix` work, which you may propose.
 
 Execute the chosen integration, then set `state.md` to `closed`.
 

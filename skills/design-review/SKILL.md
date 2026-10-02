@@ -8,7 +8,7 @@ description: How @design-reviewer runs a design review with Impeccable's critiqu
 A design review judges what the detector cannot: hierarchy, clarity, cognitive load, coherence with the design system, and whether the result belongs to this product or could be any product of its category. `@design-reviewer` runs it in one of two modes:
 
 - **change**: in greenfield and feature work, before the docs sync, when the project preference has `Design review: on` and the work changed the UI. It reviews the screens the work added or changed.
-- **critique**: in `workflow-design-init`, when the user asks for it at delivery. It reviews the main screens of the existing interface, at most eight, and only reports.
+- **critique**: in `workflow-design-init`, when the user asks for it at delivery. It reviews the main screens of the existing interface, at most five, and only reports.
 
 ## Inputs
 

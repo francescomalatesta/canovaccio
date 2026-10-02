@@ -6,7 +6,7 @@
 //   node design-check.mjs --url URL [--url URL...] [--advisory minor|exclude] [--json]
 //       rendered pages, at a desktop and a mobile viewport
 //   node design-check.mjs --screenshot URL [--screenshot URL...] --out DIR
-//       PNG captures for a visual review: first viewport at desktop and mobile width, and a long desktop page
+//       PNG captures for a visual review: the first viewport at desktop and at mobile width
 //   node design-check.mjs --check
 //       whether the detector, and a browser for --url and --screenshot, can run here
 //
@@ -137,7 +137,7 @@ function findBrowser() {
   return apps.find((a) => fs.existsSync(a)) ?? playwrightChromium()
 }
 
-const CAPTURES = { desktop: [1280, 800], page: [1280, 3000], mobile: [390, 844] }
+const CAPTURES = { desktop: [1280, 800], mobile: [390, 844] }
 
 // An http(s) URL that does not answer would be captured as the browser's error page.
 async function unreachable(url) {

@@ -1,7 +1,7 @@
 ---
 description: Builds a project's PRODUCT.md and DESIGN.md in Impeccable's format through a bounded interview relayed by the controller - seed before a greenfield prototype, document on an existing codebase, sync after the prototype gate.
 mode: subagent
-model: anthropic/claude-sonnet-5
+model: deepseek/deepseek-v4-pro
 variant: high
 permissions:
   - action: edit
