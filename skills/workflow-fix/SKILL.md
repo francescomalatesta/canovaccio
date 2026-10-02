@@ -20,7 +20,7 @@ Existing behavior is wrong. Apply `workflow-rules` throughout.
 
 Create the work directory with `brief.md` (request, classification and reason) and `state.md`, and the branch.
 
-When the bug concerns the UI, ask whether the work uses Impeccable (see Impeccable in `workflow-rules`).
+When the bug or its fix concerns the UI, follow the project's Impeccable preference; a fix never asks it (see Impeccable in `workflow-rules`).
 
 ### 1. Reproduce
 
@@ -50,8 +50,6 @@ Open **G-fix** when any of these holds:
 Present `repro.md` with root cause and the proposed fix. If the fix is really new behavior, propose `workflow-feature` instead.
 
 Otherwise give a CHECKPOINT with root cause and intended fix, and continue.
-
-If only now it turns out that the fix touches the UI and the Impeccable question was not asked, ask it at G-fix when it opens, otherwise before phase 4.
 
 ### 4. Fix
 

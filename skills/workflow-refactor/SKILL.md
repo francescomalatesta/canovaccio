@@ -42,7 +42,7 @@ Write `invariants.md`:
 
 Dispatch `@spec-reviewer` with the request and `invariants.md`: are the invariants complete for the perimeter, is each one verified, are the steps small and safe? Fix BLOCKING findings; list at the gate any finding you chose not to address, with the reason.
 
-Present **G1**. When the perimeter includes UI code, G1 also asks whether the work uses Impeccable (see Impeccable in `workflow-rules`).
+Present **G1**. When the perimeter includes UI code and the project has no Impeccable preference yet, G1 also asks it (see Impeccable in `workflow-rules`).
 
 ### 3. Characterization tests
 

@@ -5,7 +5,7 @@ description: How UI changes are checked with the Impeccable design detector when
 
 # Design check
 
-[Impeccable](https://impeccable.style) ships a deterministic detector for design defects and for the tells of generated UI: low contrast, skipped headings, cramped padding, nested cards, gradient text, overused fonts and about sixty more rules. No LLM is involved. A workflow uses it only when the user chose Impeccable for that work (see Impeccable in `workflow-rules`); agents run it only when the controller says Impeccable is on, with the advisory setting.
+[Impeccable](https://impeccable.style) ships a deterministic detector for design defects and for the tells of generated UI: low contrast, skipped headings, cramped padding, nested cards, gradient text, overused fonts and about sixty more rules. No LLM is involved. A workflow uses it only when Impeccable is on for that work (see Impeccable in `workflow-rules`); agents run it only when the controller says so, with the advisory setting.
 
 It does not need `PRODUCT.md` or `DESIGN.md`. When the project has a `DESIGN.md`, the detector also reports values outside it.
 

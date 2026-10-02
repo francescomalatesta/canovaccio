@@ -46,7 +46,7 @@ Write `spec.md` using `superpowers:brainstorming` as technique. Clarifying quest
 
 Dispatch `@spec-reviewer` with the request, `brief.md` and `spec.md`. Fix BLOCKING findings; list at the next gate any finding you chose not to address, with the reason.
 
-When the feature changes the UI, its first gate (G1a or G1) also asks whether the work uses Impeccable (see Impeccable in `workflow-rules`).
+When the feature changes the UI and the project has no Impeccable preference yet, its first gate (G1a or G1) also asks it (see Impeccable in `workflow-rules`).
 
 ### 3. Prototype (only for material UX changes)
 

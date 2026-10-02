@@ -30,6 +30,7 @@ The workflows:
 | `skills/workflow-*/` | the workflows: phases, gates, artifacts |
 | `commands/` | explicit entry points to the workflows, plus `/cost` |
 | `install.sh` | installs canovaccio into a project or globally |
+| `scripts/` | maintenance of canovaccio itself, not installed: `update-impeccable.mjs` |
 
 Layers, from general to specific:
 
@@ -128,26 +129,32 @@ At the prototype gate the conductor starts the system and gives you the URLs to 
 
 ## Impeccable
 
-What canovaccio uses of [Impeccable](https://impeccable.style), and where. Integrated so far: the **design detector**, about sixty deterministic rules for design defects (low contrast, skipped headings, cramped padding, text overflow) and for the tells of generated UI (nested cards, gradient text, overused fonts, bounce easing). No LLM involved; it needs neither `PRODUCT.md` nor `DESIGN.md`. The Impeccable skill, its commands and its design context files are not used yet.
+What canovaccio uses of [Impeccable](https://impeccable.style), and where. Integrated so far:
+
+- the **design detector**, about sixty deterministic rules for design defects (low contrast, skipped headings, cramped padding, text overflow) and for the tells of generated UI (nested cards, gradient text, overused fonts, bounce easing). No LLM involved;
+- the **design guidance** for whoever writes UI (`skills/design-craft`): Impeccable's quality floor, how to commit to a palette, faces and light or dark instead of the category default, and guidance per kind of page: app (Operate), landing and marketing (Persuade), docs (Read).
+
+Neither needs `PRODUCT.md` or `DESIGN.md`. Impeccable's own skill, its commands and its interactive process are not used: no extra questions, the direction of a new page is judged at the prototype gate.
 
 ### The choice
 
-Per workflow, yours. When the work touches the UI, the conductor asks: no · yes, advisory findings as Minor · yes, advisory findings excluded. Advisory findings are the detector's soft signals, possibly deliberate (em-dash overuse, numbered section labels). Say it in the request to skip the question: `/feature export orders as CSV, with impeccable, advisory excluded`. The answer is recorded in `state.md`.
+Once per project, yours. The first time a greenfield, feature or refactor touches the UI, its first gate also asks: no · yes, advisory findings as Minor · yes, advisory findings excluded. Advisory findings are the detector's soft signals, possibly deliberate (em-dash overuse, numbered section labels). The answer is saved in the project `AGENTS.md` and used by every later workflow without asking again; a fix never asks. Say it in a request to override it for that work (`/feature pricing page, without impeccable`), edit `AGENTS.md` or ask to change it for good.
 
 ### Coverage
 
-| Workflow | Asked | Checked |
-|---|---|---|
-| greenfield | at G1, if the product has a UI | prototype states in the browser, every task, closure review |
-| feature | at the first gate (G1 or G1a), if the UI changes | prototype states in the browser if there is a prototype, every task, closure review |
-| refactor | at G1, if the perimeter includes UI code | every step, closure review |
-| fix | at the start, if the bug concerns the UI (or when that emerges) | the fix task; closure review only when G-fix was opened |
-| spike, docs-init | never | — |
+| Workflow | Preference asked | Guidance while building | Checked |
+|---|---|---|---|
+| greenfield | at G1, if the product has a UI and no preference exists | prototype, every task | prototype states in the browser, every task, closure review |
+| feature | at the first gate (G1 or G1a), if the UI changes and no preference exists | prototype if any, every task | prototype states in the browser if there is a prototype, every task, closure review |
+| refactor | at G1, if the perimeter includes UI code and no preference exists | every step | every step, closure review |
+| fix | never: follows the preference, off without one | the fix task | the fix task; closure review only when G-fix was opened |
+| spike, docs-init | never: always off | — | — |
 
 Every task is checked twice: `@implementer` on its own diff before committing, `@task-reviewer` on the commits. Prototype states are scanned by `@ui-prototyper` at desktop and mobile width, and the prototype gate shows what is left.
 
 ### Rules
 
+- The approved prototype, the spec, `docs/conventions.md` and the project's existing style win over the guidance; it never restyles UI outside the task.
 - Only findings the work introduced count. Breakage and accessibility are Important; everything else is Minor and follows the minor-findings policy (fix or defer).
 - A choice approved in the prototype is never a finding.
 - Agents never silence the detector: ignores are proposed at delivery and accepted one by one.
@@ -161,6 +168,15 @@ Every task is checked twice: `@implementer` on its own diff before committing, `
 node skills/design-check/scripts/design-check.mjs --check                          # can it run here
 node skills/design-check/scripts/design-check.mjs --changed main --advisory minor  # UI files changed since main
 node skills/design-check/scripts/design-check.mjs --url http://localhost:6006/... --advisory exclude
+```
+
+### Updating Impeccable
+
+The guidance in `skills/design-craft/reference/` is extracted from an Impeccable release (Apache 2.0, license alongside), the detector is pinned in `skills/design-check`. `scripts/update-impeccable.mjs` regenerates the guidance from the latest release, or `--tag skill-vX.Y.Z`, and reports the latest detector on npm; `--detector latest` pins it. Review the diff before committing: an upstream rewording reaches every project.
+
+```sh
+node scripts/update-impeccable.mjs                       # guidance from the latest release, detector version report
+node scripts/update-impeccable.mjs --detector latest     # also pin the latest detector
 ```
 
 ## System docs and changelog

@@ -121,21 +121,30 @@ Use the user's choice if the request states one, otherwise the default. State th
 
 ## Impeccable
 
-[Impeccable](https://impeccable.style) design checks are chosen per workflow, by the user. Agents use them only when `state.md` says `Impeccable: on`; what they do with it is in the `design-check` skill.
+[Impeccable](https://impeccable.style) supports UI work with design guidance while building (the `design-craft` skill) and a deterministic detector on the result (the `design-check` skill). Whether a project uses it is the user's choice, made once per project.
 
-**When to ask.** Only when the work touches the UI:
+**Project preference.** It lives in the project `AGENTS.md`, outside the canovaccio block:
 
-- greenfield with a UI, feature and refactor: at the first gate (G1, or G1a);
-- fix: at setup, with the `question` tool, when the bug concerns the UI; when that only emerges later, before the fix phase, at G-fix if it opens;
-- spike and docs-init: never.
+```markdown
+## Impeccable
 
-When the request already says it ("with impeccable", "advisory excluded"), use that and do not ask. Work that does not touch the UI is `Impeccable: off` without asking.
+- Use: on            <!-- on | off -->
+- Advisory: exclude  <!-- minor | exclude -->
 
-**The question** has three answers: no · yes, advisory findings as Minor · yes, advisory findings excluded. Advisory findings are the detector's soft signals, which may be deliberate choices. Record the answer in `state.md` as `Impeccable` and `Advisory`.
+Set by canovaccio from your answer. Edit it, or ask, to change it.
+```
 
-**On a yes**, run `design-check.mjs --check` right away. If the detector cannot run, say so in a CHECKPOINT with the reason: the work continues, and every design check is reported as not run.
+**For each workflow** whose work touches the UI (greenfield with a UI, feature, refactor, fix):
 
-**Dispatch.** With Impeccable on, add `Impeccable: on, advisory: <minor|exclude>` to every dispatch of `@implementer`, `@task-reviewer`, `@ui-prototyper` and `@closure-reviewer` in plan mode, besides what the workflow lists; give `@implementer` the commit the task starts from. With Impeccable off, do not mention it: agents do not run design checks.
+- **preference present**: use it, without asking;
+- **no preference**: greenfield, feature and refactor ask at their first gate (G1, or G1a), never at a gate of their own. Three answers: no · yes, advisory findings as Minor · yes, advisory findings excluded. Advisory findings are the detector's soft signals, which may be deliberate choices. Write the answer, `off` included, as the project preference and commit it with the work, so it is never asked again. A fix never asks: without a preference it runs with Impeccable off;
+- **the request says otherwise** ("without impeccable", "advisory included"): that applies to this work only. When the user asks to change the preference itself, update `AGENTS.md`.
+
+Spike, docs-init and work that does not touch the UI run with Impeccable off, ask nothing and leave the preference as it is. Record the setting of this work in `state.md` as `Impeccable` and `Advisory`.
+
+**Availability.** When Impeccable is on, run `design-check.mjs --check` at the start of the work. If the detector cannot run, say so in a CHECKPOINT with the reason: the work continues, the guidance still applies, and every design check is reported as not run.
+
+**Dispatch.** With Impeccable on, add `Impeccable: on, advisory: <minor|exclude>` to every dispatch of `@implementer`, `@task-reviewer`, `@ui-prototyper` and `@closure-reviewer` in plan mode, besides what the workflow lists; give `@implementer` the commit the task starts from. With Impeccable off, do not mention it: agents use neither guidance nor design checks.
 
 **Delivery.** When an agent reports a finding that is a deliberate choice or a recurring false positive, record it in `state.md` Notes as a detector ignore candidate. `closure.md` lists the detector ignore proposals, or "none". They are presented at the delivery gate with the convention proposals and decided the same way: one by one, no answer means rejected, accepted ones applied before integration and committed separately.
 
