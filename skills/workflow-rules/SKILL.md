@@ -1,6 +1,6 @@
 ---
 name: workflow-rules
-description: Shared rules for every development workflow (greenfield, feature, refactor, fix, spike, docs-init) - gates, checkpoints, artifacts, state, resumption, system docs and changelog, workflow switching and precedence over superpowers skills. Load before running or resuming any workflow.
+description: Shared rules for every development workflow (greenfield, feature, refactor, fix, spike, docs-init) - gates, checkpoints, artifacts, state, resumption, system docs and changelog, the Impeccable choice, workflow switching and precedence over superpowers skills. Load before running or resuming any workflow.
 ---
 
 # Workflow rules
@@ -42,7 +42,7 @@ Each workflow instance works in `docs/work/<YYYY-MM-DD>-<slug>/` inside the targ
 | `decisions.md` | decisions taken during the work, with rationale | **yes** |
 | `closure-plan.md` | closure review plan, saved by the controller | no |
 | `closure-evidence.md` | evidence collected for the closure review by `@closure-auditor` | no |
-| `closure.md` | written by the controller: final review verdict, verification evidence, deferred minor findings, convention proposals | no |
+| `closure.md` | written by the controller: final review verdict, verification evidence, deferred minor findings, convention proposals, detector ignore proposals | no |
 | `state.md` | workflow state, see below | no |
 
 Only the artifacts the active workflow uses are created. `decisions.md` is created on the first decision worth recording; do not create it empty.
@@ -73,6 +73,8 @@ Work artifacts are the history of one piece of work. The rest of `docs/` holds t
 - Phase: implementation
 - Branch: feature/csv-export
 - Minor findings: defer     <!-- fix | defer -->
+- Impeccable: on            <!-- on | off -->
+- Advisory: exclude         <!-- minor | exclude; only when Impeccable is on -->
 
 ## Gates
 - [x] G1 spec+plan — approved 2026-09-27 — spec.md, plan.md
@@ -116,6 +118,26 @@ Decides what happens to Minor review findings, so the flow is never interrupted 
 - `fix` — fixed in the review loop like Critical and Important findings.
 
 Use the user's choice if the request states one, otherwise the default. State the policy in one line at the workflow's first gate, where the user can change it; workflows without an initial gate use it as is. Record it in `state.md` and pass it to `@implementer` with review findings.
+
+## Impeccable
+
+[Impeccable](https://impeccable.style) design checks are chosen per workflow, by the user. Agents use them only when `state.md` says `Impeccable: on`; what they do with it is in the `design-check` skill.
+
+**When to ask.** Only when the work touches the UI:
+
+- greenfield with a UI, feature and refactor: at the first gate (G1, or G1a);
+- fix: at setup, with the `question` tool, when the bug concerns the UI; when that only emerges later, before the fix phase, at G-fix if it opens;
+- spike and docs-init: never.
+
+When the request already says it ("with impeccable", "advisory excluded"), use that and do not ask. Work that does not touch the UI is `Impeccable: off` without asking.
+
+**The question** has three answers: no · yes, advisory findings as Minor · yes, advisory findings excluded. Advisory findings are the detector's soft signals, which may be deliberate choices. Record the answer in `state.md` as `Impeccable` and `Advisory`.
+
+**On a yes**, run `design-check.mjs --check` right away. If the detector cannot run, say so in a CHECKPOINT with the reason: the work continues, and every design check is reported as not run.
+
+**Dispatch.** With Impeccable on, add `Impeccable: on, advisory: <minor|exclude>` to every dispatch of `@implementer`, `@task-reviewer`, `@ui-prototyper` and `@closure-reviewer` in plan mode, besides what the workflow lists; give `@implementer` the commit the task starts from. With Impeccable off, do not mention it: agents do not run design checks.
+
+**Delivery.** When an agent reports a finding that is a deliberate choice or a recurring false positive, record it in `state.md` Notes as a detector ignore candidate. `closure.md` lists the detector ignore proposals, or "none". They are presented at the delivery gate with the convention proposals and decided the same way: one by one, no answer means rejected, accepted ones applied before integration and committed separately.
 
 ## System docs and changelog
 

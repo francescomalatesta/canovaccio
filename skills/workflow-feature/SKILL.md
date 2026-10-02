@@ -46,6 +46,8 @@ Write `spec.md` using `superpowers:brainstorming` as technique. Clarifying quest
 
 Dispatch `@spec-reviewer` with the request, `brief.md` and `spec.md`. Fix BLOCKING findings; list at the next gate any finding you chose not to address, with the reason.
 
+When the feature changes the UI, its first gate (G1a or G1) also asks whether the work uses Impeccable (see Impeccable in `workflow-rules`).
+
 ### 3. Prototype (only for material UX changes)
 
 If the spec contains material UX changes, present spec at **G1a** first. Then create the branch. If the project has no prototype system yet, dispatch `@ui-prototyper` in setup mode with the approved spec, commit the setup, then dispatch `@doc-writer` to write `docs/prototypes.md` from the setup report and commit it (see `project-prototypes`).

@@ -53,7 +53,7 @@ Record significant technical choices in `decisions.md` with rejected alternative
 
 Dispatch `@spec-reviewer` with the request and `spec.md`. Fix BLOCKING findings; list at the gate any finding you chose not to address, with the reason.
 
-Present **G1**.
+Present **G1**. When the product has a UI, G1 also asks whether the work uses Impeccable (see Impeccable in `workflow-rules`).
 
 ### 3. Prototype (when the product has a UI)
 

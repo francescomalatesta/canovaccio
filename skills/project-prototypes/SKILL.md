@@ -64,7 +64,7 @@ The index lists every prototype with its title, status and link. When the tool h
 The user looks at the prototype live, in the browser:
 
 1. The controller starts the system with its documented command, detached so it survives the end of the turn (for example with `nohup`), waits until the index URL responds, and notes the command and process in `state.md` Notes.
-2. The gate gives the index URL, the prototype's URL, one direct URL per state, and the decisions not dictated by the spec. The user opens them in any browser, including one embedded in their tool.
+2. The gate gives the index URL, the prototype's URL, one direct URL per state, and the decisions not dictated by the spec; with Impeccable on, also the design check summary and the findings left for the user to judge (see `design-check`). The user opens them in any browser, including one embedded in their tool.
 3. The system keeps running until the gate is answered, then the controller stops it. When resuming at that gate, start it again before presenting.
 
 ## Keep or remove

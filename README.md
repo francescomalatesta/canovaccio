@@ -126,6 +126,27 @@ Each project has **one prototype system**, defined by `skills/project-prototypes
 
 At the prototype gate the conductor starts the system and gives you the URLs to open in the browser: no screenshots or one-off formats. At delivery you keep or remove each prototype (default remove); kept ones stay in the index, grouped apart, as a record of the approved design. The system itself always stays.
 
+## Impeccable design checks
+
+Work that touches the UI can be checked with the detector of [Impeccable](https://impeccable.style): about sixty deterministic rules for design defects (low contrast, skipped headings, cramped padding, text overflow) and for the tells of generated UI (nested cards, gradient text, overused fonts, bounce easing). No LLM is involved, and it needs neither `PRODUCT.md` nor `DESIGN.md`.
+
+It is your choice, per workflow. When the work touches the UI, the conductor asks at the first gate (in a fix, at the start) between three answers: no; yes, with advisory findings as Minor; yes, with advisory findings excluded. Advisory findings are the detector's soft signals, which may be deliberate choices (em-dash overuse, numbered section labels). Say it in the request to skip the question: `/feature export orders as CSV, with impeccable, advisory excluded`.
+
+With Impeccable on:
+
+- `@implementer` checks its own diff before committing, `@task-reviewer` checks each task's commits, the closure review checks the whole change;
+- `@ui-prototyper` checks every state of a prototype in the browser, at desktop and mobile width, and the prototype gate shows what is left;
+- only findings the work introduced count: breakage and accessibility are Important, everything else Minor, which then follows the minor-findings policy (fix or defer);
+- a choice you approved in the prototype is never a finding, and agents never silence the detector: ignores are proposed at delivery and you accept them one by one.
+
+`skills/design-check/scripts/design-check.mjs` runs the detector through `npx` at a pinned version, so nothing is installed in the project. Requires Node 22.18+, and a Chromium-based browser for the rendered checks. When it cannot run, the checks are reported as not run, never as passed.
+
+```sh
+node skills/design-check/scripts/design-check.mjs --check                          # can it run here
+node skills/design-check/scripts/design-check.mjs --changed main --advisory minor  # UI files changed since main
+node skills/design-check/scripts/design-check.mjs --url http://localhost:6006/... --advisory exclude
+```
+
 ## System docs and changelog
 
 Projects keep a **map** of their codebase in `docs/`, defined by `skills/project-docs`:

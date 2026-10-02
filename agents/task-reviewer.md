@@ -25,6 +25,7 @@ Check, as fits the task:
 - incorrect or missing behavior, security, data integrity, race conditions, state errors, important edge cases, regressions, meaningful missing verification;
 - violations of `docs/conventions.md`, if it exists;
 - material deviations from the approved UI (read the prototype from its commit if removed);
+- when the controller says Impeccable is on and the task changes UI files: load `design-check` and run it with `--changed <base of the commit range>` (the commit before the task's first) and the advisory setting; report the findings introduced by the task with the severity it assigns, after verifying each in the code;
 - for a refactoring step: behavior unchanged, tests not modified except mechanically;
 - for characterization tests: they pass on the unchanged code and pin the invariants.
 
@@ -41,5 +42,6 @@ When re-reviewing after fixes, check the previous findings and the new changes o
 Return:
 
 - Compliance: PASS or FAIL, with evidence;
-- Findings: by severity, with file:line; tag `convention` those about how code is written here (a `docs/conventions.md` violation, or inconsistency with an established pattern of the codebase);
+- Findings: by severity, with file:line; tag `convention` those about how code is written here (a `docs/conventions.md` violation, or inconsistency with an established pattern of the codebase), and `design` those from the design check;
+- Design check, when Impeccable is on: the command, its summary line, findings dismissed as false positives with the reason, or why it did not run;
 - Assessment: Needs fixes if compliance FAILs or any Critical or Important finding exists, otherwise Approved.
