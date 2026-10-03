@@ -1,6 +1,6 @@
 ---
 name: workflow-rules
-description: Shared rules for every development workflow (greenfield, feature, refactor, fix, spike, docs-init, design-init) - gates, checkpoints, artifacts, state, resumption, system docs and changelog, the Impeccable choice, workflow switching and precedence over superpowers skills. Load before running or resuming any workflow.
+description: Shared rules for every development workflow (greenfield, feature, refactor, fix, spike, docs-init, design-init) - gates, checkpoints, artifacts, state, resumption, system docs and changelog, the Impeccable choice, the task tracker, workflow switching and precedence over superpowers skills. Load before running or resuming any workflow.
 ---
 
 # Workflow rules
@@ -80,6 +80,7 @@ Work artifacts are the history of one piece of work. The rest of `docs/` holds t
 - Impeccable: on            <!-- on | off -->
 - Advisory: exclude         <!-- minor | exclude; only when Impeccable is on -->
 - Design review: on         <!-- on | off; only when Impeccable is on -->
+- Tracker: #42 — In progress <!-- item of the work and last status set; only with a task tracker -->
 
 ## Gates
 - [x] G1 spec+plan — approved 2026-09-27 — spec.md, plan.md
@@ -87,7 +88,7 @@ Work artifacts are the history of one piece of work. The rest of `docs/` holds t
 
 ## Tasks
 - [x] T1 export endpoint — reviewed, approved
-- [ ] T2 download button
+- [ ] T2 download button — #43
 
 ## Notes
 - T2 blocked on nothing; next action: dispatch implementer.
@@ -163,6 +164,14 @@ Spike, docs-init and work that does not touch the UI run with Impeccable off, as
 4. Give a CHECKPOINT with the heuristics score and the findings. There is no second design review: the closure review verifies the fixes.
 
 **Delivery.** When an agent reports a finding that is a deliberate choice or a recurring false positive, record it in `state.md` Notes as a detector ignore candidate. `closure.md` lists the detector ignore proposals, or "none". They are presented at the delivery gate with the convention proposals and decided the same way: one by one, no answer means rejected, accepted ones applied before integration and committed separately.
+
+## Task tracker
+
+When the project `AGENTS.md` has a Task tracker preference and the work has items on it, or the user names a tracker or an item and there is no preference yet, load `project-tracker` and follow it: it defines the preference, which items are tracked and which workflow events move them to which status.
+
+- Only you, the controller, update the tracker; never pass it to subagents.
+- Record the item of the work in `state.md` as `Tracker`, with the last status set, and the item of a plan task next to the task, so a resumed workflow neither repeats nor skips a move.
+- The tracker never blocks the work and adds no gate: confirming a new preference rides on the first gate, or on the first CHECKPOINT in workflows that start without one.
 
 ## System docs and changelog
 

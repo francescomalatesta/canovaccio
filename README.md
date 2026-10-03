@@ -215,6 +215,21 @@ Every workflow except spike starts from the docs to find where to work, and ends
 
 `skills/project-docs/scripts/check-docs.mjs` (Node 18+, no dependencies) checks a project's docs: covers matching real files, links, index completeness, uncovered code; with `--changed <base>` it lists the docs a change impacts.
 
+## Task tracker
+
+If you track the project in an external tool (GitHub Projects, Jira, Linear, ClickUp, Trello), name the item when you start the work (`/feature #42`, or a link to the card) and the conductor keeps its status in step with the work, as defined by `skills/project-tracker`:
+
+| When | Status (GitHub Projects Kanban) |
+|---|---|
+| the workflow picks the item up | Ready |
+| work on project files starts | In progress |
+| the closure review starts | In review |
+| canovaccio merges the work itself | Done |
+
+Items of single plan tasks, when you give one per task (`/feature #12 #13`), move to In progress and In review with their own implementation and review. When the work is delivered as a pull request, items stay In review and the PR links them (`Closes #42`): the merge and the board's automation move them to Done.
+
+The first time, the conductor finds the tool through what the environment already provides (`gh`, another CLI, an MCP server), reads the board's statuses, maps them, and asks you to confirm the mapping at the first gate; the answer is saved in the project `AGENTS.md` under Task tracker and never asked again. It moves only items you named, never creates any, and changes only their status. Before each move it reads the current status: an item you moved by hand stays where you put it. When the tool cannot be reached the work goes on, and the report says which moves were not made.
+
 ## First local check
 
 Things to verify once with `opencode2`:
