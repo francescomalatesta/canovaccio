@@ -28,7 +28,7 @@ Create the work directory with `brief.md` (request, classification and reason) a
 
 Follow the `project-docs` reading protocol: `docs/index.md` first, then the docs of the components the feature touches.
 
-Dispatch `@scout` for those parts of the codebase, with the relevant doc paths as starting points: relevant modules, existing conventions, test setup and commands, similar features to mirror, and, when the feature may change the UI, the prototype system if `docs/prototypes.md` does not describe one (an existing Storybook or similar tool). Skip only when you already know the area well from this session.
+Dispatch `@scout` for those parts of the codebase, with the relevant doc paths as starting points: relevant modules, existing conventions, test setup and commands (including whether tests that persist data are isolated from the development database), similar features to mirror, and, when the feature may change the UI, the prototype system if `docs/prototypes.md` does not describe one (an existing Storybook or similar tool). Skip only when you already know the area well from this session.
 
 ### 2. Spec
 
@@ -63,7 +63,8 @@ Write `plan.md` using `superpowers:writing-plans`:
 - tasks are vertical slices, each delivering observable behavior with its own tests;
 - each task names its acceptance criteria and verification (unit, integration, E2E where it completes an important journey);
 - dependencies between tasks are explicit;
-- every requirement in `spec.md` is owned by at least one task.
+- every requirement in `spec.md` is owned by at least one task;
+- when the feature adds or changes tests that persist data and the project has no test data isolation (see `AGENTS.md`), the first task sets it up; it is engineering support, listed at the gate, not a product change.
 
 Dispatch `@spec-reviewer` with spec and plan. Fix BLOCKING findings; list at the gate any finding you chose not to address, with the reason.
 

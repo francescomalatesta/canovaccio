@@ -103,6 +103,8 @@ Push, merge and destructive git commands also require approval through the permi
 
 Work stays inside the project. Temporary files (scratch scripts, logs, captures, the clean clone of the greenfield closure) go in `.canovaccio/tmp/`, whose own `.gitignore` keeps the directory versioned and its content out of git; each workflow uses a subdirectory named after its work directory and deletes it when it closes. The permissions in `opencode.jsonc` deny the system temporary directories (`/tmp`, `/var/tmp` and their macOS equivalents) instead of asking, so a stray path fails and the agent retries inside the project without stopping for approval.
 
+Tests never write to your development database. When tests persist data, the project gets a dedicated test database that the test commands use by default, E2E included (their app instance runs on it, on its own port), and a test run pointed at the development database stops instead of writing to it. A greenfield project sets it up in its spec and walking skeleton; a feature or fix on a project without it sets it up before adding tests that need it. Task and closure reviews check that a test run leaves the development database unchanged. The mechanism is the project's choice; the rule is in `AGENTS.md`.
+
 ## Session cost
 
 Sessions with many subagents are hard to budget. `skills/session-cost/scripts/session-cost.mjs` reads the local opencode database (`~/.local/share/opencode/opencode.db`) and, given the id of the parent session, follows every sub-session to report total cost, a cost tree, and breakdowns by agent and by model, with token and cache-hit stats.

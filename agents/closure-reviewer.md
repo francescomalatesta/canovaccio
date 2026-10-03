@@ -40,6 +40,7 @@ Whole-work checks:
 - material UI conformance with the prototype (read it with `git show` at its commit); prototypes built in the project's prototype system, never reachable or bundled in production builds, and the system and kept prototypes still loading;
 - system docs matching the code, and the changelog entry fitting the work, when expected;
 - build, startup and runtime health where relevant;
+- when tests persist data: they run on an isolated test database by default, and the full test run, E2E included, leaves the development database unchanged;
 - when the controller says Impeccable is on and the change touches UI files: the design check of the `design-check` skill, as a command with the advisory setting: `--changed <base>`, and `--url` on the changed screens when the app or the prototype system can be started. Findings of the change rated Important are BLOCKING unless dismissed as false positives with evidence; Minor ones are non-blocking.
 
 Return only the plan.

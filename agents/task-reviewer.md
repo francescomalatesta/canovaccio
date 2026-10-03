@@ -23,6 +23,7 @@ Check, as fits the task:
 
 - requirement and acceptance-criteria compliance, and nothing beyond the task's scope;
 - incorrect or missing behavior, security, data integrity, race conditions, state errors, important edge cases, regressions, meaningful missing verification;
+- tests that write to the development database instead of an isolated test one, E2E included (see Test data isolation in `AGENTS.md`): Important;
 - violations of `docs/conventions.md`, if it exists;
 - material deviations from the approved UI (read the prototype from its commit if removed);
 - when the controller says Impeccable is on and the task changes UI files: load `design-check` and run it with `--changed <base of the commit range>` (the commit before the task's first) and the advisory setting; report the findings introduced by the task with the severity it assigns, after verifying each in the code;

@@ -142,6 +142,17 @@ Do not duplicate substantial lower-level coverage through E2E unless the complet
 
 Tests should be deterministic and should not depend on arbitrary sleeps when observable readiness conditions are available.
 
+### Test data isolation
+
+Tests never write to the local development database. When tests persist data, the development environment provides a dedicated, isolated test database:
+
+- the test commands use it by default, with no variable to set by hand;
+- a test run pointed at the development database stops before running instead of writing to it;
+- E2E tests start their own app instance on the test database and on its own port, never reusing a development server already running;
+- the test database is created, migrated and cleaned automatically, so runs do not depend on each other.
+
+The mechanism is free (a separate database configured for the test environment, an in-memory or temporary database, a container, a schema per worker); the behavior is binding.
+
 ## Reviews
 
 Review findings must be pragmatic.

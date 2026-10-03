@@ -28,6 +28,8 @@ When the controller says Impeccable is on and the task changes UI, load `design-
 
 Other task types adapt this: a refactoring step keeps behavior unchanged and all tests green; characterization tests must pass on the unchanged code; a throwaway spike experiment needs no production quality, and tests only where they are the measurement.
 
+Tests never write to the development database (see Test data isolation in `AGENTS.md`). When your tests persist data and the project has no isolated test database, set it up only if the task says so; otherwise do not write those tests against the development database, and report it as an open issue.
+
 Follow `docs/conventions.md` if it exists, then the patterns of the surrounding code. Do not broaden scope, redesign approved behavior or UI, add speculative abstractions, or implement what later tasks own.
 
 Commit your work when the task is complete; never push. Stop any process you started.

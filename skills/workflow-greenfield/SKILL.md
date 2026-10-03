@@ -46,7 +46,7 @@ Write `spec.md`:
 - explicit out of scope for the first version;
 - **stack**: language, frameworks, storage, hosting target, with a short rationale per choice;
 - **architecture**: main components and boundaries, data model outline, external integrations;
-- **quality baseline**: test layers and tools, lint and format, type checking, how the app is started locally;
+- **quality baseline**: test layers and tools, lint and format, type checking, how the app is started locally; when tests persist data, the test database and how it stays separate from the development one (see Test data isolation in `AGENTS.md`);
 - **prototype system** (when the product has a UI): the tool and area where UI prototypes live, how it meets the contract of `project-prototypes`, and the rejected alternatives.
 
 Record significant technical choices in `decisions.md` with rejected alternatives.
@@ -69,7 +69,7 @@ On approval, commit the prototype and record the commit in `state.md`. It become
 
 Write `plan.md` using `superpowers:writing-plans`:
 
-- **task 1 is a walking skeleton**: project scaffold (when the product has a UI, extending the one created with the prototype system in phase 3 and keeping the system working), the quality baseline wired and passing (tests, lint, type check), the app starting locally, one thin end-to-end path through the architecture with an E2E smoke test, and a README stating how to install, run and test the project;
+- **task 1 is a walking skeleton**: project scaffold (when the product has a UI, extending the one created with the prototype system in phase 3 and keeping the system working), the quality baseline wired and passing (tests, lint, type check), the app starting locally, one thin end-to-end path through the architecture with an E2E smoke test, tests and E2E running on the dedicated test database when tests persist data, and a README stating how to install, run and test the project, including where test data goes;
 - following tasks are vertical slices of the core journeys, each with its own tests and acceptance criteria;
 - every requirement in `spec.md` is owned by at least one task.
 
@@ -93,7 +93,7 @@ Dispatch `@doc-writer` for the docs sync described in `workflow-rules`, with the
 
 ### 7. Closure
 
-1. Commit everything, including `spec.md` and `decisions.md`. Clone the repository into `.canovaccio/tmp/<work directory name>/verify/` (never outside the project) and run the full verification there: install, build, tests, type check, lint, startup, the prototype system's index when there is one; also check that the README instructions work. Stop anything it started and delete the clone right after, so the project's own tools never pick it up.
+1. Commit everything, including `spec.md` and `decisions.md`. Clone the repository into `.canovaccio/tmp/<work directory name>/verify/` (never outside the project) and run the full verification there: install, build, tests, type check, lint, startup, the prototype system's index when there is one; also check that the README instructions work and, when tests persist data, that the full test run, E2E included, leaves the development database unchanged. Stop anything it started and delete the clone right after, so the project's own tools never pick it up.
 2. Run the closure review (see Closure review in `workflow-rules`) with the original request, spec, plan, the prototype commit if any, and `decisions.md`. The change is the whole project: against the base branch when built on `greenfield/<slug>`, otherwise outlined by its file tree.
 3. On FAIL, fix BLOCKING findings through the Review loop and review again; after two failures, open an unplanned gate.
 4. Write `closure.md`: verdict, verification run with results, deviations, non-blocking observations, deferred minor findings.
