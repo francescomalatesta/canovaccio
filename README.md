@@ -217,7 +217,7 @@ Every workflow except spike starts from the docs to find where to work, and ends
 
 ## Language
 
-Commit messages and documentation are always in English, whatever language you write in: system docs, `CHANGELOG.md`, README files, `PRODUCT.md`, `DESIGN.md` and the workflow artifacts in `docs/work/`. The conductor still talks to you in your language, and product content such as UI copy follows the product's requirements. Existing docs in another language are not translated along the way: what the work adds or rewrites is in English, and a full translation is separate work you can ask for. The rule is in `AGENTS.md`, under Language.
+Commit messages, pull request titles and descriptions, and documentation are always in English, whatever language you write in: system docs, `CHANGELOG.md`, README files, `PRODUCT.md`, `DESIGN.md` and the workflow artifacts in `docs/work/`. The conductor still talks to you in your language, and product content such as UI copy follows the product's requirements. Existing docs in another language are not translated along the way: what the work adds or rewrites is in English, and a full translation is separate work you can ask for. The rule is in `AGENTS.md`, under Language.
 
 ## Task tracker
 

@@ -18,9 +18,10 @@ When a project-specific `AGENTS.md`, approved specification, approved plan, appr
 
 ## Language
 
-Commit messages and documentation are always written in English, whatever the language of the request, of the conversation or of the files already in the project:
+Commit messages, pull requests and documentation are always written in English, whatever the language of the request, of the conversation or of the files already in the project:
 
 - commit messages, including merge commits;
+- pull request titles and descriptions;
 - documentation: system docs under `docs/`, `CHANGELOG.md`, README files, `PRODUCT.md`, `DESIGN.md`, what canovaccio writes in the project `AGENTS.md`, `PROTOTYPE.md` files and the workflow artifacts in `docs/work/`.
 
 Answers the user gives in another language (at gates, in the design interview, in the request) are written into these files in English; only a verbatim quote of the request may keep its original language. Existing documentation in another language is not translated as a side effect: text the work adds or rewrites is in English, and translating the rest is separate work the user may ask for.
