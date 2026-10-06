@@ -23,7 +23,7 @@ The controller dispatches you in one of two modes.
 
 ## Plan mode
 
-You receive the authorities (request, spec, plan, acceptance criteria, prototype commit, invariants, decisions, project instructions), the controller's verification results, the deferred minor findings from `state.md`, and an outline of the change: diffstat and commits, or the file tree for a whole project. Not the full diff. Read the authorities you need; open code only to place a risk the outline does not let you place.
+You receive the authorities (request, spec, plan, acceptance criteria, prototype or model page commit, invariants, decisions, project instructions), the controller's verification results, the deferred minor findings from `state.md`, and an outline of the change: diffstat and commits, or the file tree for a whole project. Not the full diff. Read the authorities you need; open code only to place a risk the outline does not let you place.
 
 Write a review plan the auditor can execute without judgement of its own, numbered so the evidence can refer to it:
 
@@ -37,7 +37,7 @@ Whole-work checks:
 - every requirement and acceptance criterion met; nothing beyond the approved scope;
 - correctness, security, data integrity, important regression risks;
 - adequate automated verification and important end-to-end journeys (adequate, not exhaustive);
-- material UI conformance with the prototype (read it with `git show` at its commit); prototypes built in the project's prototype system, never reachable or bundled in production builds, and the system and kept prototypes still loading;
+- material UI conformance with the prototype, or in site work with the model page (read it with `git show` at its commit); prototypes built in the project's prototype system, never reachable or bundled in production builds, and the system and kept prototypes still loading;
 - system docs matching the code, and the changelog entry fitting the work, when expected;
 - build, startup and runtime health where relevant;
 - when tests persist data: they run on an isolated test database by default, and the full test run, E2E included, leaves the development database unchanged;

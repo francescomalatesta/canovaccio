@@ -7,13 +7,14 @@
 
 canovaccio turns a coding agent into a small, disciplined development team. You describe *what* you want; the setup decides *how* the work proceeds.
 
-A controller agent, the **conductor**, recognizes the kind of work you asked for and runs the matching workflow. It delegates each role to a specialized agent: one researches the codebase, one reviews specifications, one builds UI prototypes, one implements, one reviews each change, one steps in when a fix does not converge, one keeps the docs current, and one does the final review; with [Impeccable](#impeccable), one also captures the product and its design system, and one reviews the design. The conductor stops at a few **human gates**, where you approve a spec, a prototype or the delivery, and works autonomously everywhere else.
+A controller agent, the **conductor**, recognizes the kind of work you asked for and runs the matching workflow. It delegates each role to a specialized agent: one researches the codebase, one reviews specifications, one builds UI prototypes, one implements, one reviews each change, one steps in when a fix does not converge, one keeps the docs current, and one does the final review; for a public site, one writes the strategy, one the copy, and one builds the model page; with [Impeccable](#impeccable), one also captures the product and its design system, and one reviews the design. The conductor stops at a few **human gates**, where you approve a spec, a prototype or the delivery, and works autonomously everywhere else.
 
 Every piece of work leaves a trail: a spec or findings, the decisions taken, a changelog entry, and project docs updated to match the code. The next piece of work starts from those docs instead of rediscovering the codebase. Progress is saved to disk, so work resumes where it stopped, even in a new session.
 
 The workflows:
 
 - **greenfield** — a new project from scratch: explores the product with you, fixes stack and architecture in a spec, prototypes the UI, then builds it starting from a minimal end-to-end skeleton.
+- **site** — a product's public website: facts, strategy and every word decided by stronger models and approved by you, a model page built in production code by a stronger model, the other pages built by the cheaper implementer and checked against the approved copy by a script. See [Public sites](#public-sites).
 - **feature** — new or changed behavior in an existing project: spec and plan approved together (separately when a UI prototype is needed), then implementation task by task, each one reviewed.
 - **fix** — something works wrong: reproduces it, finds the root cause, fixes it test-first. The most autonomous workflow: it asks you only when the fix is risky or the expected behavior is unclear.
 - **refactor** — better structure, same behavior: pins current behavior with tests before touching the code, then restructures in small steps that keep every test green.
@@ -75,6 +76,7 @@ Start a workflow explicitly:
 
 ```
 /greenfield a CLI to track reading lists
+/site public website for the invoicing app
 /feature export orders as CSV
 /refactor split the billing module
 /fix login returns 500 with an expired password
@@ -90,6 +92,7 @@ Or just describe the work: the conductor classifies it with `workflow-router`, a
 | Workflow | For | Human gates |
 |---|---|---|
 | `greenfield` | new project | spec (with stack and architecture) · prototype, if UI · plan · delivery |
+| `site` | a product's public website | direction (strategy, stack) · content · model page · delivery |
 | `feature` | new or changed behavior | spec+plan (split only when a prototype is needed) · prototype, if material UX · delivery |
 | `refactor` | same behavior, better structure | scope and invariants · delivery |
 | `fix` | wrong existing behavior | fix approach, only when the expected behavior is unclear or the fix is risky · delivery |
@@ -104,6 +107,33 @@ Push, merge and destructive git commands also require approval through the permi
 Work stays inside the project. Temporary files (scratch scripts, logs, captures, the clean clone of the greenfield closure) go in `.canovaccio/tmp/`, whose own `.gitignore` keeps the directory versioned and its content out of git; each workflow uses a subdirectory named after its work directory and deletes it when it closes. The permissions in `opencode.jsonc` deny the system temporary directories (`/tmp`, `/var/tmp` and their macOS equivalents) instead of asking, so a stray path fails and the agent retries inside the project without stopping for approval.
 
 Tests never write to your development database. When tests persist data, the project gets a dedicated test database that the test commands use by default, E2E included (their app instance runs on it, on its own port), and a test run pointed at the development database stops instead of writing to it. A greenfield project sets it up in its spec and walking skeleton; a feature or fix on a project without it sets it up before adding tests that need it. Task and closure reviews check that a test run leaves the development database unchanged. The mechanism is the project's choice; the rule is in `AGENTS.md`.
+
+## Public sites
+
+`/site` builds a product's public website (home, features, pricing, legal pages) with the work split by what it needs: the decisions that make a site good are taken by stronger, more expensive models and approved by you; building the rest of the pages is transcription, done by the cheap implementer and checked by a script instead of by a strong reviewer.
+
+| Phase | Who (model) | Produces | Gate |
+|---|---|---|---|
+| facts | `@scout` | `facts.md`: what is true about the product, each fact with its source (code, config, your answers) | — |
+| strategy | `@strategist` (Opus) | `strategy.md`: audience, positioning, message, objections, conversion, voice, sitemap; plus the technical `spec.md` | G1 direction |
+| content | `@copywriter` (Opus) | `content.md`: every word of every page, calls to action, titles and descriptions | G2 content |
+| design | `@design-director` | `PRODUCT.md`, `DESIGN.md`: you pick one of two or three visual directions | — |
+| model page | `@site-builder` (Opus) | the site set up, its building blocks and the home page in production code | G3 model page |
+| plan | `@site-builder` (Opus) | one task per page, every section mapped to a block: nothing left to decide | checkpoint |
+| pages | `@implementer` + `@task-reviewer` (DeepSeek) | the other pages, transcribed from the content with the model page's blocks | — |
+| closure | design review, closure review | the whole site judged against content, facts and model page | G4 delivery |
+
+**No invented claims.** Every figure, price, customer, quote, integration or certification on a page cites a fact of `facts.md`. What nobody has established is an `[OPEN: ...]` placeholder, shown on the page until you fill it, listed at the content and delivery gates, never published.
+
+**site-check.** `skills/site-content/scripts/site-check.mjs` (Node 18+, no dependencies) verifies rendered pages against `content.md` without an LLM: every piece of copy present, text on the page that the content does not contain (invented copy), calls to action linking to their targets, title and description, `lang`, one `h1`, alt texts, broken links and anchors, sitemap. It serves a static build itself or reads a running app:
+
+```sh
+node skills/site-content/scripts/site-check.mjs --lint --content docs/work/<work>/content.md --facts docs/work/<work>/facts.md
+node skills/site-content/scripts/site-check.mjs --content docs/work/<work>/content.md --dist dist --sitemap
+node skills/site-content/scripts/site-check.mjs --content docs/work/<work>/content.md --url http://localhost:3000 --page /pricing
+```
+
+The implementer runs it on its pages before committing, the task reviewer again, the closure on the whole site. Later copy changes go through `/feature`, which asks `@copywriter` for the words when the project has a site built this way. The models are set in `agents/strategist.md`, `agents/copywriter.md` and `agents/site-builder.md`.
 
 ## Session cost
 
@@ -121,8 +151,8 @@ Requires Node 22.5+, no dependencies; the database is opened read-only. Costs ar
 
 Each workflow works in `docs/work/<date>-<slug>/` inside the target project:
 
-- versioned with the work: `spec.md`, `decisions.md`, `findings.md`;
-- local only (git-ignored): `brief.md`, `plan.md`, `invariants.md`, `repro.md`, `design-interview.md`, `design-review.md`, `closure-plan.md`, `closure-evidence.md`, `closure.md`, `state.md`.
+- versioned with the work: `spec.md`, `decisions.md`, `findings.md`; in site work also `facts.md`, `strategy.md` and the content files;
+- local only (git-ignored): `brief.md`, `plan.md`, `invariants.md`, `repro.md`, `design-interview.md`, `site-interview.md`, `design-review.md`, `closure-plan.md`, `closure-evidence.md`, `closure.md`, `state.md`.
 
 UI prototypes are not work artifacts: they live in the project's prototype system, described below.
 
@@ -147,11 +177,12 @@ Impeccable's own skill and commands are not installed: canovaccio takes its guid
 
 ### The choice
 
-Once per project, yours. The first time a greenfield, feature or refactor touches the UI, its first gate also asks: no · yes, advisory findings as Minor · yes, advisory findings excluded; with a yes, also whether to run the design review before closure. Advisory findings are the detector's soft signals, possibly deliberate (em-dash overuse, numbered section labels). The answers are saved in the project `AGENTS.md` and used by every later workflow without asking again; a fix never asks. Say it in a request to override it for that work (`/feature pricing page, without impeccable`, `... with design review`), edit `AGENTS.md` or ask to change it for good.
+Once per project, yours. The first time a greenfield, feature or refactor touches the UI, its first gate also asks (a site always runs with it unless you say no at its first gate): no · yes, advisory findings as Minor · yes, advisory findings excluded; with a yes, also whether to run the design review before closure. Advisory findings are the detector's soft signals, possibly deliberate (em-dash overuse, numbered section labels). The answers are saved in the project `AGENTS.md` and used by every later workflow without asking again; a fix never asks. Say it in a request to override it for that work (`/feature pricing page, without impeccable`, `... with design review`), edit `AGENTS.md` or ask to change it for good.
 
 ### Design context
 
 - **greenfield**: after the spec gate, `@design-director` writes `PRODUCT.md` from the spec and asks only what it leaves open, then offers two or three visual directions to choose from (or "decide for me") and writes a seed `DESIGN.md`. The prototype is built on it; after its approval, `DESIGN.md` is aligned with what you approved.
+- **site**: after the content gate, as in greenfield, with the approved strategy and copy as input; when the product already has the two files, the site extends its identity instead of inventing one. The model page is built on them; after its approval, `DESIGN.md` is aligned with it.
 - **`/design-init`**, on an existing project: reads what the code says (tokens, components, styles, rendered pages), asks only what it cannot (intentions, what to keep, what you dislike), writes both files. At delivery it offers a critique of the current interface, a report to start improving from; it changes no code.
 - The interview asks only necessary questions, each with a proposed answer so "ok" accepts them all, and "decide for me" always closes a choice. At most 3 rounds of 5 questions per file; what stays unknown is written as assumed or open, not asked again.
 - Every later UI work follows the files; the docs sync keeps `DESIGN.md` current with the tokens and components a work adds.
@@ -161,6 +192,7 @@ Once per project, yours. The first time a greenfield, feature or refactor touche
 | Workflow | Preference asked | Design context | Guidance while building | Checked |
 |---|---|---|---|---|
 | greenfield | at G1, if the product has a UI and no preference exists | built before the prototype | prototype, every task | prototype states in the browser, every task, design review if on, closure review |
+| site | at G1: on unless you say no | built before the model page | model page, every task | model page in the browser, every task, design review if on, closure review |
 | feature | at the first gate (G1 or G1a), if the UI changes and no preference exists | followed, kept current | prototype if any, every task | prototype states in the browser if there is a prototype, every task, design review if on, closure review |
 | refactor | at G1, if the perimeter includes UI code and no preference exists | followed | every step | every step, closure review |
 | fix | never: follows the preference, off without one | followed | the fix task | the fix task; closure review only when G-fix was opened |

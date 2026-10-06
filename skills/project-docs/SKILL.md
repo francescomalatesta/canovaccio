@@ -25,6 +25,7 @@ docs/
   components/<name>.md    # one per component
   flows/<name>.md         # optional: journeys spanning several components
   prototypes.md           # when the project has a prototype system: which and how
+  site.md                 # when the project has a public site built with workflow-site: how a page is built
   conventions.md          # coding conventions the user explicitly accepted
   .docsignore             # optional: paths no doc needs to cover
   work/                   # workflow artifacts, not system docs
@@ -138,6 +139,32 @@ covers:
 ```
 
 More prescriptive than other docs, but still no copied code: point to reference files in the project instead, so the checker catches them when they move. The doc describes the system and how to work in it, not individual prototypes: those are listed by the area's index, which is permanent and keeps `covers` matching.
+
+### `docs/site.md`
+
+Created when a site's model page is approved (see `workflow-site`), from `@site-builder`'s report. It is the recipe for a page of the site: with it and the page's content, a new page needs no further research and looks like the others.
+
+```markdown
+---
+covers:
+  - src/components/site/**
+  - src/pages/**
+---
+# Public site
+
+## Stack and layout    — where the site lives, how it builds and runs, where it is hosted
+## Building blocks     — each block: file, the kind of section it serves, variants and parameters,
+                         the page that shows it best
+## Adding a page       — files to create, where its copy goes, how it reaches the navigation
+                         and the sitemap
+## Tokens              — where colors, type, spacing and radii live; DESIGN.md is their description
+## SEO and metadata    — how title, description, canonical, Open Graph, sitemap and robots are produced
+## Integrations        — signup and contact targets, forms, analytics and consent
+## Checks              — the build, site-check with the content files of the work that built each page,
+                         the design check
+```
+
+Like `prototypes.md`, more prescriptive than other docs and without copied code: it points to the model page and the blocks as reference files.
 
 ### `docs/conventions.md`
 

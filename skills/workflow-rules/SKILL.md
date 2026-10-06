@@ -1,6 +1,6 @@
 ---
 name: workflow-rules
-description: Shared rules for every development workflow (greenfield, feature, refactor, fix, spike, docs-init, design-init) - gates, checkpoints, artifacts, state, resumption, system docs and changelog, the Impeccable choice, the task tracker, workflow switching and precedence over superpowers skills. Load before running or resuming any workflow.
+description: Shared rules for every development workflow (greenfield, site, feature, refactor, fix, spike, docs-init, design-init) - gates, checkpoints, artifacts, state, resumption, system docs and changelog, the Impeccable choice, the task tracker, workflow switching and precedence over superpowers skills. Load before running or resuming any workflow.
 ---
 
 # Workflow rules
@@ -39,8 +39,12 @@ Each workflow instance works in `docs/work/<YYYY-MM-DD>-<slug>/` inside the targ
 | `invariants.md` | behavior that must not change, and how it is verified | no |
 | `repro.md` | reproduction, root cause, failing test | no |
 | `findings.md` | spike answer, evidence and recommendation; in design-init, the critique of the interface | **yes** |
+| `facts.md` | in site work, or a feature writing site copy, what is true about the product, each fact with its source (see `site-content`) | **yes** |
+| `strategy.md` | in site work, audience, positioning, message, conversion, sitemap | **yes** |
+| `content.md`, `content.<lang>.md` | in site work, or a feature writing site copy, every word of every page, in the checkable format of `site-content` | **yes** |
 | `decisions.md` | decisions taken during the work, with rationale | **yes** |
 | `design-interview.md` | questions and answers of the design context interview, by round | no |
+| `site-interview.md` | questions and answers of the strategy and content interviews of site work, by round | no |
 | `design-review.md` | design review report, with its captures in `design-review/` | no |
 | `closure-plan.md` | closure review plan, saved by the controller | no |
 | `closure-evidence.md` | evidence collected for the closure review by `@closure-auditor` | no |
@@ -57,9 +61,12 @@ docs/work/*/*
 !docs/work/*/spec.md
 !docs/work/*/decisions.md
 !docs/work/*/findings.md
+!docs/work/*/facts.md
+!docs/work/*/strategy.md
+!docs/work/*/content*.md
 ```
 
-If the project does not use git, skip this.
+When the rules are there but miss a line the active workflow versions, add it. If the project does not use git, skip this.
 
 Temporary files of a workflow go in `.canovaccio/tmp/<work directory name>/`, never outside the project (see Temporary files in `AGENTS.md`). On the first workflow in a project, create `.canovaccio/tmp/.gitignore` as described there and commit it with the work. Whenever `state.md` becomes `closed` or `abandoned`, delete the workflow's temporary directory with `rm -rf .canovaccio/tmp/<work directory name>`.
 
@@ -148,18 +155,18 @@ Set by canovaccio from your answer. Edit it, or ask, to change it.
 - **`Use: on` without a `Design review` line**: greenfield and feature ask that question alone at their first gate, then add the line; other workflows treat it as off;
 - **the request says otherwise** ("without impeccable", "advisory included", "with design review"): that applies to this work only. When the user asks to change the preference itself, update `AGENTS.md`.
 
-Spike, docs-init and work that does not touch the UI run with Impeccable off, ask nothing and leave the preference as it is. Record the setting of this work in `state.md` as `Impeccable`, `Advisory` and `Design review`. `workflow-design-init` has its own rules for the preference.
+Spike, docs-init and work that does not touch the UI run with Impeccable off, ask nothing and leave the preference as it is. Record the setting of this work in `state.md` as `Impeccable`, `Advisory` and `Design review`. `workflow-site` and `workflow-design-init` have their own rules for the preference.
 
 **Availability.** When Impeccable is on, run `design-check.mjs --check` at the start of the work. If the detector cannot run, say so in a CHECKPOINT with the reason: the work continues, the guidance still applies, and every design check is reported as not run.
 
-**Dispatch.** With Impeccable on, add `Impeccable: on, advisory: <minor|exclude>` to every dispatch of `@implementer`, `@task-reviewer`, `@ui-prototyper`, `@doc-writer` for the docs sync and `@closure-reviewer` in plan mode, besides what the workflow lists; give `@implementer` the commit the task starts from. With Impeccable off, do not mention it: agents use neither guidance nor design checks, and the docs sync leaves `PRODUCT.md` and `DESIGN.md` alone.
+**Dispatch.** With Impeccable on, add `Impeccable: on, advisory: <minor|exclude>` to every dispatch of `@implementer`, `@task-reviewer`, `@ui-prototyper`, `@site-builder`, `@doc-writer` for the docs sync and `@closure-reviewer` in plan mode, besides what the workflow lists; give `@implementer` the commit the task starts from. With Impeccable off, do not mention it: agents use neither guidance nor design checks, and the docs sync leaves `PRODUCT.md` and `DESIGN.md` alone.
 
-**Design context.** `PRODUCT.md` and `DESIGN.md` are built by greenfield before its prototype and by `workflow-design-init` on an existing project, through the interview of `design-context`. With Impeccable on, every role that writes or reviews UI follows them when they exist.
+**Design context.** `PRODUCT.md` and `DESIGN.md` are built by greenfield before its prototype, by `workflow-site` before its model page and by `workflow-design-init` on an existing project, through the interview of `design-context`. With Impeccable on, every role that writes or reviews UI follows them when they exist.
 
-**Design review.** In greenfield and feature work that changed the UI, with `Design review: on`, after the last implementation task and before the docs sync:
+**Design review.** In greenfield, site and feature work that changed the UI, with `Design review: on`, after the last implementation task and before the docs sync:
 
 1. Start the app detached, or the prototype system when the app cannot run, and note it in `state.md`.
-2. Dispatch `@design-reviewer` in change mode with the URLs of the screens the work added or changed and what each is for, the work directory, the base branch, the approved prototype commit if any and the advisory setting (see `design-review`). Stop what you started.
+2. Dispatch `@design-reviewer` in change mode with the URLs of the screens the work added or changed and what each is for, the work directory, the base branch, the approved prototype or model page commit if any and the advisory setting (see `design-review`). Stop what you started.
 3. Important findings become one fix task through the Review loop; Minor ones follow the minor-findings policy.
 4. Give a CHECKPOINT with the heuristics score and the findings. There is no second design review: the closure review verifies the fixes.
 
@@ -175,7 +182,7 @@ When the project `AGENTS.md` has a Task tracker preference and the work has item
 
 ## System docs and changelog
 
-Greenfield, feature, refactor and fix read the system docs at the start and bring them, and `CHANGELOG.md`, up to date at the end. Spikes do neither; `workflow-docs-init` has its own flow. The rules are in the `project-docs` and `project-changelog` skills.
+Greenfield, site, feature, refactor and fix read the system docs at the start and bring them, and `CHANGELOG.md`, up to date at the end. Spikes do neither; `workflow-docs-init` has its own flow. The rules are in the `project-docs` and `project-changelog` skills.
 
 - **At the start**, in the discovery phase: follow the `project-docs` reading protocol, and pass the relevant doc paths to `@scout` as starting points. Record doc/code discrepancies in `state.md` Notes.
 - **At the end**, as a step of its own right before closure: **docs sync**. Dispatch `@doc-writer` with the work directory, the base branch, the workflow type and the recorded discrepancies; when the work built a prototype, also pass the prototyper's report so `docs/prototypes.md` is completed from it. Review its report and commit its changes with the work.
@@ -237,7 +244,7 @@ A switch is a gate. On approval, close the current `state.md` (status `closed`, 
 
 ## Branches
 
-Unless the project says otherwise, create a branch before the first change to project files (a prototype or implementation): `<workflow>/<slug>` (for example `feature/csv-export`, `fix/login-500`). Greenfield works on the default branch of a new repository or of one with no project yet (no commits, or only the agent harness), and on `greenfield/<slug>` inside a repository that already holds a project. Spikes use `spike/<slug>` and are never merged. Docs bootstrapping uses `docs-init/<slug>`, design context bootstrapping `design-init/<slug>`.
+Unless the project says otherwise, create a branch before the first change to project files (a prototype or implementation): `<workflow>/<slug>` (for example `feature/csv-export`, `fix/login-500`). Greenfield works on the default branch of a new repository or of one with no project yet (no commits, or only the agent harness), and on `greenfield/<slug>` inside a repository that already holds a project. A site works like greenfield when it is a project of its own, and on `site/<slug>` inside an existing repository. Spikes use `spike/<slug>` and are never merged. Docs bootstrapping uses `docs-init/<slug>`, design context bootstrapping `design-init/<slug>`.
 
 Work on a branch in the current checkout; use worktrees only if the user asks. Creating branches and committing are autonomous. Pushing, merging and destructive git operations are not: they happen only at the delivery gate or with explicit permission.
 

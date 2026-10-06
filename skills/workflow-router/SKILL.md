@@ -1,6 +1,6 @@
 ---
 name: workflow-router
-description: Classifies a development request into the right workflow (greenfield, feature, refactor, fix, spike, docs-init, design-init) when none was named explicitly, announces the choice and loads that workflow.
+description: Classifies a development request into the right workflow (greenfield, site, feature, refactor, fix, spike, docs-init, design-init) when none was named explicitly, announces the choice and loads that workflow.
 ---
 
 # Workflow router
@@ -18,6 +18,7 @@ When the answer depends on the codebase, take a quick look or dispatch `@scout`.
 | `workflow-spike` | a question to answer before building: feasibility, which library, how would we, compare. Questions about wrong behavior are fixes |
 | `workflow-fix` | existing behavior is wrong: bug, error, crash, regression, failing test |
 | `workflow-refactor` | better structure, same behavior: restructure, extract, rename, migrate internals, upgrade with no functional change. A redesign the user can see is a feature |
+| `workflow-site` | a product's public website as a whole: marketing site, landing pages, pricing and legal pages, new or rebuilt. One page or copy changes on a site that already has its building blocks is a feature |
 | `workflow-greenfield` | no project yet (no repository, or one holding only the agent harness), or a new application that needs its own stack and architecture decisions |
 | `workflow-feature` | new or changed behavior in an existing project |
 

@@ -38,7 +38,7 @@ For findings of the change:
 
 The script applies this table. Minor findings then follow the workflow's minor-findings policy (`fix` or `defer`).
 
-Before reporting a finding, verify it in the code: regex scans of components produce false positives, which are dismissed with the reason. **The approved prototype wins**: a finding that reproduces a choice visible in the approved prototype is not a finding, since the user accepted it at the prototype gate.
+Before reporting a finding, verify it in the code: regex scans of components produce false positives, which are dismissed with the reason. **The approved prototype wins**: a finding that reproduces a choice visible in the approved prototype, or in site work the approved model page, is not a finding, since the user accepted it at its gate.
 
 ## Ignores
 

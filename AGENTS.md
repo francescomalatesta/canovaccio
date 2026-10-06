@@ -30,7 +30,7 @@ This does not change the language used to talk to the user, nor product content 
 
 ## Workflows
 
-Development workflows are defined as skills: `workflow-greenfield`, `workflow-feature`, `workflow-refactor`, `workflow-fix`, `workflow-spike`, `workflow-docs-init` and `workflow-design-init`, with shared rules in `workflow-rules`.
+Development workflows are defined as skills: `workflow-greenfield`, `workflow-site`, `workflow-feature`, `workflow-refactor`, `workflow-fix`, `workflow-spike`, `workflow-docs-init` and `workflow-design-init`, with shared rules in `workflow-rules`.
 
 A workflow is active when it was started explicitly, selected by `workflow-router`, or recorded as active in a project's `docs/work/*/state.md`.
 
@@ -210,6 +210,8 @@ Normal role boundaries:
 - repository or documentation exploration → scout;
 - specification or plan review → spec-reviewer;
 - browser prototype implementation → ui-prototyper;
+- site strategy, site copy → strategist, copywriter;
+- a site's model page and the plan for its other pages → site-builder;
 - production implementation → implementer;
 - task-level review → task-reviewer;
 - difficult failed implementation → escalator;

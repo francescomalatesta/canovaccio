@@ -5,13 +5,13 @@ description: Design guidance for writing UI when a workflow runs with Impeccable
 
 # Design craft
 
-Guidance from [Impeccable](https://impeccable.style) for whoever writes UI: `@ui-prototyper` building a prototype, `@implementer` on a task that changes UI. Use it only when the controller says Impeccable is on. Read the files below before writing UI code, then build without announcing the checklist.
+Guidance from [Impeccable](https://impeccable.style) for whoever writes UI: `@ui-prototyper` building a prototype, `@site-builder` building a site's model page, `@implementer` on a task that changes UI. Use it only when the controller says Impeccable is on. Read the files below before writing UI code, then build without announcing the checklist.
 
 ## Precedence
 
 What is already decided wins over this guidance:
 
-1. the approved prototype, the spec and `docs/conventions.md`;
+1. the approved prototype or model page, the spec, the approved content of a site and `docs/conventions.md`;
 2. the project's established visual style: its tokens, components and `DESIGN.md` when present. A page, section, component or state added to an existing UI inherits that style; it is never an occasion to invent a new one;
 3. this guidance.
 
@@ -41,7 +41,7 @@ When the page has no established style to inherit (a new project, or the first p
 
 ## Reading the references
 
-They are extracted from Impeccable's skill, whose process canovaccio does not run. Where they mention it (assigned directions, challengers, catalog worlds, the roll, decision pages, direction contracts, `PRODUCT.md`), read "the direction of this page" and skip the procedure: here the user judges the direction at the prototype gate, or the approved prototype has settled it. A "comp" is the page you build; guidance about alternative comps does not apply.
+They are extracted from Impeccable's skill, whose process canovaccio does not run. Where they mention it (assigned directions, challengers, catalog worlds, the roll, decision pages, direction contracts, `PRODUCT.md`), read "the direction of this page" and skip the procedure: here the user judges the direction at the prototype gate or, in site work, the model page gate, or what they approved has settled it. A "comp" is the page you build; guidance about alternative comps does not apply.
 
 The Verify checks of the craft floor are covered by the design check of the `design-check` skill and by the verification of your role: run them in one pass, not in repeated screenshot rounds.
 

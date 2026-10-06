@@ -44,6 +44,8 @@ Write `spec.md` using `superpowers:brainstorming` as technique. Clarifying quest
 - UX changes, and whether they are material (new screens, changed flows, changed layout);
 - when a prototype is needed and the project has no prototype system: the system to adopt or set up, following `project-prototypes`.
 
+When the feature adds or changes pages of a public site built with `workflow-site` (the project has `docs/site.md`), their words are not written in the spec: dispatch `@copywriter` with the spec, the site's strategy if the user points to it, and a `facts.md` for what the new copy claims, following `site-content`. The content file is presented with the spec at its gate, `@implementer` transcribes it with the site's blocks, and `site-check` on the changed routes is part of each task's verification.
+
 Dispatch `@spec-reviewer` with the request, `brief.md` and `spec.md`. Fix BLOCKING findings; list at the next gate any finding you chose not to address, with the reason.
 
 When the feature changes the UI and the project has no Impeccable preference yet, its first gate (G1a or G1) also asks it (see Impeccable in `workflow-rules`).

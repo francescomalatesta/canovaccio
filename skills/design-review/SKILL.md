@@ -7,17 +7,17 @@ description: How @design-reviewer runs a design review with Impeccable's critiqu
 
 A design review judges what the detector cannot: hierarchy, clarity, cognitive load, coherence with the design system, and whether the result belongs to this product or could be any product of its category. `@design-reviewer` runs it in one of two modes:
 
-- **change**: in greenfield and feature work, before the docs sync, when the project preference has `Design review: on` and the work changed the UI. It reviews the screens the work added or changed.
+- **change**: in greenfield, site and feature work, before the docs sync, when the project preference has `Design review: on` and the work changed the UI. It reviews the screens the work added or changed.
 - **critique**: in `workflow-design-init`, when the user asks for it at delivery. It reviews the main screens of the existing interface, at most five, and only reports.
 
 ## Inputs
 
-The controller starts the app, or the prototype system when the app cannot run, detached, and passes: the URLs to review with what each screen is for; the work directory; the advisory setting; in change mode, the base branch and the approved prototype commit if any. `PRODUCT.md` and `DESIGN.md` are read from the project root when they exist.
+The controller starts the app, or the prototype system when the app cannot run, detached, and passes: the URLs to review with what each screen is for; the work directory; the advisory setting; in change mode, the base branch and the approved prototype or model page commit if any. `PRODUCT.md` and `DESIGN.md` are read from the project root when they exist.
 
 ## Procedure
 
 1. **Capture.** `design-check.mjs --screenshot <url>... --out <work dir>/design-review/`, then open the captures. If you cannot view images, the report opens with `⚠️ DEGRADED: no image input (<reason>)` and the review relies on code and the rendered DOM.
-2. **Assess** before running the detector, whose findings would anchor your judgement. Follow the Assessment of `reference/review.md` with `reference/heuristics.md`: design specificity, hierarchy and composition, cognitive load, the ten heuristics scored 0–4, two or three personas. Judge against `PRODUCT.md` (who it is for, what it must do) and `DESIGN.md` (the system). In change mode a choice visible in the approved prototype is not a finding: the user approved it.
+2. **Assess** before running the detector, whose findings would anchor your judgement. Follow the Assessment of `reference/review.md` with `reference/heuristics.md`: design specificity, hierarchy and composition, cognitive load, the ten heuristics scored 0–4, two or three personas. Judge against `PRODUCT.md` (who it is for, what it must do) and `DESIGN.md` (the system). In change mode a choice visible in the approved prototype or model page is not a finding: the user approved it.
 3. **Detector.** `design-check.mjs` with the advisory setting: `--changed <base>` in change mode, `--url` on the screens in critique mode. Weave it in: where it agrees with you, what it caught that you missed, and its false positives.
 4. **Report**, in the work directory: `design-review.md` in change mode, `findings.md` in critique mode. Structure it as the Report of `reference/review.md`: a first line with the method (`Method: captures + detector` or the degraded banner), Design Health Score, Design Specificity Verdict, Overall Impression, What's Working, Priority Issues tagged P0–P3 (each with the screen or `file:line`, why it matters and a concrete fix), Persona Red Flags, Minor Observations, and the detector summary.
 
