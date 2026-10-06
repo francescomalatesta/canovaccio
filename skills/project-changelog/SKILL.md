@@ -9,7 +9,7 @@ Workflows record notable changes in `CHANGELOG.md` at the project root (for a gr
 
 ## If the project already has a changelog
 
-Follow its existing format and conventions, even if they differ from this skill. Do not convert an existing changelog.
+Follow its existing format and conventions, even if they differ from this skill. Do not convert an existing changelog. Language is the exception: new entries are always in English, even when the existing ones are not (see Language in `AGENTS.md`).
 
 ## If there is none
 
@@ -47,6 +47,7 @@ Sections, in this order, only when they have entries:
 
 ## How to write an entry
 
+- In English.
 - One line per change, describing the effect for the reader (user, operator, library consumer), not the implementation.
 - Present tense, no trailing period, consistent with existing entries.
 - Group related changes of one workflow into as few entries as reads naturally; a feature is usually one or two lines, not one per task.

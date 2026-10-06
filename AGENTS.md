@@ -16,6 +16,17 @@ Do not require workflow instructions to be repeated in product prompts.
 
 When a project-specific `AGENTS.md`, approved specification, approved plan, approved prototype or active workflow exists, respect its authority within its stated scope.
 
+## Language
+
+Commit messages and documentation are always written in English, whatever the language of the request, of the conversation or of the files already in the project:
+
+- commit messages, including merge commits;
+- documentation: system docs under `docs/`, `CHANGELOG.md`, README files, `PRODUCT.md`, `DESIGN.md`, what canovaccio writes in the project `AGENTS.md`, `PROTOTYPE.md` files and the workflow artifacts in `docs/work/`.
+
+Answers the user gives in another language (at gates, in the design interview, in the request) are written into these files in English; only a verbatim quote of the request may keep its original language. Existing documentation in another language is not translated as a side effect: text the work adds or rewrites is in English, and translating the rest is separate work the user may ask for.
+
+This does not change the language used to talk to the user, nor product content such as UI copy, which follows the product's requirements.
+
 ## Workflows
 
 Development workflows are defined as skills: `workflow-greenfield`, `workflow-feature`, `workflow-refactor`, `workflow-fix`, `workflow-spike`, `workflow-docs-init` and `workflow-design-init`, with shared rules in `workflow-rules`.

@@ -215,6 +215,10 @@ Every workflow except spike starts from the docs to find where to work, and ends
 
 `skills/project-docs/scripts/check-docs.mjs` (Node 18+, no dependencies) checks a project's docs: covers matching real files, links, index completeness, uncovered code; with `--changed <base>` it lists the docs a change impacts.
 
+## Language
+
+Commit messages and documentation are always in English, whatever language you write in: system docs, `CHANGELOG.md`, README files, `PRODUCT.md`, `DESIGN.md` and the workflow artifacts in `docs/work/`. The conductor still talks to you in your language, and product content such as UI copy follows the product's requirements. Existing docs in another language are not translated along the way: what the work adds or rewrites is in English, and a full translation is separate work you can ask for. The rule is in `AGENTS.md`, under Language.
+
 ## Task tracker
 
 If you track the project in an external tool (GitHub Projects, Jira, Linear, ClickUp, Trello), name the item when you start the work (`/feature #42`, or a link to the card) and the conductor keeps its status in step with the work, as defined by `skills/project-tracker`:

@@ -10,7 +10,7 @@ Two files at the project root, in [Impeccable](https://impeccable.style)'s forma
 - **`PRODUCT.md`**: durable product truth. Users and their situation, purpose, positioning, operating context, capabilities and constraints, brand commitments, evidence on hand, product principles, accessibility. No visual decisions. Format and what belongs in it: `reference/product.md`.
 - **`DESIGN.md`**: the visual system. A YAML frontmatter of tokens (colors, typography, rounded, spacing, components), which is normative, then up to eight sections in a fixed order. Format: `reference/design.md`. When it exists, the detector of `design-check` also reports fonts, colors and radii outside it.
 
-`@design-director` writes them, links them from `docs/index.md` when the project has one, and the controller commits them with the work. `DESIGN.md` describes the system as it is, plus the intentions the user confirmed: never a wish list. Improvements are findings, kept elsewhere.
+`@design-director` writes them, links them from `docs/index.md` when the project has one, and the controller commits them with the work. Both are written in English, even when the interview runs in another language (see Language in `AGENTS.md`). `DESIGN.md` describes the system as it is, plus the intentions the user confirmed: never a wish list. Improvements are findings, kept elsewhere.
 
 ## Modes
 

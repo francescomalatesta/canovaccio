@@ -47,7 +47,7 @@ Each workflow instance works in `docs/work/<YYYY-MM-DD>-<slug>/` inside the targ
 | `closure.md` | written by the controller: final review verdict, verification evidence, deferred minor findings, convention proposals, detector ignore proposals | no |
 | `state.md` | workflow state, see below | no |
 
-Only the artifacts the active workflow uses are created. `decisions.md` is created on the first decision worth recording; do not create it empty.
+Artifacts are written in English, whatever the language of the request or of the gate answers; `brief.md` may quote the request verbatim (see Language in `AGENTS.md`). Only the artifacts the active workflow uses are created. `decisions.md` is created on the first decision worth recording; do not create it empty.
 
 Durable artifacts (spec, findings, decisions) are committed together with the work. Operational ones stay out of version control. On the first workflow in a project, make sure the project `.gitignore` contains:
 

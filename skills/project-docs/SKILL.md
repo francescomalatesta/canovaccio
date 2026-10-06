@@ -12,7 +12,8 @@ System docs are a **map** of the codebase: they tell an agent or a person where 
 1. **Map, not mirror.** Document what the code does not say easily: purpose, boundaries, entry points, interactions, invariants, pitfalls. Do not restate signatures, field lists or implementation details that the code already shows; they go stale first.
 2. **Code is the source of truth.** Use docs to decide where to look, then verify in the code before acting. When docs and code disagree, trust the code and record the discrepancy so the docs get fixed.
 3. **Every component doc declares what it covers.** Its frontmatter lists the code paths it describes. This maps a change to the docs it impacts mechanically.
-4. **Current state only.** Docs describe the system as it is now. History (why and how something changed) lives in `docs/work/` and `CHANGELOG.md`.
+4. **English.** Docs are written in English, even when the project's existing docs or the request are in another language. Existing text in another language is not translated as a side effect (see Language in `AGENTS.md`).
+5. **Current state only.** Docs describe the system as it is now. History (why and how something changed) lives in `docs/work/` and `CHANGELOG.md`.
 
 ## Structure
 

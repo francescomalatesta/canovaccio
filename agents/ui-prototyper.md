@@ -28,7 +28,7 @@ If the approved system turns out not to work as specified, stop and report why, 
 
 You receive the approved spec and the work directory name. The system is described in `docs/prototypes.md`: follow its recipe, and study the codebase only for what it does not cover. If the project has no system, stop and report it: choosing one is not your decision.
 
-Build the prototype in `<area>/<work>/`, with its `PROTOTYPE.md` (status `in-progress`), and add it to the index. Outside the prototype directory, change only what makes it reachable in development, such as a route registration.
+Build the prototype in `<area>/<work>/`, with its `PROTOTYPE.md` (status `in-progress`, written in English), and add it to the index. Outside the prototype directory, change only what makes it reachable in development, such as a route registration.
 
 - Reuse the project's components, styles and design conventions; in a new project, use the stack and UI kit from the spec.
 - Use realistic mock data inside the area and simulate backend behavior; do not build backend functionality.

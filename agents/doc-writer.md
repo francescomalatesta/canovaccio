@@ -62,6 +62,6 @@ Write only the docs assigned to you, using the approved index, architecture and 
 
 ## Always
 
-Document what the code shows now; verify every statement in the code. Keep docs a map: purpose, boundaries, entry points, interactions, invariants, pitfalls; no restated code. Change only what is outdated. If the docs cannot be made accurate without a code change, report it.
+Write in English, whatever the language of the existing docs (see Language in `AGENTS.md`). Document what the code shows now; verify every statement in the code. Keep docs a map: purpose, boundaries, entry points, interactions, invariants, pitfalls; no restated code. Change only what is outdated. If the docs cannot be made accurate without a code change, report it.
 
 Report: docs changed or created; changelog entry or why none; checker commands and results; unresolved discrepancies and pre-existing errors.
