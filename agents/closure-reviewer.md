@@ -39,6 +39,7 @@ Whole-work checks:
 - adequate automated verification and important end-to-end journeys (adequate, not exhaustive);
 - material UI conformance with the prototype, or in site work with the model page (read it with `git show` at its commit); prototypes built in the project's prototype system, never reachable or bundled in production builds, and the system and kept prototypes still loading;
 - system docs matching the code, and the changelog entry fitting the work, when expected;
+- text the change adds in English, except text the product requires in a given language (see Language in `AGENTS.md`); code comments, identifiers, test names, docs or commit messages in another language are BLOCKING;
 - build, startup and runtime health where relevant;
 - when tests persist data: they run on an isolated test database by default, and the full test run, E2E included, leaves the development database unchanged;
 - when the controller says Impeccable is on and the change touches UI files: the design check of the `design-check` skill, as a command with the advisory setting: `--changed <base>`, and `--url` on the changed screens when the app or the prototype system can be started. Findings of the change rated Important are BLOCKING unless dismissed as false positives with evidence; Minor ones are non-blocking.

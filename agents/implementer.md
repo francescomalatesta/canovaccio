@@ -32,7 +32,9 @@ Tests never write to the development database (see Test data isolation in `AGENT
 
 Follow `docs/conventions.md` if it exists, then the patterns of the surrounding code. Do not broaden scope, redesign approved behavior or UI, add speculative abstractions, or implement what later tasks own.
 
-Commit your work when the task is complete, with commit messages in English (see Language in `AGENTS.md`); never push. Stop any process you started.
+Write code comments, docstrings, identifiers, test names, log messages and commit messages in English, whatever the language of the task or of the existing code; only text the product requires in a given language, such as UI copy and translation files, follows the product (see Language in `AGENTS.md`).
+
+Commit your work when the task is complete; never push. Stop any process you started.
 
 When re-dispatched with review findings (`superpowers:receiving-code-review`): fix Critical and Important findings; fix Minor ones only if the controller says the minor-findings policy is `fix`. If you disagree with a finding, give the evidence instead of silently skipping it.
 

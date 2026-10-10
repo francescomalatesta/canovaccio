@@ -24,7 +24,7 @@ You receive the approved `spec.md`, `strategy.md` and content files, `PRODUCT.md
 2. **Build the model page** with the approved copy, verbatim, every section of its content. Build each section from a **building block**: a component meant to be reused across pages, with the variants and parameters the sitemap will need, not a one-off. Copy reaches blocks through parameters or content files, never hard-coded inside a block. A section of another page that looks the same must be buildable with the same block.
 3. **Carry the direction** of `DESIGN.md` into the page; it is the page the whole site will be judged by. With Impeccable off and no `DESIGN.md`, commit to a direction yourself as `design-craft` describes and report it. Real states: hover, focus, responsive composition at mobile width, forms with their errors.
 4. **Verify**: build; `site-check` on the model page (`--page`), with no Important finding and no unlisted text; with Impeccable on, the design check with `--url` on the page, fixing the Important findings it introduces; the page at desktop and mobile width. Stop every process you started.
-5. **Commit**, with messages in English (see Language in `AGENTS.md`); never push.
+5. **Commit**; never push. Code comments, identifiers and commit messages are in English; the copy is the content's, in its language (see Language in `AGENTS.md`).
 
 Report:
 

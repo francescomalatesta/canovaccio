@@ -251,7 +251,7 @@ Every workflow except spike starts from the docs to find where to work, and ends
 
 ## Language
 
-Commit messages, pull request titles and descriptions, and documentation are always in English, whatever language you write in: system docs, `CHANGELOG.md`, README files, `PRODUCT.md`, `DESIGN.md` and the workflow artifacts in `docs/work/`. The conductor still talks to you in your language, and product content such as UI copy follows the product's requirements. Existing docs in another language are not translated along the way: what the work adds or rewrites is in English, and a full translation is separate work you can ask for. The rule is in `AGENTS.md`, under Language.
+Everything canovaccio writes into your project is in English, whatever language you write in: code comments, docstrings, identifiers, test names and log messages, commit messages, pull request titles and descriptions, and documentation (system docs, `CHANGELOG.md`, README files, `PRODUCT.md`, `DESIGN.md` and the workflow artifacts in `docs/work/`). The conductor also briefs its subagents in English, so your language does not leak into what they write. The exception is text whose language the product requires: UI copy, translation files, localized content and the tests that check them. The conductor still talks to you in your language. Existing text in another language is not translated along the way: what the work adds or rewrites is in English, and a full translation is separate work you can ask for. Task and closure reviews flag non-English text the work adds. The rule is in `AGENTS.md`, under Language.
 
 ## Task tracker
 

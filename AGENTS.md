@@ -18,15 +18,19 @@ When a project-specific `AGENTS.md`, approved specification, approved plan, appr
 
 ## Language
 
-Commit messages, pull requests and documentation are always written in English, whatever the language of the request, of the conversation or of the files already in the project:
+Everything written into a project is in English, whatever the language of the request, of the conversation or of the files already in the project. This includes:
 
+- code: comments, docstrings, identifiers, test names and descriptions, log messages, error messages not shown to the product's users, comments in configuration files and scripts;
 - commit messages, including merge commits;
 - pull request titles and descriptions;
-- documentation: system docs under `docs/`, `CHANGELOG.md`, README files, `PRODUCT.md`, `DESIGN.md`, what canovaccio writes in the project `AGENTS.md`, `PROTOTYPE.md` files and the workflow artifacts in `docs/work/`.
+- documentation: system docs under `docs/`, `CHANGELOG.md`, README files, `PRODUCT.md`, `DESIGN.md`, what canovaccio writes in the project `AGENTS.md`, `PROTOTYPE.md` files and the workflow artifacts in `docs/work/`;
+- the prompts a controller writes when dispatching subagents, user answers it relays included.
 
-Answers the user gives in another language (at gates, in the design interview, in the request) are written into these files in English; only a verbatim quote of the request may keep its original language. Existing documentation in another language is not translated as a side effect: text the work adds or rewrites is in English, and translating the rest is separate work the user may ask for.
+The only exception is text whose language the product requires: UI copy and other text shown to the product's users, translation and locale files, localized content such as site copy, and the tests and fixtures that check it. A domain term with no faithful English equivalent may keep its name in identifiers, and a verbatim quote of the request may keep its original language.
 
-This does not change the language used to talk to the user, nor product content such as UI copy, which follows the product's requirements.
+Answers the user gives in another language (at gates, in the design interview, in the request) are written into the project in English. Existing text in another language, documentation or code comments, is not translated as a side effect: text the work adds or rewrites is in English, even in a file whose other text is not, and translating the rest is separate work the user may ask for.
+
+This does not change the language used to talk to the user, which stays the user's.
 
 ## Workflows
 

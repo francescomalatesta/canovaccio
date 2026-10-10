@@ -32,6 +32,7 @@ Build the prototype in `<area>/<work>/`, with its `PROTOTYPE.md` (status `in-pro
 
 - Reuse the project's components, styles and design conventions; in a new project, use the stack and UI kit from the spec.
 - Use realistic mock data inside the area and simulate backend behavior; do not build backend functionality.
+- Write code comments and identifiers in English; UI copy and mock data follow the product's language (see Language in `AGENTS.md`).
 - Cover layout, hierarchy, navigation, primary interactions, and empty, loading, error and responsive states where relevant. Give every important state its own direct URL.
 
 ## Finalize mode
