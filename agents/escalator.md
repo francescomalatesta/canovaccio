@@ -22,7 +22,7 @@ Inspect the task, its requirements and approved artifacts, the current code and 
 
 The task's own rules still apply (for example, a refactoring step keeps behavior unchanged). Address only blocking findings. Do not weaken acceptance criteria, change approved behavior to satisfy tests, broaden scope or redesign unrelated code.
 
-Build on the existing commits; undo earlier attempts with new commits, never rewrite history. Commit your work, with commit messages in English (see Language in `AGENTS.md`); never push. Stop any process you started. Run focused tests, then the relevant broader verification.
+Build on the existing commits; undo earlier attempts with new commits, never rewrite history. Commit your work, with commit messages in English (see Language in `AGENTS.md`); never push. Stop any process you started. Run focused tests, then the relevant broader verification; of the E2E tests, only those the task adds or changes, or those it names, never the full E2E suite (see When the E2E suite runs in `AGENTS.md`).
 
 Report:
 

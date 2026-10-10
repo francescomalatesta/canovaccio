@@ -123,6 +123,8 @@ For every implementation task:
 
 This replaces the fix-round limits of `superpowers:subagent-driven-development`.
 
+Throughout the loop, `@implementer`, `@task-reviewer` and `@escalator` run only the E2E tests the task adds or changes, or those the workflow names for it, never the full E2E suite. The full E2E suite runs once, in the workflow's final verification right before the closure review, and again after fixes to closure findings (see When the E2E suite runs in `AGENTS.md`). Plans follow the same rule: a task's verification names its own E2E tests, never the full E2E suite.
+
 ## Minor findings policy
 
 Decides what happens to Minor review findings, so the flow is never interrupted for them:
@@ -198,7 +200,7 @@ Where a workflow runs the closure review, it names the authorities to pass and a
 2. **Evidence.** Dispatch `@closure-auditor` with the work directory and the base branch. It executes the plan and writes `closure-evidence.md`.
 3. **Verdict.** Dispatch `@closure-reviewer` in verdict mode with the authorities, `closure-plan.md` and `closure-evidence.md`, or continue its planning session with the evidence when the environment lets you resume a subagent. On NEEDS-EVIDENCE, send its requests to `@closure-auditor`, then ask for the verdict again; at most once per review round.
 
-On FAIL, fix the BLOCKING findings as the workflow says, then review again, scoped: the auditor on the fix commits and the previous findings, appended to the evidence, and the verdict on the previous findings and the new changes; the plan is not rewritten. The workflow says what happens after repeated failures.
+On FAIL, fix the BLOCKING findings as the workflow says, run the full verification again, full E2E suite included, then review again, scoped: the auditor on the fix commits and the previous findings, appended to the evidence, and the verdict on the previous findings and the new changes; the plan is not rewritten. The workflow says what happens after repeated failures.
 
 A phase that fails for a reason outside the review, such as a harness or provider error, is repeated alone from the saved artifacts. It does not count as a closure failure.
 

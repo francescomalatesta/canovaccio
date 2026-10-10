@@ -38,7 +38,7 @@ Write `invariants.md`:
 - **invariants** — observable behavior that must not change: public interfaces, outputs, persisted formats, error behavior, and performance bounds when they matter;
 - **coverage** — for each invariant, the existing tests that pin it, or the characterization test to add;
 - **target design** — the intended structure and why it is better;
-- **steps** — an ordered sequence of small refactoring steps, each leaving the build and all tests green, each independently committable.
+- **steps** — an ordered sequence of small refactoring steps, each leaving the build and all tests green, each independently committable; each step names the E2E tests that pin the invariants it touches.
 
 Dispatch `@spec-reviewer` with the request and `invariants.md`: are the invariants complete for the perimeter, is each one verified, are the steps small and safe? Fix BLOCKING findings; list at the gate any finding you chose not to address, with the reason.
 
@@ -54,7 +54,7 @@ The tests are committed on their own, before any refactoring commit.
 
 Run the Review loop of `workflow-rules` for each step in `invariants.md`, passing the minor-findings policy and the commit range. Each step:
 
-- leaves the full test suite green;
+- leaves the full test suite except E2E green, and the E2E tests it names passing; the full E2E suite runs once, at closure (see When the E2E suite runs in `AGENTS.md`);
 - modifies existing tests only mechanically (renamed imports, moved paths), which the reviewer checks;
 - stops at an unplanned gate if it cannot be completed without changing an invariant.
 
@@ -66,7 +66,7 @@ Dispatch `@doc-writer` for the docs sync described in `workflow-rules`, with the
 
 ### 6. Closure
 
-1. Commit `decisions.md` if it exists, then run the project's full verification yourself, including startup when relevant.
+1. Commit `decisions.md` if it exists, then run the project's full verification yourself, including the full E2E suite and startup when relevant.
 2. Run the closure review (see Closure review in `workflow-rules`) against the base branch, with the request, `invariants.md` and `decisions.md` if any. Docs and changelog are part of the change. The focus is behavioral equivalence: every invariant still verified, no behavior change outside mechanical ones, no test weakened, target design reached.
 3. On FAIL, fix through the Review loop and review again; after two failures, open an unplanned gate.
 4. Write `closure.md`: verdict, verification run with results, deviations, non-blocking observations, deferred minor findings.

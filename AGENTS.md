@@ -154,6 +154,12 @@ Do not duplicate substantial lower-level coverage through E2E unless the complet
 
 Tests should be deterministic and should not depend on arbitrary sleeps when observable readiness conditions are available.
 
+### When the E2E suite runs
+
+When work is split into tasks, the full E2E suite runs once: when all tasks are done, right before the final review. It runs again only to verify fixes made after that review.
+
+During a task, run only the E2E tests the task adds or changes, or those its workflow names for it, by file or by name; never the whole E2E suite, not even through a test command that bundles it with the other tests. The rest of the test suite still runs as usual.
+
 ### Test data isolation
 
 Tests never write to the local development database. When tests persist data, the development environment provides a dedicated, isolated test database:

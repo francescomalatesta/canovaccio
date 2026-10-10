@@ -59,7 +59,7 @@ Run the Review loop of `workflow-rules` with one task: give `@implementer` `repr
 1. when the regression test persists data and the project has no test data isolation, set it up first, as `AGENTS.md` describes;
 2. add a regression test at the cheapest layer that reproduces the bug, and show it failing;
 3. fix the root cause, and other occurrences of the same defect;
-4. show the regression test passing, and run the related tests.
+4. show the regression test passing, and run the related tests; of the E2E tests, only the regression test when it is one, never the full E2E suite.
 
 Give `@task-reviewer` `repro.md` and the commit range.
 
@@ -69,7 +69,7 @@ Dispatch `@doc-writer` for the docs sync described in `workflow-rules`, with the
 
 ### 6. Verification
 
-Run the project's full verification yourself: tests, build, type check, lint, and startup when relevant.
+Run the project's full verification yourself: tests, the full E2E suite included, build, type check, lint, and startup when relevant.
 
 Run the closure review (see Closure review in `workflow-rules`) only when G-fix was opened, against the base branch, with `repro.md` and the approved fix approach; docs and changelog are part of the change. Otherwise the task review plus full verification is the closure.
 

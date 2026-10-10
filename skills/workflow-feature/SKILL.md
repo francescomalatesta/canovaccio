@@ -63,7 +63,7 @@ On approval, commit the prototype and record the commit in `state.md`. It become
 Write `plan.md` using `superpowers:writing-plans`:
 
 - tasks are vertical slices, each delivering observable behavior with its own tests;
-- each task names its acceptance criteria and verification (unit, integration, E2E where it completes an important journey);
+- each task names its acceptance criteria and verification (unit, integration, E2E where it completes an important journey); the E2E tests it names are its own, never the full E2E suite, which runs at closure;
 - dependencies between tasks are explicit;
 - every requirement in `spec.md` is owned by at least one task;
 - when the feature adds or changes tests that persist data and the project has no test data isolation (see `AGENTS.md`), the first task sets it up; it is engineering support, listed at the gate, not a product change.
@@ -86,7 +86,7 @@ Dispatch `@doc-writer` for the docs sync described in `workflow-rules`, with the
 
 ### 7. Closure
 
-1. Commit `spec.md` and `decisions.md`, then run the project's full verification yourself: tests, build, type check, lint, and application startup when relevant; when the project has a prototype system, the index and every kept prototype load.
+1. Commit `spec.md` and `decisions.md`, then run the project's full verification yourself: tests, the full E2E suite included, build, type check, lint, and application startup when relevant; when the project has a prototype system, the index and every kept prototype load.
 2. Run the closure review (see Closure review in `workflow-rules`) against the base branch, with the original request, spec, plan, the prototype commit if any, and `decisions.md`. Docs and changelog are part of the change.
 3. On FAIL, fix BLOCKING findings through the Review loop and review again. If closure fails twice, open an unplanned gate with the findings.
 4. Write `closure.md`: verdict, verification run with results, deviations, non-blocking observations, deferred minor findings.

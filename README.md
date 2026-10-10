@@ -108,6 +108,8 @@ Work stays inside the project. Temporary files (scratch scripts, logs, captures,
 
 Tests never write to your development database. When tests persist data, the project gets a dedicated test database that the test commands use by default, E2E included (their app instance runs on it, on its own port), and a test run pointed at the development database stops instead of writing to it. A greenfield project sets it up in its spec and walking skeleton; a feature or fix on a project without it sets it up before adding tests that need it. Task and closure reviews check that a test run leaves the development database unchanged. The mechanism is the project's choice; the rule is in `AGENTS.md`.
 
+The full E2E suite runs once per piece of work: when all tasks are done, right before the closure review, and again only after fixes to closure findings. Each task runs only the E2E tests it adds or changes (a refactoring step, those pinning the invariants it touches), together with the rest of the test suite. A greenfield walking skeleton keeps the E2E suite runnable apart from the other tests, and a single E2E test runnable on its own. The rule is in `AGENTS.md`, under When the E2E suite runs.
+
 ## Public sites
 
 `/site` builds a product's public website (home, features, pricing, legal pages) with the work split by what it needs: the decisions that make a site good are taken by stronger, more expensive models and approved by you; building the rest of the pages is transcription, done by the cheap implementer and checked by a script instead of by a strong reviewer.
