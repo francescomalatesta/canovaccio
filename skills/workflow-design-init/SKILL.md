@@ -27,7 +27,7 @@ This workflow implies Impeccable. Without a project preference, write `Use: on` 
 
 ### 1. Current state
 
-Read `docs/index.md` when it exists, and any existing `PRODUCT.md` or `DESIGN.md`: this workflow completes and corrects them. Find how the app starts (docs, README, package scripts). When it can start, start it detached so rendered styles and pages can be read, and note the command and process in `state.md`.
+Read `docs/index.md` when it exists, and any existing `PRODUCT.md` or `DESIGN.md`: this workflow completes and corrects them. Find how the app starts (docs, README, package scripts). When it can start, bring the environment it needs up (see Environment in `workflow-rules`), start the app detached so rendered styles and pages can be read, and note the command and process in `state.md`.
 
 ### 2. Interview and writing
 

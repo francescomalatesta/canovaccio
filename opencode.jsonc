@@ -111,6 +111,34 @@
       "resource": "rm -rf *",
       "effect": "ask"
     },
+    // Development data lives in Docker volumes: stopping the environment is
+    // autonomous, deleting its data is not. "*down*-v*" also covers options
+    // before "down" and --volumes.
+    {
+      "action": "bash",
+      "resource": "docker compose *down*-v*",
+      "effect": "ask"
+    },
+    {
+      "action": "bash",
+      "resource": "docker-compose *down*-v*",
+      "effect": "ask"
+    },
+    {
+      "action": "bash",
+      "resource": "docker volume rm *",
+      "effect": "ask"
+    },
+    {
+      "action": "bash",
+      "resource": "docker volume prune *",
+      "effect": "ask"
+    },
+    {
+      "action": "bash",
+      "resource": "docker system prune *",
+      "effect": "ask"
+    },
 
     // Work stays inside the project: temporary files go to .canovaccio/tmp/
     // (see AGENTS.md). System temp directories are denied rather than asked,
@@ -147,6 +175,13 @@
     {
       "action": "bash",
       "resource": "rm -rf .canovaccio/tmp/*",
+      "effect": "allow"
+    },
+    // Nor does the throwaway compose project of the greenfield clean-clone
+    // verification, volumes included.
+    {
+      "action": "bash",
+      "resource": "docker compose -p canovaccio-verify *",
       "effect": "allow"
     }
   ]

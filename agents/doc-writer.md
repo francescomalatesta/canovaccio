@@ -43,7 +43,7 @@ Input: work directory, base branch (none for greenfield), workflow type, recorde
 
 1. Run the checker in changed mode against the base branch, or in full mode without one. Exit code 2 means the project has no docs yet: apply the `project-docs` rule for that case.
 2. Read the diff and the current code of every impacted area.
-3. Update impacted docs; extend `covers` or create docs for uncovered areas the work substantially touched; fix the recorded discrepancies; complete `docs/prototypes.md` with what the prototyper's report says it did not cover; update `index.md` and `architecture.md` when components changed.
+3. Update impacted docs; extend `covers` or create docs for uncovered areas the work substantially touched; fix the recorded discrepancies; complete `docs/prototypes.md` with what the prototyper's report says it did not cover; write or update `docs/environment.md` when the work added or changed the services the project needs, or the controller recorded how they start; update `index.md` and `architecture.md` when components changed.
 4. When the controller says Impeccable is on and the project has `DESIGN.md` or `PRODUCT.md`: load `design-context`, update `DESIGN.md` for the tokens and components the work added or changed, in its format, and `PRODUCT.md` only where the work made a statement untrue; link them from `index.md` if they are not yet.
 5. Add the changelog entry for the workflow type.
 6. Run the checker in full mode. Fix errors caused by this work; report pre-existing ones.

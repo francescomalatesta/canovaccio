@@ -106,6 +106,8 @@ Push, merge and destructive git commands also require approval through the permi
 
 Work stays inside the project. Temporary files (scratch scripts, logs, captures, the clean clone of the greenfield closure) go in `.canovaccio/tmp/`, whose own `.gitignore` keeps the directory versioned and its content out of git; each workflow uses a subdirectory named after its work directory and deletes it when it closes. The permissions in `opencode.jsonc` deny the system temporary directories (`/tmp`, `/var/tmp` and their macOS equivalents) instead of asking, so a stray path fails and the agent retries inside the project without stopping for approval.
 
+Projects that run on services (a database, a cache, the app itself in containers) describe them in `docs/environment.md`: how they start, how to tell they are ready, how they stop and which volumes hold data. Each workflow brings that environment up where it first needs it, finding out how from the code when the doc is missing (the docs sync then writes it), keeps it up through its gates, and brings it down when it closes or is abandoned: containers and networks are removed, development data volumes kept, and services that were already running before the workflow are left alone. Container ports are published on `127.0.0.1`. Deleting Docker volumes or pruning asks for approval through `opencode.jsonc`. The rules are in `skills/workflow-rules` (Environment) and `AGENTS.md`.
+
 Tests never write to your development database. When tests persist data, the project gets a dedicated test database that the test commands use by default, E2E included (their app instance runs on it, on its own port), and a test run pointed at the development database stops instead of writing to it. A greenfield project sets it up in its spec and walking skeleton; a feature or fix on a project without it sets it up before adding tests that need it. Task and closure reviews check that a test run leaves the development database unchanged. The mechanism is the project's choice; the rule is in `AGENTS.md`.
 
 ## Public sites
@@ -237,7 +239,8 @@ Projects keep a **map** of their codebase in `docs/`, defined by `skills/project
 - the project `AGENTS.md` points to `docs/index.md`, a compact index of components;
 - `docs/architecture.md` gives the overview;
 - `docs/components/<name>.md` describes one component, and its frontmatter `covers` lists the code paths it describes;
-- `docs/flows/<name>.md`, optional, describes journeys across components.
+- `docs/flows/<name>.md`, optional, describes journeys across components;
+- `docs/environment.md`, when the project runs on services, says how to start, check and stop them.
 
 Docs describe what the code does not say easily (purpose, boundaries, entry points, interactions, pitfalls); the code stays the source of truth.
 

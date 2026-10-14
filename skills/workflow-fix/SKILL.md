@@ -24,7 +24,7 @@ When the bug or its fix concerns the UI, follow the project's Impeccable prefere
 
 ### 1. Reproduce
 
-Follow the `project-docs` reading protocol to locate the area involved.
+Follow the `project-docs` reading protocol to locate the area involved, then bring the environment up (see Environment in `workflow-rules`): the reproduction runs on it.
 
 Use `superpowers:systematic-debugging`. Establish a reliable reproduction yourself, or dispatch `@scout` to run and observe (it can execute commands but not edit).
 

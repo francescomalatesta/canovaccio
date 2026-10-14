@@ -30,6 +30,8 @@ Follow the `project-docs` reading protocol for the area in scope; the Invariants
 
 Dispatch `@scout`, with the relevant doc paths as starting points, to map the area: modules in scope, callers and dependents, public surface (APIs, CLI, file formats, events, DB schema), current test coverage of that surface, and the test commands.
 
+Bring the environment up (see Environment in `workflow-rules`).
+
 ### 2. Invariants, target and steps
 
 Write `invariants.md`:

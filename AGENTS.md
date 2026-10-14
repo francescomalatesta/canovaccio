@@ -96,6 +96,15 @@ Inside a workflow, use `.canovaccio/tmp/<work directory name>/`. Delete what you
 
 To read a file at another revision, prefer `git show <rev>:<path>` to a checkout.
 
+## Development environment
+
+The services a project runs on (database, cache, queue, containers) are described in its `docs/environment.md`. Inside a workflow the controller brings them up at the start and down at the end (see Environment in `workflow-rules`); outside a workflow, stop what you started once you are done, unless the user wants it kept.
+
+- Never stop, recreate or delete the data of a service you did not start. If one you need is down, start it with the documented command and leave it running.
+- Container ports are published on `127.0.0.1`, unless the project needs them reachable from other machines.
+- Containers and volumes that tests create for themselves (a test database container, testcontainers) are removed by the test run when it ends.
+- Deleting data volumes or pruning Docker needs explicit permission.
+
 ## Requirement modality
 
 Preserve requirement strength.

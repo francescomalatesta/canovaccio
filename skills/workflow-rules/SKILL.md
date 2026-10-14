@@ -1,6 +1,6 @@
 ---
 name: workflow-rules
-description: Shared rules for every development workflow (greenfield, site, feature, refactor, fix, spike, docs-init, design-init) - gates, checkpoints, artifacts, state, resumption, system docs and changelog, the Impeccable choice, the task tracker, workflow switching and precedence over superpowers skills. Load before running or resuming any workflow.
+description: Shared rules for every development workflow (greenfield, site, feature, refactor, fix, spike, docs-init, design-init) - gates, checkpoints, artifacts, state, resumption, the development environment, system docs and changelog, the Impeccable choice, the task tracker, workflow switching and precedence over superpowers skills. Load before running or resuming any workflow.
 ---
 
 # Workflow rules
@@ -68,7 +68,7 @@ docs/work/*/*
 
 When the rules are there but miss a line the active workflow versions, add it. If the project does not use git, skip this.
 
-Temporary files of a workflow go in `.canovaccio/tmp/<work directory name>/`, never outside the project (see Temporary files in `AGENTS.md`). On the first workflow in a project, create `.canovaccio/tmp/.gitignore` as described there and commit it with the work. Whenever `state.md` becomes `closed` or `abandoned`, delete the workflow's temporary directory with `rm -rf .canovaccio/tmp/<work directory name>`.
+Temporary files of a workflow go in `.canovaccio/tmp/<work directory name>/`, never outside the project (see Temporary files in `AGENTS.md`). On the first workflow in a project, create `.canovaccio/tmp/.gitignore` as described there and commit it with the work. Whenever `state.md` becomes `closed` or `abandoned`, bring the environment down (see Environment below) and delete the workflow's temporary directory with `rm -rf .canovaccio/tmp/<work directory name>`.
 
 Work artifacts are the history of one piece of work. The rest of `docs/` holds the system docs, which describe the system as it is now: see the next section.
 
@@ -88,6 +88,11 @@ Work artifacts are the history of one piece of work. The rest of `docs/` holds t
 - Advisory: exclude         <!-- minor | exclude; only when Impeccable is on -->
 - Design review: on         <!-- on | off; only when Impeccable is on -->
 - Tracker: #42 — In progress <!-- item of the work and last status set; only with a task tracker -->
+
+## Environment
+- Started: `docker compose up -d db redis` — ready: `docker compose exec db pg_isready`
+- Already running, left as is: none
+- Throwaway: none            <!-- containers and volumes outside the environment, removed at the end -->
 
 ## Gates
 - [x] G1 spec+plan — approved 2026-09-27 — spec.md, plan.md
@@ -189,6 +194,27 @@ Greenfield, site, feature, refactor and fix read the system docs at the start an
 - **At closure**, the closure review also checks that the docs match the delivered code and that the changelog entry fits the work.
 
 Docs sync adds no gate: its result is part of the diff presented at delivery. It never touches `docs/conventions.md`.
+
+## Environment
+
+The environment is the set of services the project runs on (database, cache, queue, mail catcher, the app itself when it runs in containers), described in `docs/environment.md` (see `project-docs`). It is brought up once, where the workflow says, and stays up for the rest of the workflow, gates included. It is not the app, prototype system or site started for one gate or one review and stopped right after: those keep the rules of their workflow. Each workflow says where the environment comes up; docs-init only documents it.
+
+**Up.**
+
+1. Read `docs/environment.md`. When it is missing, or the code disagrees with it (compose files, Dockerfiles, README, Makefile, package scripts), dispatch `@scout` to find which services the project needs and how they start, are checked ready and stop; record the discrepancy in `state.md` Notes, so the docs sync writes the doc. A project that needs no services has no environment: write `none` under Environment in `state.md` and skip the rest.
+2. Check what is already running (`docker compose ps`, or the doc's ready check). Start what is missing with the documented command, detached, and wait for the ready check, never a fixed sleep. A service that was already running is never stopped or recreated: it may hold the user's work.
+3. Record under Environment in `state.md` the command run and the services it started, the ready check, and what was already running.
+4. When the environment cannot start (Docker missing, a port taken, a secret missing), give a CHECKPOINT with the reason and go on with what does not need it; open an unplanned gate only when the work cannot go on without it.
+
+**During the work.** Give the ready check to every agent that runs the project or its tests: `@implementer`, `@task-reviewer`, `@escalator`, `@closure-auditor`, `@scout`. They leave the environment running (see Development environment in `AGENTS.md`). A container started outside the environment, for an experiment or a check, is recorded under Throwaway and removed as soon as it is no longer needed. When the work adds or changes a service, restart what it affects and update Environment.
+
+**Resume.** When resuming a workflow, run the ready check and start again what `state.md` records as started by the workflow: the host may have restarted in the meantime.
+
+**Down.** Whenever `state.md` becomes `closed` or `abandoned`, once the delivery gate's choice has been executed:
+
+1. Stop what the workflow started. When it started every service of the environment, use the documented stop command; otherwise remove those services alone (`docker compose rm --stop --force <service>…`). Containers and networks go; the data volumes of the environment stay, since they are the project's development data. What is recorded under Throwaway goes too, volumes included.
+2. Leave running what was already running at the start, and everything another active workflow of the project records under its own Environment.
+3. Check that nothing started by the work is left (`docker compose ps`, `docker ps`), and say in the final report what was stopped and what was left running.
 
 ## Closure review
 

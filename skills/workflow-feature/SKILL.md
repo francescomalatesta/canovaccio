@@ -30,6 +30,8 @@ Follow the `project-docs` reading protocol: `docs/index.md` first, then the docs
 
 Dispatch `@scout` for those parts of the codebase, with the relevant doc paths as starting points: relevant modules, existing conventions, test setup and commands (including whether tests that persist data are isolated from the development database), similar features to mirror, and, when the feature may change the UI, the prototype system if `docs/prototypes.md` does not describe one (an existing Storybook or similar tool). Skip only when you already know the area well from this session.
 
+Bring the environment up (see Environment in `workflow-rules`).
+
 ### 2. Spec
 
 Write `spec.md` using `superpowers:brainstorming` as technique. Clarifying questions to the user are allowed while drafting; batch them rather than asking one per turn.

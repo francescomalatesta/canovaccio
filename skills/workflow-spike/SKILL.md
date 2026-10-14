@@ -42,7 +42,7 @@ Dispatch `@scout` for documentation, existing code, prior art and known limitati
 
 ### 3. Experiments
 
-When research is not enough, create the branch `spike/<slug>` and dispatch `@implementer` for each experiment, stating explicitly:
+When research is not enough, create the branch `spike/<slug>`. When the experiments run the project, bring the environment up first (see Environment in `workflow-rules`); the services an experiment adds outside it are Throwaway. Dispatch `@implementer` for each experiment, stating explicitly:
 
 - this is throwaway spike code: no production quality, tests only where they are the measurement;
 - the sub-question the experiment answers;

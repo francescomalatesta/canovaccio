@@ -1,6 +1,6 @@
 ---
 name: project-docs
-description: How a project's system docs work - a compact map of the codebase under docs/ (index, architecture, components, flows, prototypes), read at the start of every workflow and synced with the code at the end. Includes principles, templates, the reading protocol and a checker script.
+description: How a project's system docs work - a compact map of the codebase under docs/ (index, architecture, components, flows, environment, prototypes), read at the start of every workflow and synced with the code at the end. Includes principles, templates, the reading protocol and a checker script.
 ---
 
 # Project docs
@@ -24,6 +24,7 @@ docs/
   architecture.md         # system overview
   components/<name>.md    # one per component
   flows/<name>.md         # optional: journeys spanning several components
+  environment.md          # when the project needs services to run or test: how to start and stop them
   prototypes.md           # when the project has a prototype system: which and how
   site.md                 # when the project has a public site built with workflow-site: how a page is built
   conventions.md          # coding conventions the user explicitly accepted
@@ -55,6 +56,7 @@ Keep it under about 100 lines: it is read at the start of every workflow.
 <One or two sentences: what the system is.>
 
 - [Architecture](architecture.md) — components, boundaries, main flows
+- [Environment](environment.md) — services the project runs on, how to start and stop them (only if the project has them)
 - [UI prototypes](prototypes.md) — how to write prototypes (only if the project has them)
 - [Conventions](conventions.md) — how code is written here (only if the file exists)
 - [Product](../PRODUCT.md) and [design system](../DESIGN.md) — who the product is for and how its UI looks (only if the files exist, see `design-context`)
@@ -84,7 +86,8 @@ Every system doc must be linked from `index.md`.
 ## Data            — main stores and who owns what
 ## Integrations    — external services and where they are wrapped
 ## Cross-cutting   — auth, config, errors, logging, i18n: where each lives
-## Running locally — how to start and test, or a pointer to the README
+## Running locally — how to start and test, or a pointer to the README;
+                    the services it needs are in environment.md
 ```
 
 ### `docs/components/<name>.md`
@@ -110,6 +113,32 @@ covers:
 ### `docs/flows/<name>.md`
 
 For journeys that cross components: the steps, the component handling each step, where state changes, where it typically breaks. `covers` is optional.
+
+### `docs/environment.md`
+
+Created when the project needs services to run or to be tested (a database, a cache, a queue, a mail catcher, or the app itself running in containers), usually defined in a compose file. It is the recipe workflows follow to bring the environment up at their start and down at their end (see Environment in `workflow-rules`): with it, nobody has to work out again how the project runs.
+
+```markdown
+---
+covers:
+  - compose.yaml
+  - docker/**
+---
+# Environment
+
+## Services     — each service: what it is for, how it runs (container, host install),
+                  its ports, published on 127.0.0.1
+## Start        — the command that starts them all, detached, and what it needs first
+                  (an .env file copied from its example, a network, a build)
+## Ready        — the check that tells the services are ready to use (a healthcheck,
+                  pg_isready, a URL that answers), so nobody waits with a sleep
+## Stop         — the command that stops them and removes containers and networks,
+                  keeping the data volumes; how to drop the data too, when that is wanted
+## Data         — the volumes, what they hold, which are development data and which are
+                  throwaway; where test data goes (see Test data isolation in AGENTS.md)
+```
+
+`covers` lists the files that define the environment and exist in the project: compose files, Dockerfiles, `.devcontainer/`, the scripts the commands run. A change to them is then mapped to this doc at docs sync. Commands are written as they are typed, from the project root.
 
 ### `docs/prototypes.md`
 
