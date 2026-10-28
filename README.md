@@ -14,6 +14,7 @@ Every piece of work leaves a trail: a spec or findings, the decisions taken, a c
 The workflows:
 
 - **greenfield** — a new project from scratch: explores the product with you, fixes stack and architecture in a spec, prototypes the UI, then builds it starting from a minimal end-to-end skeleton.
+- **autopilot** — a new project delegated end to end: starts from a spec you already wrote (plus layouts and a task breakdown, if you have them), asks you to approve the plan and every prototype up front, then builds every task without stopping and comes back at delivery. See [Autopilot](#autopilot).
 - **site** — a product's public website: facts, strategy and every word decided by stronger models and approved by you, a model page built in production code by a stronger model, the other pages built by the cheaper implementer and checked against the approved copy by a script. See [Public sites](#public-sites).
 - **feature** — new or changed behavior in an existing project: spec and plan approved together (separately when a UI prototype is needed), then implementation task by task, each one reviewed.
 - **fix** — something works wrong: reproduces it, finds the root cause, fixes it test-first. The most autonomous workflow: it asks you only when the fix is risky or the expected behavior is unclear.
@@ -76,6 +77,7 @@ Start a workflow explicitly:
 
 ```
 /greenfield a CLI to track reading lists
+/autopilot build the product described in docs/product-spec.md
 /site public website for the invoicing app
 /feature export orders as CSV
 /refactor split the billing module
@@ -85,13 +87,14 @@ Start a workflow explicitly:
 /design-init
 ```
 
-Or just describe the work: the conductor classifies it with `workflow-router`, announces the choice, and you confirm it at the first gate. Questions and trivial changes run without a workflow.
+Or just describe the work: the conductor classifies it with `workflow-router`, announces the choice, and you confirm it at the first gate. Autopilot is the exception: it starts only with `/autopilot`, never by classification. Questions and trivial changes run without a workflow.
 
 ## Workflows
 
 | Workflow | For | Human gates |
 |---|---|---|
 | `greenfield` | new project | spec (with stack and architecture) · prototype, if UI · plan · delivery |
+| `autopilot` | new project from a spec you wrote, delegated | plan (with what the spec leaves open) · prototypes, if UI · delivery |
 | `site` | a product's public website | direction (strategy, stack) · content · model page · delivery |
 | `feature` | new or changed behavior | spec+plan (split only when a prototype is needed) · prototype, if material UX · delivery |
 | `refactor` | same behavior, better structure | scope and invariants · delivery |
@@ -109,6 +112,23 @@ Work stays inside the project. Temporary files (scratch scripts, logs, captures,
 Projects that run on services (a database, a cache, the app itself in containers) describe them in `docs/environment.md`: how they start, how to tell they are ready, how they stop and which volumes hold data. Each workflow brings that environment up where it first needs it, finding out how from the code when the doc is missing (the docs sync then writes it), keeps it up through its gates, and brings it down when it closes or is abandoned: containers and networks are removed, development data volumes kept, and services that were already running before the workflow are left alone. Container ports are published on `127.0.0.1`. Deleting Docker volumes or pruning asks for approval through `opencode.jsonc`. The rules are in `skills/workflow-rules` (Environment) and `AGENTS.md`.
 
 Tests never write to your development database. When tests persist data, the project gets a dedicated test database that the test commands use by default, E2E included (their app instance runs on it, on its own port), and a test run pointed at the development database stops instead of writing to it. A greenfield project sets it up in its spec and walking skeleton; a feature or fix on a project without it sets it up before adding tests that need it. Task and closure reviews check that a test run leaves the development database unchanged. The mechanism is the project's choice; the rule is in `AGENTS.md`.
+
+## Autopilot
+
+`/autopilot` hands a whole new project to canovaccio: you are in the loop at the start and at the end, not along the way. It is greenfield with given inputs and moved gates (`skills/workflow-autopilot`).
+
+| Input | |
+|---|---|
+| spec | required: your document in the repository. Never edited; what it leaves open goes in the work's `spec.md` |
+| layouts | optional, in any form (HTML mockups, images, design tool exports, PDFs, sketches): `@ui-prototyper` rebuilds them in the project's prototype system |
+| task breakdown | optional: a file in the repository, or cards on your board |
+
+1. **G1 plan.** Canovaccio reads the inputs, decides what the spec leaves open (stack, architecture, prototype system) and lists every gap or contradiction as an open question with a proposed answer: after this gate nobody is asked. The plan imports your tasks, or writes them; any change to your breakdown is listed. With a task tracker, one card per task is created on your board once the plan is approved.
+2. **G2 prototypes.** One prototype covering every screen of every task, your layouts imported and the missing screens built consistent with them, shown live in the browser.
+3. **Autonomous implementation.** Task after task, each reviewed and then **verified** (full test suite with E2E, lint, type check, build, app starting) before the next; its card moves to Done right then. A small reversible decision the authorities do not settle is taken and recorded as `autonomous`; a task that cannot converge or needs a real decision is reverted, parked with its diagnosis, and the work continues with what does not depend on it. It stops to ask only as a last resort: nothing left can proceed, a second task parks for the same cause, or an operation needs your permission.
+4. **G3 delivery.** The closure report, the autonomous decisions to confirm or change, the parked tasks to answer or leave out, and the integration choice.
+
+Later work on a project built this way goes through `/feature`.
 
 ## Public sites
 
@@ -164,7 +184,7 @@ The conductor adds the ignore rules to the project's `.gitignore` on first use. 
 
 Each project has **one prototype system**, defined by `skills/project-prototypes`: a tool and an area where every UI prototype lives, such as Storybook for a React or Vue frontend, or a dev-only route area for server-rendered templates. It is chosen once, in the spec of the first work that needs a prototype (you approve it with the spec), documented in `docs/prototypes.md`, and reused by every later workflow. Whatever the tool, it starts with one command, lists the prototypes in an index, uses the project's real components, gives every state its own URL and stays out of production builds.
 
-At the prototype gate the conductor starts the system and gives you the URLs to open in the browser: no screenshots or one-off formats. At delivery you keep or remove each prototype (default remove); kept ones stay in the index, grouped apart, as a record of the approved design. The system itself always stays.
+At the prototype gate the conductor starts the system and gives you the URLs to open in the browser: no screenshots or one-off formats. Layouts you already have in such formats are input: autopilot rebuilds them in the system before its prototype gate. At delivery you keep or remove each prototype (default remove); kept ones stay in the index, grouped apart, as a record of the approved design. The system itself always stays.
 
 ## Impeccable
 
@@ -179,11 +199,12 @@ Impeccable's own skill and commands are not installed: canovaccio takes its guid
 
 ### The choice
 
-Once per project, yours. The first time a greenfield, feature or refactor touches the UI, its first gate also asks (a site always runs with it unless you say no at its first gate): no · yes, advisory findings as Minor · yes, advisory findings excluded; with a yes, also whether to run the design review before closure. Advisory findings are the detector's soft signals, possibly deliberate (em-dash overuse, numbered section labels). The answers are saved in the project `AGENTS.md` and used by every later workflow without asking again; a fix never asks. Say it in a request to override it for that work (`/feature pricing page, without impeccable`, `... with design review`), edit `AGENTS.md` or ask to change it for good.
+Once per project, yours. The first time a greenfield, autopilot, feature or refactor touches the UI, its first gate also asks (a site always runs with it unless you say no at its first gate): no · yes, advisory findings as Minor · yes, advisory findings excluded; with a yes, also whether to run the design review before closure. Advisory findings are the detector's soft signals, possibly deliberate (em-dash overuse, numbered section labels). The answers are saved in the project `AGENTS.md` and used by every later workflow without asking again; a fix never asks. Say it in a request to override it for that work (`/feature pricing page, without impeccable`, `... with design review`), edit `AGENTS.md` or ask to change it for good.
 
 ### Design context
 
 - **greenfield**: after the spec gate, `@design-director` writes `PRODUCT.md` from the spec and asks only what it leaves open, then offers two or three visual directions to choose from (or "decide for me") and writes a seed `DESIGN.md`. The prototype is built on it; after its approval, `DESIGN.md` is aligned with what you approved.
+- **autopilot**: after the plan gate, as in greenfield, with your spec and layouts as input: when the layouts set a visual direction, `DESIGN.md` follows them and directions are offered only for what they leave open.
 - **site**: after the content gate, as in greenfield, with the approved strategy and copy as input; when the product already has the two files, the site extends its identity instead of inventing one. The model page is built on them; after its approval, `DESIGN.md` is aligned with it.
 - **`/design-init`**, on an existing project: reads what the code says (tokens, components, styles, rendered pages), asks only what it cannot (intentions, what to keep, what you dislike), writes both files. At delivery it offers a critique of the current interface, a report to start improving from; it changes no code.
 - The interview asks only necessary questions, each with a proposed answer so "ok" accepts them all, and "decide for me" always closes a choice. At most 3 rounds of 5 questions per file; what stays unknown is written as assumed or open, not asked again.
@@ -194,6 +215,7 @@ Once per project, yours. The first time a greenfield, feature or refactor touche
 | Workflow | Preference asked | Design context | Guidance while building | Checked |
 |---|---|---|---|---|
 | greenfield | at G1, if the product has a UI and no preference exists | built before the prototype | prototype, every task | prototype states in the browser, every task, design review if on, closure review |
+| autopilot | at G1, if the product has a UI and no preference exists | built before the prototype, from your layouts when they set a direction | prototype, every task | prototype states in the browser, every task, design review if on, closure review |
 | site | at G1: on unless you say no | built before the model page | model page, every task | model page in the browser, every task, design review if on, closure review |
 | feature | at the first gate (G1 or G1a), if the UI changes and no preference exists | followed, kept current | prototype if any, every task | prototype states in the browser if there is a prototype, every task, design review if on, closure review |
 | refactor | at G1, if the perimeter includes UI code and no preference exists | followed | every step | every step, closure review |
@@ -267,7 +289,9 @@ If you track the project in an external tool (GitHub Projects, Jira, Linear, Cli
 
 Items of single plan tasks, when you give one per task (`/feature #12 #13`), move to In progress and In review with their own implementation and review. When the work is delivered as a pull request, items stay In review and the PR links them (`Closes #42`): the merge and the board's automation move them to Done.
 
-The first time, the conductor finds the tool through what the environment already provides (`gh`, another CLI, an MCP server), reads the board's statuses, maps them, and asks you to confirm the mapping at the first gate; the answer is saved in the project `AGENTS.md` under Task tracker and never asked again. It moves only items you named, never creates any, and changes only their status. Before each move it reads the current status: an item you moved by hand stays where you put it. When the tool cannot be reached the work goes on, and the report says which moves were not made.
+The first time, the conductor finds the tool through what the environment already provides (`gh`, another CLI, an MCP server), reads the board's statuses, maps them, and asks you to confirm the mapping at the first gate; the answer is saved in the project `AGENTS.md` under Task tracker and never asked again. It moves only items you named, never creates any, and changes only their status; autopilot is the exception, described below. Before each move it reads the current status: an item you moved by hand stays where you put it. When the tool cannot be reached the work goes on, and the report says which moves were not made.
+
+In **autopilot** the board follows the whole project: a breakdown already on the board is imported as the plan, otherwise one card per plan task is created after the plan gate (title, goal and acceptance criteria, in the board's first status). Each card moves to Done as soon as its task is verified, without waiting for the merge. Canovaccio never creates the board itself.
 
 ## First local check
 

@@ -39,7 +39,7 @@ Sections, in this order, only when they have entries:
 
 | Workflow | Entry |
 |---|---|
-| `workflow-greenfield` | creates the file; one `Added` entry per core capability of the first version |
+| `workflow-greenfield`, `workflow-autopilot` | creates the file; one `Added` entry per core capability of the first version |
 | `workflow-site` | `Added`: the public site, one entry naming its pages; creates the file for a site of its own |
 | `workflow-feature` | `Added` for new behavior, `Changed` for changed behavior, `Deprecated` / `Removed` when applicable |
 | `workflow-fix` | `Fixed`; `Security` when the bug was a vulnerability |

@@ -1,6 +1,6 @@
 ---
 name: design-context
-description: How a project's PRODUCT.md and DESIGN.md work when it uses Impeccable - what each holds, their format, how @design-director builds them through a bounded interview relayed by the controller (seed before a greenfield prototype or a site's model page, document on an existing codebase, sync after either is approved), and how the rest of the work uses them.
+description: How a project's PRODUCT.md and DESIGN.md work when it uses Impeccable - what each holds, their format, how @design-director builds them through a bounded interview relayed by the controller (seed before a greenfield or autopilot prototype or a site's model page, document on an existing codebase, sync after either is approved), and how the rest of the work uses them.
 ---
 
 # Design context
@@ -15,9 +15,10 @@ Two files at the project root, in [Impeccable](https://impeccable.style)'s forma
 ## Modes
 
 - **seed**: greenfield, after the spec gate and before the prototype. `PRODUCT.md` comes from the spec and the brief; ask only what they leave open (the stack is already decided in the spec). `DESIGN.md` is a seed: derive directions with `reference/directions.md` and the `reference/visual-world.md` of the `design-craft` skill, offer two or three complete directions as one question, and write the seed for the chosen one, with the SEED marker of the format and the token values the direction set (palette, faces).
+  In autopilot work (`workflow-autopilot`) seed mode runs after the plan gate, with the user's source spec and layouts as well: when the layouts establish a visual direction, the seed follows them and directions are offered only for what they leave open; when they establish all of it, no direction question is asked.
   In site work (`workflow-site`) seed mode runs after the content gate, with the approved strategy, spec and content as well: `PRODUCT.md` takes from them the durable product truth, never the site's surface strategy. When the project already has the files (a site for an app that has them), the site extends that identity: `PRODUCT.md` is updated, not replaced, and only with confirmed facts; the directions keep the brand commitments and confirmed assets of `DESIGN.md` and expand it for the site's pages (the incomplete brand case of `reference/directions.md`), and the chosen one is written into the existing file, without the SEED marker.
 - **document**: an existing codebase (`workflow-design-init`). Read first: README, docs, the existing files, then tokens, theme files, components and global styles, and rendered pages when the app runs (`reference/design.md`, Document mode). Ask only what the code cannot tell: intentions, what must be kept, what the user dislikes, descriptive language. An existing file is updated, never replaced: keep what is accurate and report what changed.
-- **sync**: no questions. After the prototype gate in greenfield, or the model page gate in site work, replace the seed with the tokens and components the approved prototype or model page actually uses, and remove the SEED marker. A `DESIGN.md` that was not a seed gets the tokens and components the model page added.
+- **sync**: no questions. After the prototype gate in greenfield or autopilot, or the model page gate in site work, replace the seed with the tokens and components the approved prototype or model page actually uses, and remove the SEED marker. A `DESIGN.md` that was not a seed gets the tokens and components the model page added.
 
 ## Interview
 

@@ -39,7 +39,7 @@ You change only system docs under `docs/` (never `docs/work/`), `CHANGELOG.md`, 
 
 ## Docs sync
 
-Input: work directory, base branch (none for greenfield), workflow type, recorded doc/code discrepancies, and the prototyper's report when a prototype was built.
+Input: work directory, base branch (none for greenfield and autopilot), workflow type, recorded doc/code discrepancies, and the prototyper's report when a prototype was built.
 
 1. Run the checker in changed mode against the base branch, or in full mode without one. Exit code 2 means the project has no docs yet: apply the `project-docs` rule for that case.
 2. Read the diff and the current code of every impacted area.
