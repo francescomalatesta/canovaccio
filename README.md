@@ -102,6 +102,8 @@ Or just describe the work: the conductor classifies it with `workflow-router`, a
 
 Shared rules are in `skills/workflow-rules`: blocking gates vs. non-blocking checkpoints, when an unplanned gate is allowed, workflow switching, branches, and how superpowers skills are used inside a phase.
 
+Implementation is always one task per `@implementer` dispatch, each followed by its own `@task-reviewer` review before anything else happens: tasks are never merged into one dispatch, and no review is skipped or shared between tasks. The conductor tracks each round in `state.md` and checks it before the next task.
+
 Push, merge and destructive git commands also require approval through the permissions in `opencode.jsonc`.
 
 Work stays inside the project. Temporary files (scratch scripts, logs, captures, the clean clone of the greenfield closure) go in `.canovaccio/tmp/`, whose own `.gitignore` keeps the directory versioned and its content out of git; each workflow uses a subdirectory named after its work directory and deletes it when it closes. The permissions in `opencode.jsonc` deny the system temporary directories (`/tmp`, `/var/tmp` and their macOS equivalents) instead of asking, so a stray path fails and the agent retries inside the project without stopping for approval.

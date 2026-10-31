@@ -99,8 +99,8 @@ Work artifacts are the history of one piece of work. The rest of `docs/` holds t
 - [ ] G2 delivery
 
 ## Tasks
-- [x] T1 export endpoint — reviewed, approved
-- [ ] T2 download button — #43
+- [x] T1 export endpoint — implementer → review: needs fixes → implementer → review: approved
+- [ ] T2 download button — implementer → review: pending — #43
 
 ## Notes
 - T2 blocked on nothing; next action: dispatch implementer.
@@ -119,6 +119,13 @@ If the user stops a workflow, set `Status: abandoned` with the reason in Notes a
 
 ## Review loop
 
+Two rules hold in every workflow, for every task, with no exception:
+
+- **One task, one implementer.** Each dispatch of `@implementer` carries exactly one task of the plan, or one fix round of that task. Never two tasks in one dispatch, however small or related they are; never a task split across a dispatch that also starts the next one.
+- **Every implementer is followed by a task reviewer.** After each dispatch of `@implementer` or `@escalator` that produced commits, `@task-reviewer` reviews those commits before anything else happens: before the next task, a fix round, the docs sync or a gate. One review covers one task only.
+
+Not allowed: skipping the review because a task looks trivial, reviewing two tasks together, the controller fixing a finding itself instead of sending it back, moving on before the review result is in. A task is done only when `@task-reviewer` approved it and `state.md` records it.
+
 For every implementation task:
 
 1. `@implementer`, then `@task-reviewer` on its commits;
@@ -126,7 +133,9 @@ For every implementation task:
 3. after `@escalator`, `@task-reviewer` again; if it still needs fixes, open an unplanned gate with the findings and the escalator's diagnosis;
 4. Approved with Minor findings: under `fix`, one `@implementer` round for them and a scoped re-review; under `defer`, record them.
 
-This replaces the fix-round limits of `superpowers:subagent-driven-development`.
+This replaces the fix-round limits of `superpowers:subagent-driven-development`, and overrides any grouping of tasks it or another skill suggests.
+
+Before dispatching the next task, check its predecessor's line in the Tasks section of `state.md`: each implementer and escalator round followed by its review, and the review's verdict last.
 
 ## Minor findings policy
 
@@ -280,7 +289,7 @@ Workflows decide sequencing, gates and artifacts. Superpowers skills supply tech
 
 - `superpowers:brainstorming` — use its exploration and questioning. Its approval steps are replaced by the workflow gates, and its design document is the workflow's `spec.md`, not a file under `docs/superpowers/`. Its visual companion is not used for UI mockups or layouts: when a UI question needs to be seen, it is settled with a prototype in the project's prototype system.
 - `superpowers:writing-plans` — use it to write `plan.md` in the work directory. The execution method is already chosen: subagent-driven. Do not ask the user to choose it.
-- `superpowers:subagent-driven-development` — use its loop with the named agents and the Review loop above: implementer → `@implementer`, task reviewer → `@task-reviewer`, more capable implementer → `@escalator`, final whole-branch reviewer → the Closure review above. Keep its ledger in the Tasks and Notes sections of `state.md`.
+- `superpowers:subagent-driven-development` — use its loop with the named agents and the Review loop above, one task per implementer dispatch and one review after each: implementer → `@implementer`, task reviewer → `@task-reviewer`, more capable implementer → `@escalator`, final whole-branch reviewer → the Closure review above. Keep its ledger in the Tasks and Notes sections of `state.md`.
 - `superpowers:finishing-a-development-branch` — its integration choice (merge, PR, keep, discard) is part of the workflow's delivery gate. A pull request's title and description are in English (see Language in `AGENTS.md`).
 - `superpowers:test-driven-development`, `superpowers:systematic-debugging`, `superpowers:verification-before-completion`, `superpowers:receiving-code-review` — use them as techniques whenever they apply.
 

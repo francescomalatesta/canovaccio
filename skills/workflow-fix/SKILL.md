@@ -54,7 +54,7 @@ Otherwise give a CHECKPOINT with root cause and intended fix, and continue. When
 
 ### 4. Fix
 
-Run the Review loop of `workflow-rules` with one task: give `@implementer` `repro.md`, the minor-findings policy and these instructions (`superpowers:test-driven-development`):
+Run the Review loop of `workflow-rules` with one task, reviewed by `@task-reviewer` after every `@implementer` round: give `@implementer` `repro.md`, the minor-findings policy and these instructions (`superpowers:test-driven-development`):
 
 1. when the regression test persists data and the project has no test data isolation, set it up first, as `AGENTS.md` describes;
 2. add a regression test at the cheapest layer that reproduces the bug, and show it failing;

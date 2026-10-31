@@ -76,7 +76,7 @@ Present **G1** (spec+plan) or **G1b** (plan).
 
 ### 5. Implementation
 
-Create the branch if it does not exist yet. Run `superpowers:subagent-driven-development` over `plan.md` with the Review loop of `workflow-rules`. Give `@implementer` the task, the relevant spec sections, the prototype commit if any, the project conventions and the minor-findings policy; give `@task-reviewer` the task, its requirements and the commit range.
+Create the branch if it does not exist yet. Run `superpowers:subagent-driven-development` over `plan.md` with the Review loop of `workflow-rules`. One task per `@implementer` dispatch, and `@task-reviewer` after each one, before the next task (see Review loop). Give `@implementer` the task, the relevant spec sections, the prototype commit if any, the project conventions and the minor-findings policy; give `@task-reviewer` the task, its requirements and the commit range.
 
 After each accepted task, update `state.md` and give a one-line CHECKPOINT. Answer product decisions from spec and prototype when they settle them; otherwise open an unplanned gate. Record decisions in `decisions.md`.
 
@@ -90,7 +90,7 @@ Dispatch `@doc-writer` for the docs sync described in `workflow-rules`, with the
 
 1. Commit `spec.md` and `decisions.md`, then run the project's full verification yourself: tests, build, type check, lint, and application startup when relevant; when the project has a prototype system, the index and every kept prototype load.
 2. Run the closure review (see Closure review in `workflow-rules`) against the base branch, with the original request, spec, plan, the prototype commit if any, and `decisions.md`. Docs and changelog are part of the change.
-3. On FAIL, fix BLOCKING findings through the Review loop and review again. If closure fails twice, open an unplanned gate with the findings.
+3. On FAIL, fix BLOCKING findings through the Review loop, one fix task per `@implementer` dispatch, each reviewed by `@task-reviewer`, and review again. If closure fails twice, open an unplanned gate with the findings.
 4. Write `closure.md`: verdict, verification run with results, deviations, non-blocking observations, deferred minor findings.
 
 ### 8. Delivery

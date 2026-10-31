@@ -79,7 +79,7 @@ Present **G3**.
 
 ### 5. Implementation
 
-Run `superpowers:subagent-driven-development` over `plan.md` with the Review loop of `workflow-rules`. Give `@implementer` the task, the relevant spec sections, the prototype commit if any and the minor-findings policy; give `@task-reviewer` the task, its requirements and the commit range.
+Run `superpowers:subagent-driven-development` over `plan.md` with the Review loop of `workflow-rules`. One task per `@implementer` dispatch, and `@task-reviewer` after each one, before the next task (see Review loop). Give `@implementer` the task, the relevant spec sections, the prototype commit if any and the minor-findings policy; give `@task-reviewer` the task, its requirements and the commit range.
 
 After the walking skeleton is accepted, bring the environment up (see Environment in `workflow-rules`): nothing ran before this work, so every service the skeleton set up is recorded as started by the workflow. Then dispatch `@doc-writer` to scaffold the system docs from the spec and the skeleton, following `project-docs`: the pointer in the project `AGENTS.md`, `docs/index.md`, `docs/architecture.md`, `docs/environment.md` when the project has services, component docs for the components that exist, a link to `docs/prototypes.md` when it exists, and `CHANGELOG.md` following `project-changelog`. Review its report and commit its changes; later tasks start from these docs.
 
@@ -95,7 +95,7 @@ Dispatch `@doc-writer` for the docs sync described in `workflow-rules`, with the
 
 1. Commit everything, including `spec.md` and `decisions.md`. Clone the repository into `.canovaccio/tmp/<work directory name>/verify/` (never outside the project) and run the full verification there: install, build, tests, type check, lint, startup, the prototype system's index when there is one; also check that the README instructions work and, when tests persist data, that the full test run, E2E included, leaves the development database unchanged. Stop anything it started and delete the clone right after, so the project's own tools never pick it up. When the project has an environment, stop it before this verification, so the clone starts its own on the same ports; run the clone's compose commands with `-p canovaccio-verify`, remove it with its volumes (`docker compose -p canovaccio-verify down -v`) when done, and bring the environment up again.
 2. Run the closure review (see Closure review in `workflow-rules`) with the original request, spec, plan, the prototype commit if any, and `decisions.md`. The change is the whole project: against the base branch when built on `greenfield/<slug>`, otherwise outlined by its file tree.
-3. On FAIL, fix BLOCKING findings through the Review loop and review again; after two failures, open an unplanned gate.
+3. On FAIL, fix BLOCKING findings through the Review loop, one fix task per `@implementer` dispatch, each reviewed by `@task-reviewer`, and review again; after two failures, open an unplanned gate.
 4. Write `closure.md`: verdict, verification run with results, deviations, non-blocking observations, deferred minor findings.
 
 ### 8. Delivery

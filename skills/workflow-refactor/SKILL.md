@@ -54,7 +54,7 @@ The tests are committed on their own, before any refactoring commit.
 
 ### 4. Refactoring steps
 
-Run the Review loop of `workflow-rules` for each step in `invariants.md`, passing the minor-findings policy and the commit range. Each step:
+Run the Review loop of `workflow-rules` for each step in `invariants.md`, passing the minor-findings policy and the commit range. Each step is one task: one `@implementer` dispatch per step, never two steps together, and `@task-reviewer` on its commits before the next step. Each step:
 
 - leaves the full test suite green;
 - modifies existing tests only mechanically (renamed imports, moved paths), which the reviewer checks;
@@ -70,7 +70,7 @@ Dispatch `@doc-writer` for the docs sync described in `workflow-rules`, with the
 
 1. Commit `decisions.md` if it exists, then run the project's full verification yourself, including startup when relevant.
 2. Run the closure review (see Closure review in `workflow-rules`) against the base branch, with the request, `invariants.md` and `decisions.md` if any. Docs and changelog are part of the change. The focus is behavioral equivalence: every invariant still verified, no behavior change outside mechanical ones, no test weakened, target design reached.
-3. On FAIL, fix through the Review loop and review again; after two failures, open an unplanned gate.
+3. On FAIL, fix through the Review loop, one fix task per `@implementer` dispatch, each reviewed by `@task-reviewer`, and review again; after two failures, open an unplanned gate.
 4. Write `closure.md`: verdict, verification run with results, deviations, non-blocking observations, deferred minor findings.
 
 ### 7. Delivery

@@ -48,7 +48,7 @@ When research is not enough, create the branch `spike/<slug>`. When the experime
 - the sub-question the experiment answers;
 - the evidence to return: commands run, outputs, measurements, observed limits.
 
-Run experiments one at a time. They skip the Review loop, so no minor-findings policy applies. Keep them minimal: the smallest thing that answers the sub-question. Record each result in `findings.md` as it arrives, and track the budget in `state.md`.
+Run experiments one at a time, one experiment per `@implementer` dispatch. They skip the Review loop, so no minor-findings policy applies. Keep them minimal: the smallest thing that answers the sub-question. Record each result in `findings.md` as it arrives, and track the budget in `state.md`.
 
 If the budget runs out before the question is answered, open an unplanned gate: partial findings, what remains unknown, and whether to extend, narrow or stop.
 

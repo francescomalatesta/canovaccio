@@ -105,7 +105,7 @@ Dispatch `@spec-reviewer` with spec, content and plan: every page of the content
 
 ### 7. Implementation
 
-Run `superpowers:subagent-driven-development` over `plan.md` with the Review loop of `workflow-rules`.
+Run `superpowers:subagent-driven-development` over `plan.md` with the Review loop of `workflow-rules`. One task per `@implementer` dispatch, and `@task-reviewer` after each one, before the next task (see Review loop).
 
 Give `@implementer` the task, the content files, `docs/site.md`, the model page commit, the minor-findings policy, the Impeccable setting, and these rules of the task:
 
@@ -128,7 +128,7 @@ Dispatch `@doc-writer` for the docs sync described in `workflow-rules`, with the
 
 1. Commit everything, including `spec.md`, `strategy.md`, the content files, `facts.md` and `decisions.md`. Run the full verification: build, lint, tests; `site-check` on every content file, all pages, with `--sitemap`; with Impeccable on, the design check with `--url` on every page. For a site of its own, also the clean-clone verification of greenfield (its phase 7, step 1).
 2. Run the closure review (see Closure review in `workflow-rules`) against the base branch, or by its file tree for a site of its own, with the original request, `facts.md`, `strategy.md`, the content files, `spec.md`, `plan.md`, the model page commit and `decisions.md`. Focus: every page says what the content says (the `site-check` output is evidence); every factual claim on the pages traces to a fact; no invented proof; the primary action of each page reaches its target; the SEO baseline of the spec; the pages consistent with the model page.
-3. On FAIL, fix BLOCKING findings through the Review loop and review again; after two failures, open an unplanned gate.
+3. On FAIL, fix BLOCKING findings through the Review loop, one fix task per `@implementer` dispatch, each reviewed by `@task-reviewer`, and review again; after two failures, open an unplanned gate.
 4. Write `closure.md`: verdict, verification run with results, deviations, non-blocking observations, deferred minor findings, the open placeholders still on the pages, the copy added after G2, the assets still to produce.
 
 ### 10. Delivery
