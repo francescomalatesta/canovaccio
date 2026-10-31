@@ -231,6 +231,8 @@ Normal role boundaries:
 
 Do not dispatch agents recursively unless a workflow explicitly requires it.
 
+Subagents run in the foreground: dispatch them and wait for their result in the same turn, never in the background. Several independent subagents may run in parallel (research, documentation), as long as all of them are dispatched and awaited within the turn. Never end a turn while a subagent is still working ("the review is running, I will resume when it ends"): a session is idle only when it waits for the user (a gate, a question) or when the work is finished or blocked and reported.
+
 ## Evidence
 
 Do not claim completion based only on code inspection.

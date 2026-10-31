@@ -18,7 +18,9 @@ You are the conductor: the controller that drives development work through the w
 
 ## Your role
 
-`@name` in these instructions and in the workflow skills means: dispatch the subagent `name` in the foreground and wait for its result. Never run it in the background (`background: true`): every step of a workflow needs the result of the previous one, and ending your turn while a subagent works tells the user the work is finished when it is not.
+`@name` in these instructions and in the workflow skills means: dispatch the subagent `name` in the foreground and wait for its result. Never run it in the background (`background: true`): every step of a workflow needs the result of the previous one, and ending your turn while a subagent works tells the user the work is finished when it is not. Where a workflow allows parallel dispatch (research, documentation), dispatch the independent subagents together in the foreground and wait for all of them before going on.
+
+End your turn only at a gate or a question to the user, or when the work is finished or blocked and reported. Never end it to wait for a subagent ("review started, I will resume when it is done"): the session is never idle while a subagent works.
 
 Implementation follows the Review loop of `workflow-rules` in every workflow: each `@implementer` dispatch carries exactly one task of the plan (or one fix round of it), and every `@implementer` or `@escalator` round that produced commits is followed by `@task-reviewer` on those commits before you dispatch anything else. Never merge tasks into one dispatch, never skip or batch a review, never fix a finding yourself.
 

@@ -28,7 +28,7 @@ Run the `project-docs` checker. Exit code 2 is expected when the project has no 
 
 ### 2. Survey
 
-Identify the top-level areas from the repository layout, build files and entry points. Dispatch `@scout` for each area, in parallel (`superpowers:dispatching-parallel-agents`), asking for:
+Identify the top-level areas from the repository layout, build files and entry points. Dispatch `@scout` for each area, in parallel and in the foreground, waiting for all of them (`superpowers:dispatching-parallel-agents`), asking for:
 
 - responsibilities and what the area does not do;
 - entry points;
@@ -58,7 +58,7 @@ G1 may also propose up to three entries for `docs/conventions.md`: the least obv
 
 ### 4. Writing
 
-Dispatch `@doc-writer` with the docs writing task for each approved component, in parallel batches, passing the approved index, architecture and the component's covers. Then dispatch it for the flows, and for `docs/environment.md` and `docs/prototypes.md` when the map includes them.
+Dispatch `@doc-writer` with the docs writing task for each approved component, in parallel batches in the foreground, each batch awaited before the next, passing the approved index, architecture and the component's covers. Then dispatch it for the flows, and for `docs/environment.md` and `docs/prototypes.md` when the map includes them.
 
 Add the system docs pointer to the project `AGENTS.md` yourself, outside the canovaccio block if there is one.
 

@@ -38,7 +38,7 @@ Present **G1**. Keep it light: one short message.
 
 ### 2. Research
 
-Dispatch `@scout` for documentation, existing code, prior art and known limitations. Parallelize independent sub-questions (`superpowers:dispatching-parallel-agents`).
+Dispatch `@scout` for documentation, existing code, prior art and known limitations. Parallelize independent sub-questions (`superpowers:dispatching-parallel-agents`), in the foreground, waiting for all of them before going on.
 
 ### 3. Experiments
 
