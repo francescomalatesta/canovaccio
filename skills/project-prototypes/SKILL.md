@@ -1,6 +1,6 @@
 ---
 name: project-prototypes
-description: How a project's UI prototypes work - one prototype system per project, chosen once in an approved spec, documented in docs/prototypes.md and reused by every later workflow. The contract every system meets, how to choose one by stack, how layouts given in other forms are imported, how prototypes are organized, how they are shown live in the browser at a gate, and how they are kept or removed at delivery.
+description: How a project's UI prototypes work - one prototype system per project, chosen once in an approved spec, documented in docs/prototypes.md and reused by every later workflow. The contract every system meets, how to choose one by stack, how prototypes are organized, how they are shown live in the browser at a gate, and how they are kept or removed at delivery.
 ---
 
 # Project prototypes
@@ -19,13 +19,11 @@ Whatever the tool, the system provides:
 
 A prototype is delivered only through the system: never as a standalone HTML file outside it, a screenshot, an image mockup or a mockup in the visual companion of `superpowers:brainstorming`.
 
-Layouts the user brings in such forms (HTML or CSS mockups, images, design tool exports, PDFs, sketches) are input, not prototypes. `workflow-autopilot` imports them: `@ui-prototyper` in import mode rebuilds each one inside the system, with the project's components and mock data, and reports what it could not reproduce. The source files stay where the user put them; the prototype in the system is what is judged and approved.
-
 ## Choosing the system
 
 The system is decided once per project, in a spec, and approved at that spec's gate:
 
-- **greenfield** and **autopilot**: in `spec.md`, together with the stack;
+- **greenfield**: in `spec.md`, together with the stack;
 - **feature** in a project without a system: in the spec of the first feature that needs a prototype;
 - a project that already has a tool meeting the contract (Storybook, Histoire, Ladle, Lookbook, a dev-only playground) adopts it: the spec states it, nothing is chosen.
 
@@ -78,4 +76,4 @@ At the delivery gate each prototype of the work gets one line: **remove** (defau
 
 Then verify (production build without the area, system starting, index and kept prototypes loading) and commit.
 
-A kept prototype records the design approved at its commit. It is not a mirror of the product and is not updated when the product changes, but it must keep running: loading every kept prototype is part of the verification of greenfield, autopilot and feature work. Work that breaks one fixes it inside the area when the fix is small; otherwise the prototype is proposed for removal at that work's delivery gate.
+A kept prototype records the design approved at its commit. It is not a mirror of the product and is not updated when the product changes, but it must keep running: loading every kept prototype is part of the verification of greenfield and feature work. Work that breaks one fixes it inside the area when the fix is small; otherwise the prototype is proposed for removal at that work's delivery gate.

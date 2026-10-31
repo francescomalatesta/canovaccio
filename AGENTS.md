@@ -30,7 +30,7 @@ This does not change the language used to talk to the user, nor product content 
 
 ## Workflows
 
-Development workflows are defined as skills: `workflow-greenfield`, `workflow-autopilot`, `workflow-site`, `workflow-feature`, `workflow-refactor`, `workflow-fix`, `workflow-spike`, `workflow-docs-init` and `workflow-design-init`, with shared rules in `workflow-rules`.
+Development workflows are defined as skills: `workflow-greenfield`, `workflow-site`, `workflow-feature`, `workflow-refactor`, `workflow-fix`, `workflow-spike`, `workflow-docs-init` and `workflow-design-init`, with shared rules in `workflow-rules`.
 
 A workflow is active when it was started explicitly, selected by `workflow-router`, or recorded as active in a project's `docs/work/*/state.md`.
 
@@ -63,8 +63,6 @@ Escalate only when:
 - requirements materially conflict;
 - proceeding would require a material scope or UX change;
 - an operation requires explicit permission.
-
-A workflow the user started to run unattended (`workflow-autopilot`) may, under rules approved at its first gate, defer an escalation instead: it parks the blocked work, continues with what does not depend on it, and escalates when nothing else can proceed.
 
 Do not manufacture approval points.
 

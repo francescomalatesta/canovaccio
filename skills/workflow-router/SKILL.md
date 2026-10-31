@@ -1,6 +1,6 @@
 ---
 name: workflow-router
-description: Classifies a development request into the right workflow (greenfield, site, feature, refactor, fix, spike, docs-init, design-init) when none was named explicitly, announces the choice and loads that workflow. Never chooses autopilot, which starts only with /autopilot.
+description: Classifies a development request into the right workflow (greenfield, site, feature, refactor, fix, spike, docs-init, design-init) when none was named explicitly, announces the choice and loads that workflow.
 ---
 
 # Workflow router
@@ -21,8 +21,6 @@ When the answer depends on the codebase, take a quick look or dispatch `@scout`.
 | `workflow-site` | a product's public website as a whole: marketing site, landing pages, pricing and legal pages, new or rebuilt. One page or copy changes on a site that already has its building blocks is a feature |
 | `workflow-greenfield` | no project yet (no repository, or one holding only the agent harness), or a new application that needs its own stack and architecture decisions |
 | `workflow-feature` | new or changed behavior in an existing project |
-
-`workflow-autopilot` is never chosen here: delegating a whole project is the user's explicit choice, made with `/autopilot`. When a request asks to build a new project from a spec already in the repository with no stops along the way, classify it as greenfield and mention `/autopilot` in the announcement.
 
 Mixed requests: classify by the main intent and note the rest for `brief.md`. If the parts are independent and large, propose separate workflows in sequence.
 

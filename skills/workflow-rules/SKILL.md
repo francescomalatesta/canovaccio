@@ -1,6 +1,6 @@
 ---
 name: workflow-rules
-description: Shared rules for every development workflow (greenfield, autopilot, site, feature, refactor, fix, spike, docs-init, design-init) - gates, checkpoints, artifacts, state, resumption, the development environment, system docs and changelog, the Impeccable choice, the task tracker, workflow switching and precedence over superpowers skills. Load before running or resuming any workflow.
+description: Shared rules for every development workflow (greenfield, site, feature, refactor, fix, spike, docs-init, design-init) - gates, checkpoints, artifacts, state, resumption, the development environment, system docs and changelog, the Impeccable choice, the task tracker, workflow switching and precedence over superpowers skills. Load before running or resuming any workflow.
 ---
 
 # Workflow rules
@@ -23,7 +23,7 @@ An approval covers only the artifact that was presented. It does not approve art
 
 **CHECKPOINT** — a non-blocking status update. Report briefly what was done, what comes next and anything the user may want to redirect, then continue in the same turn.
 
-**Unplanned gates** are allowed only for the escalation reasons in `AGENTS.md`: a genuine unresolved product decision, materially conflicting requirements, a material scope or UX change, or an operation that requires explicit permission. Do not invent others. `workflow-autopilot` narrows them further after its last gate up front: it parks what is blocked and continues, and opens an unplanned gate only as its Autonomy section allows.
+**Unplanned gates** are allowed only for the escalation reasons in `AGENTS.md`: a genuine unresolved product decision, materially conflicting requirements, a material scope or UX change, or an operation that requires explicit permission. Do not invent others.
 
 **Gate collapsing.** When a change is small, a workflow may merge consecutive gates (for example spec and plan) into one. The workflow says where this is allowed. Collapsing reduces ceremony; it never removes the decision.
 
@@ -153,11 +153,11 @@ Use the user's choice if the request states one, otherwise the default. State th
 Set by canovaccio from your answer. Edit it, or ask, to change it.
 ```
 
-**For each workflow** whose work touches the UI (greenfield or autopilot with a UI, feature, refactor, fix):
+**For each workflow** whose work touches the UI (greenfield with a UI, feature, refactor, fix):
 
 - **preference present**: use it, without asking;
-- **no preference**: greenfield, autopilot, feature and refactor ask at their first gate (G1, or G1a), never at a gate of their own. Three answers: no · yes, advisory findings as Minor · yes, advisory findings excluded. Advisory findings are the detector's soft signals, which may be deliberate choices. With a yes, also ask: design review before closure, yes or no? Write the answers, `off` included, as the project preference and commit it with the work, so it is never asked again. A fix never asks: without a preference it runs with Impeccable off;
-- **`Use: on` without a `Design review` line**: greenfield, autopilot and feature ask that question alone at their first gate, then add the line; other workflows treat it as off;
+- **no preference**: greenfield, feature and refactor ask at their first gate (G1, or G1a), never at a gate of their own. Three answers: no · yes, advisory findings as Minor · yes, advisory findings excluded. Advisory findings are the detector's soft signals, which may be deliberate choices. With a yes, also ask: design review before closure, yes or no? Write the answers, `off` included, as the project preference and commit it with the work, so it is never asked again. A fix never asks: without a preference it runs with Impeccable off;
+- **`Use: on` without a `Design review` line**: greenfield and feature ask that question alone at their first gate, then add the line; other workflows treat it as off;
 - **the request says otherwise** ("without impeccable", "advisory included", "with design review"): that applies to this work only. When the user asks to change the preference itself, update `AGENTS.md`.
 
 Spike, docs-init and work that does not touch the UI run with Impeccable off, ask nothing and leave the preference as it is. Record the setting of this work in `state.md` as `Impeccable`, `Advisory` and `Design review`. `workflow-site` and `workflow-design-init` have their own rules for the preference.
@@ -166,9 +166,9 @@ Spike, docs-init and work that does not touch the UI run with Impeccable off, as
 
 **Dispatch.** With Impeccable on, add `Impeccable: on, advisory: <minor|exclude>` to every dispatch of `@implementer`, `@task-reviewer`, `@ui-prototyper`, `@site-builder`, `@doc-writer` for the docs sync and `@closure-reviewer` in plan mode, besides what the workflow lists; give `@implementer` the commit the task starts from. With Impeccable off, do not mention it: agents use neither guidance nor design checks, and the docs sync leaves `PRODUCT.md` and `DESIGN.md` alone.
 
-**Design context.** `PRODUCT.md` and `DESIGN.md` are built by greenfield and autopilot before their prototype, by `workflow-site` before its model page and by `workflow-design-init` on an existing project, through the interview of `design-context`. With Impeccable on, every role that writes or reviews UI follows them when they exist.
+**Design context.** `PRODUCT.md` and `DESIGN.md` are built by greenfield before its prototype, by `workflow-site` before its model page and by `workflow-design-init` on an existing project, through the interview of `design-context`. With Impeccable on, every role that writes or reviews UI follows them when they exist.
 
-**Design review.** In greenfield, autopilot, site and feature work that changed the UI, with `Design review: on`, after the last implementation task and before the docs sync:
+**Design review.** In greenfield, site and feature work that changed the UI, with `Design review: on`, after the last implementation task and before the docs sync:
 
 1. Start the app detached, or the prototype system when the app cannot run, and note it in `state.md`.
 2. Dispatch `@design-reviewer` in change mode with the URLs of the screens the work added or changed and what each is for, the work directory, the base branch, the approved prototype or model page commit if any and the advisory setting (see `design-review`). Stop what you started.
@@ -187,7 +187,7 @@ When the project `AGENTS.md` has a Task tracker preference and the work has item
 
 ## System docs and changelog
 
-Greenfield, autopilot, site, feature, refactor and fix read the system docs at the start and bring them, and `CHANGELOG.md`, up to date at the end. Spikes do neither; `workflow-docs-init` has its own flow. The rules are in the `project-docs` and `project-changelog` skills.
+Greenfield, site, feature, refactor and fix read the system docs at the start and bring them, and `CHANGELOG.md`, up to date at the end. Spikes do neither; `workflow-docs-init` has its own flow. The rules are in the `project-docs` and `project-changelog` skills.
 
 - **At the start**, in the discovery phase: follow the `project-docs` reading protocol, and pass the relevant doc paths to `@scout` as starting points. Record doc/code discrepancies in `state.md` Notes.
 - **At the end**, as a step of its own right before closure: **docs sync**. Dispatch `@doc-writer` with the work directory, the base branch, the workflow type and the recorded discrepancies; when the work built a prototype, also pass the prototyper's report so `docs/prototypes.md` is completed from it. Review its report and commit its changes with the work.
@@ -270,7 +270,7 @@ A switch is a gate. On approval, close the current `state.md` (status `closed`, 
 
 ## Branches
 
-Unless the project says otherwise, create a branch before the first change to project files (a prototype or implementation): `<workflow>/<slug>` (for example `feature/csv-export`, `fix/login-500`). Greenfield works on the default branch of a new repository or of one with no project yet (no commits, or only the agent harness), and on `greenfield/<slug>` inside a repository that already holds a project. Autopilot works like greenfield, on `autopilot/<slug>` inside a repository that already holds a project. A site works like greenfield when it is a project of its own, and on `site/<slug>` inside an existing repository. Spikes use `spike/<slug>` and are never merged. Docs bootstrapping uses `docs-init/<slug>`, design context bootstrapping `design-init/<slug>`.
+Unless the project says otherwise, create a branch before the first change to project files (a prototype or implementation): `<workflow>/<slug>` (for example `feature/csv-export`, `fix/login-500`). Greenfield works on the default branch of a new repository or of one with no project yet (no commits, or only the agent harness), and on `greenfield/<slug>` inside a repository that already holds a project. A site works like greenfield when it is a project of its own, and on `site/<slug>` inside an existing repository. Spikes use `spike/<slug>` and are never merged. Docs bootstrapping uses `docs-init/<slug>`, design context bootstrapping `design-init/<slug>`.
 
 Work on a branch in the current checkout; use worktrees only if the user asks. Creating branches and committing are autonomous. Pushing, merging and destructive git operations are not: they happen only at the delivery gate or with explicit permission.
 
