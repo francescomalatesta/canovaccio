@@ -1,6 +1,6 @@
 ---
 name: workflow-rules
-description: Shared rules for every development workflow (greenfield, site, feature, refactor, fix, spike, docs-init, design-init) - gates, checkpoints, running an approved plan to completion, artifacts, state, resumption, the development environment, system docs and changelog, the Impeccable choice, the task tracker, workflow switching and precedence over superpowers skills. Load before running or resuming any workflow.
+description: Shared rules for every development workflow (greenfield, site, feature, refactor, fix, spike, docs-init, design-init, security-audit) - gates, checkpoints, running an approved plan to completion, artifacts, state, resumption, the development environment, system docs and changelog, the Impeccable choice, the task tracker, workflow switching and precedence over superpowers skills. Load before running or resuming any workflow.
 ---
 
 # Workflow rules
@@ -41,6 +41,7 @@ Once the gate that approves the plan is recorded, the workflow runs to its next 
 | spike | G1 framing | G2 decision |
 | docs-init | G1 map | G2 delivery |
 | design-init | its interview answered | G1 delivery |
+| security-audit | G1 scope | G2 delivery |
 
 Between those two points, a turn ends only for:
 
@@ -72,6 +73,10 @@ Each workflow instance works in `docs/work/<YYYY-MM-DD>-<slug>/` inside the targ
 | `facts.md` | in site work, or a feature writing site copy, what is true about the product, each fact with its source (see `site-content`) | **yes** |
 | `strategy.md` | in site work, audience, positioning, message, conversion, sitemap | **yes** |
 | `content.md`, `content.<lang>.md` | in site work, or a feature writing site copy, every word of every page, in the checkable format of `site-content` | **yes** |
+| `surface.md` | in a security audit, the map of the attack surface | no |
+| `audit-plan.md` | in a security audit, threat model, areas, checks, hotspots, scanners | no |
+| `evidence/` | in a security audit, the evidence of the scanners and of each area | no |
+| `security-findings.md` | in a security audit, confirmed findings by severity, with the proposed follow-up work | no, unless the user chooses so at delivery |
 | `decisions.md` | decisions taken during the work, with rationale | **yes** |
 | `design-interview.md` | questions and answers of the design context interview, by round | no |
 | `site-interview.md` | questions and answers of the strategy and content interviews of site work, by round | no |
@@ -199,7 +204,7 @@ Set by canovaccio from your answer. Edit it, or ask, to change it.
 - **`Use: on` without a `Design review` line**: greenfield and feature ask that question alone at their first gate, then add the line; other workflows treat it as off;
 - **the request says otherwise** ("without impeccable", "advisory included", "with design review"): that applies to this work only. When the user asks to change the preference itself, update `AGENTS.md`.
 
-Spike, docs-init and work that does not touch the UI run with Impeccable off, ask nothing and leave the preference as it is. Record the setting of this work in `state.md` as `Impeccable`, `Advisory` and `Design review`. `workflow-site` and `workflow-design-init` have their own rules for the preference.
+Spike, docs-init, security-audit and work that does not touch the UI run with Impeccable off, ask nothing and leave the preference as it is. Record the setting of this work in `state.md` as `Impeccable`, `Advisory` and `Design review`. `workflow-site` and `workflow-design-init` have their own rules for the preference.
 
 **Availability.** When Impeccable is on, run `design-check.mjs --check` at the start of the work. If the detector cannot run, say so in a CHECKPOINT with the reason: the work continues, the guidance still applies, and every design check is reported as not run.
 
@@ -226,7 +231,7 @@ When the project `AGENTS.md` has a Task tracker preference and the work has item
 
 ## System docs and changelog
 
-Greenfield, site, feature, refactor and fix read the system docs at the start and bring them, and `CHANGELOG.md`, up to date at the end. Spikes do neither; `workflow-docs-init` has its own flow. The rules are in the `project-docs` and `project-changelog` skills.
+Greenfield, site, feature, refactor and fix read the system docs at the start and bring them, and `CHANGELOG.md`, up to date at the end. Spikes do neither; a security audit reads them and writes neither; `workflow-docs-init` has its own flow. The rules are in the `project-docs` and `project-changelog` skills.
 
 - **At the start**, in the discovery phase: follow the `project-docs` reading protocol, and pass the relevant doc paths to `@scout` as starting points. Record doc/code discrepancies in `state.md` Notes.
 - **At the end**, as a step of its own right before closure: **docs sync**. Dispatch `@doc-writer` with the work directory, the base branch, the workflow type and the recorded discrepancies; when the work built a prototype, also pass the prototyper's report so `docs/prototypes.md` is completed from it. Review its report and commit its changes with the work.
@@ -303,13 +308,14 @@ Stop and propose a switch when the work turns out to be of a different kind, for
 - a fix whose correct resolution is new behavior → feature;
 - a refactor that cannot preserve an invariant → feature, or an unplanned gate;
 - a feature that needs a question answered before it can be specified → spike;
-- a spike whose recommendation is accepted → feature or greenfield, with `findings.md` as input.
+- a spike whose recommendation is accepted → feature or greenfield, with `findings.md` as input;
+- a security audit whose follow-up work is chosen → fix or feature, one at a time, with the findings they cover quoted in their `brief.md`.
 
 A switch is a gate. On approval, close the current `state.md` (status `closed`, with the reason) and start the new workflow in a new work directory that references the previous one.
 
 ## Branches
 
-Unless the project says otherwise, create a branch before the first change to project files (a prototype or implementation): `<workflow>/<slug>` (for example `feature/csv-export`, `fix/login-500`). Greenfield works on the default branch of a new repository or of one with no project yet (no commits, or only the agent harness), and on `greenfield/<slug>` inside a repository that already holds a project. A site works like greenfield when it is a project of its own, and on `site/<slug>` inside an existing repository. Spikes use `spike/<slug>` and are never merged. Docs bootstrapping uses `docs-init/<slug>`, design context bootstrapping `design-init/<slug>`.
+Unless the project says otherwise, create a branch before the first change to project files (a prototype or implementation): `<workflow>/<slug>` (for example `feature/csv-export`, `fix/login-500`). Greenfield works on the default branch of a new repository or of one with no project yet (no commits, or only the agent harness), and on `greenfield/<slug>` inside a repository that already holds a project. A site works like greenfield when it is a project of its own, and on `site/<slug>` inside an existing repository. Spikes use `spike/<slug>` and are never merged. A security audit creates no branch: it changes no project files. Docs bootstrapping uses `docs-init/<slug>`, design context bootstrapping `design-init/<slug>`.
 
 Work on a branch in the current checkout; use worktrees only if the user asks. Creating branches and committing are autonomous. Pushing, merging and destructive git operations are not: they happen only at the delivery gate or with explicit permission.
 

@@ -40,9 +40,9 @@ Only items that already exist and that the user named: the item of the work, and
 | Event | Item of the work | Item of a plan task |
 |---|---|---|
 | **picked-up** | the workflow starts on it | — |
-| **in-progress** | the first change to project files: a prototype, an implementation task, characterization tests, the fix task, a spike experiment | `@implementer` is dispatched for the task |
-| **in-review** | the closure review starts; without one, the final verification; in a spike, the decision gate | `@task-reviewer` is dispatched for the task |
-| **done** | canovaccio integrates the work itself (merge); in a spike, the decision gate is approved | the work it belongs to is integrated |
+| **in-progress** | the first change to project files: a prototype, an implementation task, characterization tests, the fix task, a spike experiment; in a security audit, the scanners run | `@implementer` is dispatched for the task |
+| **in-review** | the closure review starts; without one, the final verification; in a spike, the decision gate; in a security audit, the delivery gate | `@task-reviewer` is dispatched for the task |
+| **done** | canovaccio integrates the work itself (merge); in a spike, the decision gate is approved; in a security audit, the delivery gate is answered | the work it belongs to is integrated |
 
 Each move happens once: task review rounds, closure review fix rounds and gates in between move nothing. When the work is delivered as a pull request, items stay at in-review: link them in the PR (`Closes #42`, or the tool's equivalent) and leave done to the merge and the board's automation. An abandoned workflow leaves its items where they are; the report says so.
 

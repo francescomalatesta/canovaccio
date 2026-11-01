@@ -7,7 +7,7 @@
 
 canovaccio turns a coding agent into a small, disciplined development team. You describe *what* you want; the setup decides *how* the work proceeds.
 
-A controller agent, the **conductor**, recognizes the kind of work you asked for and runs the matching workflow. It delegates each role to a specialized agent: one researches the codebase, one reviews specifications, one builds UI prototypes, one implements, one reviews each change, one steps in when a fix does not converge, one keeps the docs current, and one does the final review; for a public site, one writes the strategy, one the copy, and one builds the model page; with [Impeccable](#impeccable), one also captures the product and its design system, and one reviews the design. The conductor stops at a few **human gates**, where you approve a spec, a prototype or the delivery, and works autonomously everywhere else.
+A controller agent, the **conductor**, recognizes the kind of work you asked for and runs the matching workflow. It delegates each role to a specialized agent: one researches the codebase, one reviews specifications, one builds UI prototypes, one implements, one reviews each change, one steps in when a fix does not converge, one keeps the docs current, and one does the final review; for a security audit, one plans and judges it while cheaper ones collect the evidence; for a public site, one writes the strategy, one the copy, and one builds the model page; with [Impeccable](#impeccable), one also captures the product and its design system, and one reviews the design. The conductor stops at a few **human gates**, where you approve a spec, a prototype or the delivery, and works autonomously everywhere else.
 
 Every piece of work leaves a trail: a spec or findings, the decisions taken, a changelog entry, and project docs updated to match the code. The next piece of work starts from those docs instead of rediscovering the codebase. Progress is saved to disk, so work resumes where it stopped, even in a new session.
 
@@ -20,6 +20,7 @@ The workflows:
 - **refactor** — better structure, same behavior: pins current behavior with tests before touching the code, then restructures in small steps that keep every test green.
 - **spike** — a question to answer before building (is it feasible? which library?): researches and runs throwaway experiments within a set budget, and ends with a written recommendation.
 - **docs-init** — brings an existing project to a complete docs map in one pass, instead of letting it fill in as work goes.
+- **security-audit** — how secure is an existing codebase: a strong model maps the threats and plans the audit by area, scanners and cheaper auditors collect the evidence in parallel, and the strong model confirms every finding and rates it High, Medium or Low. Ends with a prioritized list and the follow-up work to choose from; changes no code. See [Security audit](#security-audit).
 - **design-init** — captures an existing project's product and visual system in `PRODUCT.md` and `DESIGN.md`, asking only what the code cannot tell, and optionally critiques its current interface.
 
 ## Layout
@@ -83,6 +84,7 @@ Start a workflow explicitly:
 /spike can we use SQLite with concurrent writers here?
 /docs-init
 /design-init
+/security-audit
 ```
 
 Or just describe the work: the conductor classifies it with `workflow-router`, announces the choice, and you confirm it at the first gate. Questions and trivial changes run without a workflow.
@@ -99,6 +101,7 @@ Or just describe the work: the conductor classifies it with `workflow-router`, a
 | `spike` | a question to answer before building | framing · decision |
 | `docs-init` | bootstrapping system docs in an existing project | map (index, architecture, components) · delivery |
 | `design-init` | capturing an existing project's `PRODUCT.md` and `DESIGN.md` | delivery (with the optional critique) |
+| `security-audit` | a prioritized list of what to do to make an existing codebase more secure | scope (areas, scanners, runtime checks) · delivery (which findings become work) |
 
 Shared rules are in `skills/workflow-rules`: blocking gates vs. non-blocking checkpoints, when an unplanned gate is allowed, running an approved plan to completion, workflow switching, branches, and how superpowers skills are used inside a phase.
 
@@ -143,6 +146,24 @@ node skills/site-content/scripts/site-check.mjs --content docs/work/<work>/conte
 
 The implementer runs it on its pages before committing, the task reviewer again, the closure on the whole site. Later copy changes go through `/feature`, which asks `@copywriter` for the words when the project has a site built this way. The models are set in `agents/strategist.md`, `agents/copywriter.md` and `agents/site-builder.md`.
 
+## Security audit
+
+`/security-audit` studies an existing codebase and ends with a prioritized list of what to do to make it more secure. It is split like the closure review: a strong model plans and judges, cheaper ones do the volume, and every phase leaves its result on disk.
+
+| Phase | Who (model) | Produces | Gate |
+|---|---|---|---|
+| attack surface | `@scout` | `surface.md`: entry points, authentication, data stores, integrations, secrets handling, dependencies, Docker, CI and IaC, the scanners available | — |
+| plan | `@security-reviewer` (Opus) | `audit-plan.md`: threat model, four to eight areas with checks and hotspots, scanner commands, harmless runtime checks on the local app | G1 scope |
+| scanners | `@security-auditor` (DeepSeek) | `evidence/scans.md`: `gitleaks` on the git history, the ecosystems' dependency audits or `osv-scanner`, `semgrep`, `trivy`, `zizmor`, as the stack needs | — |
+| areas | one `@security-auditor` per area, in parallel | `evidence/<area>.md`: code quoted in full on the hotspots, scanner results traced to their callers | — |
+| verdict | `@security-reviewer` (Opus) | `security-findings.md`: every candidate confirmed or dismissed, findings rated High, Medium or Low, grouped into follow-up work | G2 delivery |
+
+**Severity** is what an attacker gets and how hard it is to get it in this project, not a scanner's or CVE's score: a vulnerable dependency whose vulnerable code is never reached is not High. Each finding has its category (CWE), location, quoted evidence, an attack scenario, a fix and its effort.
+
+**Limits.** The audit changes no project files, runs nothing against deployed environments, never exploits (a weakness is shown with code, configuration or a harmless request to the app started locally) and never writes a secret in full. Scanners run through what is installed or ephemeral runners (`npx`, `uvx`, `docker run --rm`); installing one on your machine is asked at G1.
+
+At G2 you choose which follow-up work to start, each as a `fix` or `feature` with its own gates, and whether to commit `security-findings.md` (default no: it lists open vulnerabilities). The models are set in `agents/security-reviewer.md` and `agents/security-auditor.md`.
+
 ## Session cost
 
 Sessions with many subagents are hard to budget. `skills/session-cost/scripts/session-cost.mjs` reads the local opencode database (`~/.local/share/opencode/opencode.db`) and, given the id of the parent session, follows every sub-session to report total cost, a cost tree, and breakdowns by agent and by model, with token and cache-hit stats.
@@ -160,7 +181,7 @@ Requires Node 22.5+, no dependencies; the database is opened read-only. Costs ar
 Each workflow works in `docs/work/<date>-<slug>/` inside the target project:
 
 - versioned with the work: `spec.md`, `decisions.md`, `findings.md`; in site work also `facts.md`, `strategy.md` and the content files;
-- local only (git-ignored): `brief.md`, `plan.md`, `invariants.md`, `repro.md`, `design-interview.md`, `site-interview.md`, `design-review.md`, `closure-plan.md`, `closure-evidence.md`, `closure.md`, `state.md`.
+- local only (git-ignored): `brief.md`, `plan.md`, `invariants.md`, `repro.md`, `design-interview.md`, `site-interview.md`, `design-review.md`, `closure-plan.md`, `closure-evidence.md`, `closure.md`, `state.md`; in a security audit, `surface.md`, `audit-plan.md`, `evidence/` and `security-findings.md`, which you may choose to commit at delivery.
 
 UI prototypes are not work artifacts: they live in the project's prototype system, described below.
 
@@ -205,7 +226,7 @@ Once per project, yours. The first time a greenfield, feature or refactor touche
 | refactor | at G1, if the perimeter includes UI code and no preference exists | followed | every step | every step, closure review |
 | fix | never: follows the preference, off without one | followed | the fix task | the fix task; closure review only when G-fix was opened |
 | design-init | at its first round, only the missing answers | built from the code | — | optional critique |
-| spike, docs-init | never: always off | — | — | — |
+| spike, docs-init, security-audit | never: always off | — | — | — |
 
 Every task is checked twice: `@implementer` on its own diff before committing, `@task-reviewer` on the commits. Prototype states are scanned by `@ui-prototyper` at desktop and mobile width, and the prototype gate shows what is left. The design review runs once per work, after the last task; its P0–P1 issues are fixed like Important findings.
 
@@ -252,7 +273,7 @@ Docs describe what the code does not say easily (purpose, boundaries, entry poin
 
 `docs/conventions.md` is different: it prescribes how code is written in the project, to correct the model where it tends to err. Workflows collect evidence of such errors (your corrections at gates, recurring review findings, guesses between inconsistent patterns) and propose at most three entries at delivery. **Nothing enters the file unless you accept it explicitly**, entry by entry.
 
-Every workflow except spike starts from the docs to find where to work, and ends with a **docs sync** step: `@doc-writer` maps the diff to the impacted docs through `covers`, updates them, documents new areas and adds the `CHANGELOG.md` entry ([Keep a Changelog](https://keepachangelog.com), rules in `skills/project-changelog`). The closure review checks both. Projects without docs get them incrementally, as work touches the code, or all at once with `/docs-init`.
+Every workflow except spike starts from the docs to find where to work, and every one except spike and security-audit ends with a **docs sync** step: `@doc-writer` maps the diff to the impacted docs through `covers`, updates them, documents new areas and adds the `CHANGELOG.md` entry ([Keep a Changelog](https://keepachangelog.com), rules in `skills/project-changelog`). The closure review checks both. Projects without docs get them incrementally, as work touches the code, or all at once with `/docs-init`.
 
 `skills/project-docs/scripts/check-docs.mjs` (Node 18+, no dependencies) checks a project's docs: covers matching real files, links, index completeness, uncovered code; with `--changed <base>` it lists the docs a change impacts.
 

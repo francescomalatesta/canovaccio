@@ -44,7 +44,7 @@ Sections, in this order, only when they have entries:
 | `workflow-feature` | `Added` for new behavior, `Changed` for changed behavior, `Deprecated` / `Removed` when applicable |
 | `workflow-fix` | `Fixed`; `Security` when the bug was a vulnerability |
 | `workflow-refactor` | only when notable for readers: performance, dependency or runtime upgrades, changes visible to library consumers or operators. Then `Changed`. Otherwise no entry, and `closure.md` says so |
-| `workflow-spike`, `workflow-docs-init` | no entry |
+| `workflow-spike`, `workflow-docs-init`, `workflow-security-audit` | no entry |
 
 ## How to write an entry
 
