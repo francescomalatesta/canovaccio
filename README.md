@@ -100,9 +100,11 @@ Or just describe the work: the conductor classifies it with `workflow-router`, a
 | `docs-init` | bootstrapping system docs in an existing project | map (index, architecture, components) · delivery |
 | `design-init` | capturing an existing project's `PRODUCT.md` and `DESIGN.md` | delivery (with the optional critique) |
 
-Shared rules are in `skills/workflow-rules`: blocking gates vs. non-blocking checkpoints, when an unplanned gate is allowed, workflow switching, branches, and how superpowers skills are used inside a phase.
+Shared rules are in `skills/workflow-rules`: blocking gates vs. non-blocking checkpoints, when an unplanned gate is allowed, running an approved plan to completion, workflow switching, branches, and how superpowers skills are used inside a phase.
 
 Implementation is always one task per `@implementer` dispatch, each followed by its own `@task-reviewer` review before anything else happens: tasks are never merged into one dispatch, and no review is skipped or shared between tasks. The conductor tracks each round in `state.md` and checks it before the next task.
+
+Once you approve a plan, the workflow runs every task to its next gate, usually delivery, without stopping to ask whether to go on: checkpoints are status lines, not questions, and before ending a turn the conductor checks that `state.md` is waiting for you. It stops early only for an unplanned gate (a product decision the artifacts do not settle, an operation that needs your permission) or a blocker it cannot resolve.
 
 Subagents always run in the foreground. Independent research or documentation agents may run in parallel, but the conductor waits for all of them within the turn: a session is idle only when it waits for you at a gate or a question, or when the work is finished.
 

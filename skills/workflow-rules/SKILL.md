@@ -1,6 +1,6 @@
 ---
 name: workflow-rules
-description: Shared rules for every development workflow (greenfield, site, feature, refactor, fix, spike, docs-init, design-init) - gates, checkpoints, artifacts, state, resumption, the development environment, system docs and changelog, the Impeccable choice, the task tracker, workflow switching and precedence over superpowers skills. Load before running or resuming any workflow.
+description: Shared rules for every development workflow (greenfield, site, feature, refactor, fix, spike, docs-init, design-init) - gates, checkpoints, running an approved plan to completion, artifacts, state, resumption, the development environment, system docs and changelog, the Impeccable choice, the task tracker, workflow switching and precedence over superpowers skills. Load before running or resuming any workflow.
 ---
 
 # Workflow rules
@@ -21,11 +21,41 @@ These rules apply to every workflow. A workflow skill defines its phases and gat
 
 An approval covers only the artifact that was presented. It does not approve artifacts that do not exist yet, and it does not carry over to a different task. If an approved artifact later needs a material change, it needs a new approval.
 
-**CHECKPOINT** — a non-blocking status update. Report briefly what was done, what comes next and anything the user may want to redirect, then continue in the same turn.
+**CHECKPOINT** — a non-blocking status update. Report briefly what was done and what comes next, then continue in the same turn with the next step. A CHECKPOINT is never a question and never ends the turn: the user can interrupt at any time, but you do not invite it ("let me know if…", "shall I go on?").
 
 **Unplanned gates** are allowed only for the escalation reasons in `AGENTS.md`: a genuine unresolved product decision, materially conflicting requirements, a material scope or UX change, or an operation that requires explicit permission. Do not invent others.
 
 **Gate collapsing.** When a change is small, a workflow may merge consecutive gates (for example spec and plan) into one. The workflow says where this is allowed. Collapsing reduces ceremony; it never removes the decision.
+
+## Run to completion
+
+Once the gate that approves the plan is recorded, the workflow runs to its next defined gate without stopping, however many tasks the plan has. The approval is the mandate to execute the whole plan: the user approved it so as not to be asked again.
+
+| Workflow | The plan is approved at | Runs without stopping to |
+|---|---|---|
+| greenfield | G3 plan | G4 delivery |
+| site | G3 model page (the plan is a CHECKPOINT) | G4 delivery |
+| feature | G1 spec+plan, or G1b plan | G2 delivery |
+| refactor | G1 scope | G2 delivery |
+| fix | G-fix, or the CHECKPOINT with root cause and intended fix | G2 delivery |
+| spike | G1 framing | G2 decision |
+| docs-init | G1 map | G2 delivery |
+| design-init | its interview answered | G1 delivery |
+
+Between those two points, a turn ends only for:
+
+- an unplanned gate, for the escalation reasons in `AGENTS.md` or where a workflow rule opens one (an escalation that did not converge, a closure that failed twice, a spike budget run out);
+- an operation that needs explicit permission and is not covered by the approval;
+- work blocked by something you cannot resolve, reported with the reason.
+
+Each of these sets `Status: waiting-gate` in `state.md`, with the reason in Notes. Nothing else is a reason to stop. In particular, never:
+
+- ask "shall I continue?", "let me know when to proceed" or similar, or offer the next task as an option;
+- stop after a number of tasks, a phase, a CHECKPOINT or a long turn, to "let the user review progress";
+- stop because many tasks remain, the context is filling up or a compaction happened: progress is on disk and compaction is automatic;
+- stop to ask a question the approved artifacts already answer, or a routine engineering decision (see Autonomy in `AGENTS.md`).
+
+**End-of-turn check.** Before ending a turn, read `Status` in `state.md`. `waiting-gate`, `closed` or `abandoned`: you may end it. `active`: do not end the turn; execute the next action that `state.md` records. A turn that ends with `Status: active` is a stall, and the end-of-turn report is not a reason to stop.
 
 ## Work directory and artifacts
 
@@ -289,6 +319,7 @@ Workflows decide sequencing, gates and artifacts. Superpowers skills supply tech
 
 - `superpowers:brainstorming` — use its exploration and questioning. Its approval steps are replaced by the workflow gates, and its design document is the workflow's `spec.md`, not a file under `docs/superpowers/`. Its visual companion is not used for UI mockups or layouts: when a UI question needs to be seen, it is settled with a prototype in the project's prototype system.
 - `superpowers:writing-plans` — use it to write `plan.md` in the work directory. The execution method is already chosen: subagent-driven. Do not ask the user to choose it.
+- `superpowers:subagent-driven-development` and `superpowers:executing-plans` — their continuous execution holds, as Run to completion above requires. Their own reasons to stop are reached only through an unplanned gate or an operation needing explicit permission; a plan defect the approved artifacts settle is ruled on, recorded in `decisions.md`, and the work goes on.
 - `superpowers:subagent-driven-development` — use its loop with the named agents and the Review loop above, one task per implementer dispatch and one review after each: implementer → `@implementer`, task reviewer → `@task-reviewer`, more capable implementer → `@escalator`, final whole-branch reviewer → the Closure review above. Keep its ledger in the Tasks and Notes sections of `state.md`.
 - `superpowers:dispatching-parallel-agents` — allowed where the workflow says so (research, documentation), with every agent in the foreground and all of them awaited in the same turn. No subagent of any workflow runs in the background, whatever a skill suggests (see Agent specialization in `AGENTS.md`).
 - `superpowers:finishing-a-development-branch` — its integration choice (merge, PR, keep, discard) is part of the workflow's delivery gate. A pull request's title and description are in English (see Language in `AGENTS.md`).

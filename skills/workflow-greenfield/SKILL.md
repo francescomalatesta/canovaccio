@@ -83,7 +83,7 @@ Run `superpowers:subagent-driven-development` over `plan.md` with the Review loo
 
 After the walking skeleton is accepted, bring the environment up (see Environment in `workflow-rules`): nothing ran before this work, so every service the skeleton set up is recorded as started by the workflow. Then dispatch `@doc-writer` to scaffold the system docs from the spec and the skeleton, following `project-docs`: the pointer in the project `AGENTS.md`, `docs/index.md`, `docs/architecture.md`, `docs/environment.md` when the project has services, component docs for the components that exist, a link to `docs/prototypes.md` when it exists, and `CHANGELOG.md` following `project-changelog`. Review its report and commit its changes; later tasks start from these docs.
 
-After each accepted task, update `state.md` and give a one-line CHECKPOINT. After the walking skeleton and docs scaffold, give a fuller CHECKPOINT: how to start the app and run the checks.
+After each accepted task, update `state.md`, give a one-line CHECKPOINT and dispatch the next task in the same turn. After the walking skeleton and docs scaffold, give a fuller CHECKPOINT: how to start the app and run the checks; it does not stop the work either. From G3 the work runs to G4 without stopping (see Run to completion in `workflow-rules`).
 
 With `Design review: on`, run the Design review of `workflow-rules` after the last task.
 

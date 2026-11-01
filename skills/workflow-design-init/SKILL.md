@@ -35,6 +35,8 @@ Dispatch `@design-director` in document mode with the work directory, the existi
 
 ### 3. Verification
 
+Once the interview is answered, the work runs to G1 without stopping (see Run to completion in `workflow-rules`).
+
 1. Check a sample of the `DESIGN.md` frontmatter tokens against the code (each value appears where the project defines it), the canonical section order, and that `PRODUCT.md` holds no visual decisions. Run the `project-docs` checker when the project has docs.
 2. Commit the files.
 3. Write `closure.md`: the files, what came from the code and what from the answers, what stayed `Assumed:` or `Open:`, the verification run.

@@ -50,7 +50,7 @@ Open **G-fix** when any of these holds:
 
 Present `repro.md` with root cause and the proposed fix. If the fix is really new behavior, propose `workflow-feature` instead.
 
-Otherwise give a CHECKPOINT with root cause and intended fix, and continue. When the regression test persists data and the project has no test data isolation, the CHECKPOINT also says it is set up first.
+Otherwise give a CHECKPOINT with root cause and intended fix, and continue in the same turn. From here, or from G-fix when it opens, the work runs to G2 without stopping (see Run to completion in `workflow-rules`). When the regression test persists data and the project has no test data isolation, the CHECKPOINT also says it is set up first.
 
 ### 4. Fix
 

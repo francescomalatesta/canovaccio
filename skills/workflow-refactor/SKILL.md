@@ -60,7 +60,7 @@ Run the Review loop of `workflow-rules` for each step in `invariants.md`, passin
 - modifies existing tests only mechanically (renamed imports, moved paths), which the reviewer checks;
 - stops at an unplanned gate if it cannot be completed without changing an invariant.
 
-Update `state.md` and give a one-line CHECKPOINT per step.
+Update `state.md`, give a one-line CHECKPOINT per step and go on with the next step in the same turn: from G1 the work runs to G2 without stopping (see Run to completion in `workflow-rules`).
 
 ### 5. Docs sync
 

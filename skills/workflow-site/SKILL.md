@@ -118,7 +118,7 @@ Give `@task-reviewer` the task, the content files, the commit range and the mode
 
 A piece of copy the content lacks (a form error, a confirmation message) goes to `@copywriter`, who adds it to the content; you record it in `state.md` Notes as copy added after G2, and it is listed at delivery. Changing approved copy is not this: it is an unplanned gate.
 
-After each accepted task, update `state.md` and give a one-line CHECKPOINT. With `Design review: on`, run the Design review of `workflow-rules` after the last task, with the URL of every page.
+After each accepted task, update `state.md`, give a one-line CHECKPOINT and dispatch the next task in the same turn: from G3 the work runs to G4 without stopping (see Run to completion in `workflow-rules`). With `Design review: on`, run the Design review of `workflow-rules` after the last task, with the URL of every page.
 
 ### 8. Docs sync
 

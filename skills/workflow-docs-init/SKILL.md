@@ -58,7 +58,7 @@ G1 may also propose up to three entries for `docs/conventions.md`: the least obv
 
 ### 4. Writing
 
-Dispatch `@doc-writer` with the docs writing task for each approved component, in parallel batches in the foreground, each batch awaited before the next, passing the approved index, architecture and the component's covers. Then dispatch it for the flows, and for `docs/environment.md` and `docs/prototypes.md` when the map includes them.
+From G1 the work runs to G2 without stopping, however many components the map has (see Run to completion in `workflow-rules`). Dispatch `@doc-writer` with the docs writing task for each approved component, in parallel batches in the foreground, each batch awaited before the next, passing the approved index, architecture and the component's covers. Then dispatch it for the flows, and for `docs/environment.md` and `docs/prototypes.md` when the map includes them.
 
 Add the system docs pointer to the project `AGENTS.md` yourself, outside the canovaccio block if there is one.
 

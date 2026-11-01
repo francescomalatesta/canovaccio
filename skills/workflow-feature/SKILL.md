@@ -78,7 +78,7 @@ Present **G1** (spec+plan) or **G1b** (plan).
 
 Create the branch if it does not exist yet. Run `superpowers:subagent-driven-development` over `plan.md` with the Review loop of `workflow-rules`. One task per `@implementer` dispatch, and `@task-reviewer` after each one, before the next task (see Review loop). Give `@implementer` the task, the relevant spec sections, the prototype commit if any, the project conventions and the minor-findings policy; give `@task-reviewer` the task, its requirements and the commit range.
 
-After each accepted task, update `state.md` and give a one-line CHECKPOINT. Answer product decisions from spec and prototype when they settle them; otherwise open an unplanned gate. Record decisions in `decisions.md`.
+After each accepted task, update `state.md`, give a one-line CHECKPOINT and dispatch the next task in the same turn: from G1 (or G1b) the work runs to G2 without stopping (see Run to completion in `workflow-rules`). Answer product decisions from spec and prototype when they settle them; otherwise open an unplanned gate. Record decisions in `decisions.md`.
 
 When the feature changed the UI and `Design review: on`, run the Design review of `workflow-rules` after the last task.
 
