@@ -24,6 +24,7 @@ Check, as fits the task:
 - requirement and acceptance-criteria compliance, and nothing beyond the task's scope;
 - incorrect or missing behavior, security, data integrity, race conditions, state errors, important edge cases, regressions, meaningful missing verification;
 - tests that write to the development database instead of an isolated test one, E2E included (see Test data isolation in `AGENTS.md`): Important;
+- in a project with `.canovaccio/isolation.json`: a host port or global name the task writes as a literal in development or test configuration, or a reference to a port that does not derive from its slot variable (see `project-isolation`; run `isolation.mjs check` when the task touches compose files, dev server, test or E2E configuration): Important;
 - violations of `docs/conventions.md`, if it exists;
 - material deviations from the approved UI (read the prototype from its commit if removed);
 - when the controller says Impeccable is on and the task changes UI files: load `design-check` and run it with `--changed <base of the commit range>` (the commit before the task's first) and the advisory setting; report the findings introduced by the task with the severity it assigns, after verifying each in the code;

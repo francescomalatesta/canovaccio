@@ -36,6 +36,7 @@ Identify the top-level areas from the repository layout, build files and entry p
 - data it owns;
 - where its tests are and how they run;
 - the services it needs to run or be tested (database, cache, containers), and how they start, are checked ready and stop;
+- the ports it binds on the host in development and test, and whether each comes from a variable or is fixed (see `project-isolation`);
 - for UI areas, any tool for previewing UI in isolation (Storybook, a dev-only playground);
 - anything surprising: pitfalls, dead code, unclear boundaries.
 
@@ -47,7 +48,7 @@ From the survey, write the proposal yourself: it is the gate artifact.
 - `docs/index.md`, listing every proposed component with its code paths and a one-line purpose, and the proposed flows;
 - the proposed `covers` of each component, in `plan.md`, one entry per component;
 - `docs/.docsignore` for tests, generated code, fixtures and other paths no doc should cover;
-- when the project needs services to run or be tested, `docs/environment.md` in the index, following the `project-docs` template;
+- when the project needs services to run or be tested, `docs/environment.md` in the index, following the `project-docs` template, with its Isolation section: the slot variables when `.canovaccio/isolation.json` exists, otherwise the fixed ports that keep two checkouts from running at once;
 - when the project has a tool meeting the prototype system contract of `project-prototypes` (Storybook or similar), `docs/prototypes.md` in the index, adopting it as the project's prototype system.
 
 Aim for components that are meaningful units, typically a handful to a few dozen for a large system, not one per directory.
@@ -76,4 +77,5 @@ Present **G2** with `closure.md` and the integration options from `superpowers:f
 ## Switching
 
 - The survey finds bugs → record them in `closure.md` and propose `workflow-fix` afterwards; do not fix them here.
+- The project is not isolated and has fixed ports or global names → record them in `closure.md` and propose `workflow-env-init` as follow-up.
 - Boundaries are so unclear that documenting them would describe a mess → record it and propose `workflow-refactor` as follow-up; document the system as it is.

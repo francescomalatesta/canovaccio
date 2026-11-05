@@ -43,8 +43,10 @@ Sections, in this order, only when they have entries:
 | `workflow-site` | `Added`: the public site, one entry naming its pages; creates the file for a site of its own |
 | `workflow-feature` | `Added` for new behavior, `Changed` for changed behavior, `Deprecated` / `Removed` when applicable |
 | `workflow-fix` | `Fixed`; `Security` when the bug was a vulnerability |
-| `workflow-refactor` | only when notable for readers: performance, dependency or runtime upgrades, changes visible to library consumers or operators. Then `Changed`. Otherwise no entry, and `closure.md` says so |
+| `workflow-refactor`, `workflow-env-init` | only when notable for readers: performance, dependency or runtime upgrades, changes visible to library consumers or operators. Then `Changed`. Otherwise no entry, and `closure.md` says so |
 | `workflow-spike`, `workflow-docs-init`, `workflow-security-audit` | no entry |
+
+Branches developed in parallel all add lines under `## [Unreleased]`. With `CHANGELOG.md merge=union` in `.gitattributes` (see Work directory and artifacts in `workflow-rules`), git keeps both sides when they are merged; afterwards, merge duplicated section headings into one, keeping the order above.
 
 ## How to write an entry
 

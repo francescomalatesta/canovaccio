@@ -22,6 +22,7 @@ The workflows:
 - **docs-init** — brings an existing project to a complete docs map in one pass, instead of letting it fill in as work goes.
 - **security-audit** — how secure is an existing codebase: a strong model maps the threats and plans the audit by area, scanners and cheaper auditors collect the evidence in parallel, and the strong model confirms every finding and rates it High, Medium or Low. Ends with a prioritized list and the follow-up work to choose from; changes no code. See [Security audit](#security-audit).
 - **design-init** — captures an existing project's product and visual system in `PRODUCT.md` and `DESIGN.md`, asking only what the code cannot tell, and optionally critiques its current interface.
+- **env-init** — makes an existing project run in several checkouts at once: every fixed port and global name of its environment, dev servers and tests becomes a slot variable whose default is today's value, then it proves that the main checkout is unchanged and that two checkouts run side by side. See [Parallel work](#parallel-work).
 
 ## Layout
 
@@ -85,6 +86,8 @@ Start a workflow explicitly:
 /docs-init
 /design-init
 /security-audit
+/env-init
+/worktree new csv-export
 ```
 
 Or just describe the work: the conductor classifies it with `workflow-router`, announces the choice, and you confirm it at the first gate. Questions and trivial changes run without a workflow.
@@ -102,6 +105,7 @@ Or just describe the work: the conductor classifies it with `workflow-router`, a
 | `docs-init` | bootstrapping system docs in an existing project | map (index, architecture, components) · delivery |
 | `design-init` | capturing an existing project's `PRODUCT.md` and `DESIGN.md` | delivery (with the optional critique) |
 | `security-audit` | a prioritized list of what to do to make an existing codebase more secure | scope (areas, scanners, runtime checks) · delivery (which findings become work) |
+| `env-init` | making an existing project run in several checkouts at once | slot plan (variables, pinned ports, env file) · delivery |
 
 Shared rules are in `skills/workflow-rules`: blocking gates vs. non-blocking checkpoints, when an unplanned gate is allowed, running an approved plan to completion, workflow switching, branches, and how superpowers skills are used inside a phase.
 
@@ -145,6 +149,24 @@ node skills/site-content/scripts/site-check.mjs --content docs/work/<work>/conte
 ```
 
 The implementer runs it on its pages before committing, the task reviewer again, the closure on the whole site. Later copy changes go through `/feature`, which asks `@copywriter` for the words when the project has a site built this way. The models are set in `agents/strategist.md`, `agents/copywriter.md` and `agents/site-builder.md`.
+
+## Parallel work
+
+Several pieces of work on one project can run at the same time, each in its own git worktree with its own session:
+
+```
+/worktree new csv-export     # creates ../myapp.wt/csv-export with slot 1
+/worktree list               # checkouts, slots, environments, active workflows
+/worktree remove csv-export  # after delivery: stops its environment, keeps branch and data
+```
+
+Open a new opencode session inside the worktree and start the workflow there: for that session the worktree is the project, with its own branch, work directory, temporary files and environment. Worktrees live next to the main checkout, never inside it, where test runners, linters and watchers would pick up a second copy of the code. One session per worktree.
+
+Each checkout has a **slot**: the main checkout is slot 0, worktrees 1 to 9. In slot *n* every port is its base plus 10·*n* (Phoenix on 4000 runs on 4010, 4020…), and the environment is its own Compose project with its own containers, volumes and databases: nothing is shared between slots. At most three environments of a project run at once; a workflow that would start a fourth asks which one to stop. Slot 0 is the project as it is today: with no slot set, every port keeps its current value.
+
+This needs a project whose ports and names are not fixed. New projects are built that way by greenfield; for an existing one, `/env-init` inventories every port bound on the host (Compose, dev servers, the test server, E2E, prototypes) and every reference to it, makes each one a variable with today's value as default, pins what must stay fixed (an OAuth redirect URI, a webhook) and verifies two slots side by side. The contract, `.canovaccio/isolation.json` and the recipes per stack are in `skills/project-isolation`; the script there creates, lists, checks and removes worktrees.
+
+Parallel branches meet again at delivery: the branch is brought up to date with the base and verified again before it is merged, and `CHANGELOG.md merge=union` in `.gitattributes` keeps the changelog entries of both sides.
 
 ## Security audit
 

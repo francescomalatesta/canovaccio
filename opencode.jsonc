@@ -177,12 +177,25 @@
       "resource": "rm -rf .canovaccio/tmp/*",
       "effect": "allow"
     },
-    // Nor does the throwaway compose project of the greenfield clean-clone
-    // verification, volumes included.
+    // Nor do the throwaway compose projects of the verifications (greenfield
+    // clean clone, env-init verification worktree), volumes included. They are
+    // named <repo>-canovaccio-verify and always called with an explicit -p.
     {
       "action": "bash",
-      "resource": "docker compose -p canovaccio-verify *",
+      "resource": "docker compose -p *canovaccio-verify *",
       "effect": "allow"
+    },
+    // Worktrees for parallel work (see the project-isolation skill): a forced
+    // removal discards their uncommitted work.
+    {
+      "action": "bash",
+      "resource": "git worktree remove *--force*",
+      "effect": "ask"
+    },
+    {
+      "action": "bash",
+      "resource": "git worktree remove *-f *",
+      "effect": "ask"
     }
   ]
 }

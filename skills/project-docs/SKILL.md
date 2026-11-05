@@ -116,13 +116,14 @@ For journeys that cross components: the steps, the component handling each step,
 
 ### `docs/environment.md`
 
-Created when the project needs services to run or to be tested (a database, a cache, a queue, a mail catcher, or the app itself running in containers), usually defined in a compose file. It is the recipe workflows follow to bring the environment up at their start and down at their end (see Environment in `workflow-rules`): with it, nobody has to work out again how the project runs.
+Created when the project needs services to run or to be tested (a database, a cache, a queue, a mail catcher, or the app itself running in containers), usually defined in a compose file, and when the project is isolated (see `project-isolation`). It is the recipe workflows follow to bring the environment up at their start and down at their end (see Environment in `workflow-rules`): with it, nobody has to work out again how the project runs.
 
 ```markdown
 ---
 covers:
   - compose.yaml
   - docker/**
+  - .canovaccio/isolation.json
 ---
 # Environment
 
@@ -136,9 +137,14 @@ covers:
                   keeping the data volumes; how to drop the data too, when that is wanted
 ## Data         — the volumes, what they hold, which are development data and which are
                   throwaway; where test data goes (see Test data isolation in AGENTS.md)
+## Isolation    — when the project is isolated: the slot variables with their base and
+                  what reads each one, the pinned ports and why, how each process reads
+                  the env file, what a new worktree copies and runs; the source is
+                  .canovaccio/isolation.json. Otherwise: "Not isolated: one checkout runs
+                  the environment at a time", with the fixed ports that prevent it
 ```
 
-`covers` lists the files that define the environment and exist in the project: compose files, Dockerfiles, `.devcontainer/`, the scripts the commands run. A change to them is then mapped to this doc at docs sync. Commands are written as they are typed, from the project root.
+`covers` lists the files that define the environment and exist in the project: compose files, Dockerfiles, `.devcontainer/`, `.canovaccio/isolation.json`, the scripts the commands run. A change to them is then mapped to this doc at docs sync. Commands are written as they are typed, from the project root.
 
 ### `docs/prototypes.md`
 

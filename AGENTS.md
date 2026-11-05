@@ -30,7 +30,7 @@ This does not change the language used to talk to the user, nor product content 
 
 ## Workflows
 
-Development workflows are defined as skills: `workflow-greenfield`, `workflow-site`, `workflow-feature`, `workflow-refactor`, `workflow-fix`, `workflow-spike`, `workflow-docs-init`, `workflow-design-init` and `workflow-security-audit`, with shared rules in `workflow-rules`.
+Development workflows are defined as skills: `workflow-greenfield`, `workflow-site`, `workflow-feature`, `workflow-refactor`, `workflow-fix`, `workflow-spike`, `workflow-docs-init`, `workflow-design-init`, `workflow-security-audit` and `workflow-env-init`, with shared rules in `workflow-rules`.
 
 A workflow is active when it was started explicitly, selected by `workflow-router`, or recorded as active in a project's `docs/work/*/state.md`.
 
@@ -96,12 +96,16 @@ Inside a workflow, use `.canovaccio/tmp/<work directory name>/`. Delete what you
 
 To read a file at another revision, prefer `git show <rev>:<path>` to a checkout.
 
+A git worktree created for parallel work (see `project-isolation`) is the project for the session opened in it: this section applies to the worktree, with its own `.canovaccio/tmp/`.
+
 ## Development environment
 
 The services a project runs on (database, cache, queue, containers) are described in its `docs/environment.md`. Inside a workflow the controller brings them up at the start and down at the end (see Environment in `workflow-rules`); outside a workflow, stop what you started once you are done, unless the user wants it kept.
 
 - Never stop, recreate or delete the data of a service you did not start. If one you need is down, start it with the documented command and leave it running.
 - Container ports are published on `127.0.0.1`, unless the project needs them reachable from other machines.
+- A project can run in several checkouts at once, the main one and its worktrees, each with a slot of its own (see `project-isolation`). Use the ports and names of your checkout's slot (`isolation.mjs env`), never the defaults from memory, and never stop or change the environment of another checkout.
+- In a project with `.canovaccio/isolation.json`, a port bound on the host or a global name in development or test configuration comes from its slot variable, with today's value as the default; never write a new one as a literal.
 - Containers and volumes that tests create for themselves (a test database container, testcontainers) are removed by the test run when it ends.
 - Deleting data volumes or pruning Docker needs explicit permission.
 
@@ -169,7 +173,7 @@ Tests never write to the local development database. When tests persist data, th
 
 - the test commands use it by default, with no variable to set by hand;
 - a test run pointed at the development database stops before running instead of writing to it;
-- E2E tests start their own app instance on the test database and on its own port, never reusing a development server already running;
+- E2E tests start their own app instance on the test database and on its own port (the slot's, when the project is isolated), never reusing a development server already running;
 - the test database is created, migrated and cleaned automatically, so runs do not depend on each other.
 
 The mechanism is free (a separate database configured for the test environment, an in-memory or temporary database, a container, a schema per worker); the behavior is binding.

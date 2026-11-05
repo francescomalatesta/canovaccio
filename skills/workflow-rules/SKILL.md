@@ -1,6 +1,6 @@
 ---
 name: workflow-rules
-description: Shared rules for every development workflow (greenfield, site, feature, refactor, fix, spike, docs-init, design-init, security-audit) - gates, checkpoints, running an approved plan to completion, artifacts, state, resumption, the development environment, system docs and changelog, the Impeccable choice, the task tracker, workflow switching and precedence over superpowers skills. Load before running or resuming any workflow.
+description: Shared rules for every development workflow (greenfield, site, feature, refactor, fix, spike, docs-init, design-init, security-audit, env-init) - gates, checkpoints, running an approved plan to completion, artifacts, state, resumption, the development environment and its slots, parallel work in worktrees, system docs and changelog, the Impeccable choice, the task tracker, workflow switching and precedence over superpowers skills. Load before running or resuming any workflow.
 ---
 
 # Workflow rules
@@ -102,6 +102,8 @@ docs/work/*/*
 ```
 
 When the rules are there but miss a line the active workflow versions, add it. If the project does not use git, skip this.
+
+Parallel branches all add to the top of `CHANGELOG.md`, so on the first workflow in a project also make sure `.gitattributes` contains `CHANGELOG.md merge=union`: git then keeps the lines added on both sides instead of reporting a conflict. It applies to merges and rebases made with git, not to the merge buttons of hosting services; after a union merge, check that `## [Unreleased]` holds each section heading once.
 
 Temporary files of a workflow go in `.canovaccio/tmp/<work directory name>/`, never outside the project (see Temporary files in `AGENTS.md`). On the first workflow in a project, create `.canovaccio/tmp/.gitignore` as described there and commit it with the work. Whenever `state.md` becomes `closed` or `abandoned`, bring the environment down (see Environment below) and delete the workflow's temporary directory with `rm -rf .canovaccio/tmp/<work directory name>`.
 
@@ -241,23 +243,28 @@ Docs sync adds no gate: its result is part of the diff presented at delivery. It
 
 ## Environment
 
-The environment is the set of services the project runs on (database, cache, queue, mail catcher, the app itself when it runs in containers), described in `docs/environment.md` (see `project-docs`). It is brought up once, where the workflow says, and stays up for the rest of the workflow, gates included. It is not the app, prototype system or site started for one gate or one review and stopped right after: those keep the rules of their workflow. Each workflow says where the environment comes up; docs-init only documents it.
+The environment is the set of services the project runs on (database, cache, queue, mail catcher, the app itself when it runs in containers), described in `docs/environment.md` (see `project-docs`). It is brought up once, where the workflow says, and stays up for the rest of the workflow, gates included. It is not the app, prototype system or site started for one gate or one review and stopped right after: those keep the rules of their workflow, on the ports of the checkout's slot. Each workflow says where the environment comes up; docs-init only documents it.
+
+**Slots.** A project with `.canovaccio/isolation.json` runs in several checkouts at once (see `project-isolation`): the main checkout is slot 0, each worktree has its own slot, and the environment of a checkout is its own Compose project. Everything below concerns the environment of the current checkout. The environments of other checkouts are never stopped, recreated or changed, except by the user's choice at a gate.
 
 **Up.**
 
 1. Read `docs/environment.md`. When it is missing, or the code disagrees with it (compose files, Dockerfiles, README, Makefile, package scripts), dispatch `@scout` to find which services the project needs and how they start, are checked ready and stop; record the discrepancy in `state.md` Notes, so the docs sync writes the doc. A project that needs no services has no environment: write `none` under Environment in `state.md` and skip the rest.
-2. Check what is already running (`docker compose ps`, or the doc's ready check). Start what is missing with the documented command, detached, and wait for the ready check, never a fixed sleep. A service that was already running is never stopped or recreated: it may hold the user's work.
-3. Record under Environment in `state.md` the command run and the services it started, the ready check, and what was already running.
-4. When the environment cannot start (Docker missing, a port taken, a secret missing), give a CHECKPOINT with the reason and go on with what does not need it; open an unplanned gate only when the work cannot go on without it.
+2. Run `isolation.mjs list` (see `project-isolation`; it works on projects that are not isolated too) to see the other checkouts and their environments.
+   - **Isolated project, limit reached**: when `activeLimit` environments of the project already run in other checkouts, do not start another. Open an unplanned gate listing them, each with its active workflow and status, and propose stopping one that is idle (`docker compose stop` in that checkout keeps its data) or waiting.
+   - **Project not isolated, another checkout running**: its environment holds the ports yours would use. Do not start it: give a CHECKPOINT with the reason, propose `/env-init` as follow-up, and go on with what does not need the environment; open an unplanned gate only when the work cannot go on without it.
+3. Check what is already running in this checkout (`docker compose ps`, or the doc's ready check). Start what is missing with the documented command, detached, and wait for the ready check, never a fixed sleep. A service that was already running is never stopped or recreated: it may hold the user's work.
+4. Record under Environment in `state.md` the command run and the services it started, the ready check, what was already running and, when the project is isolated, the slot and its variables (`isolation.mjs env`).
+5. When the environment cannot start (Docker missing, a port taken, a secret missing), give a CHECKPOINT with the reason and go on with what does not need it; open an unplanned gate only when the work cannot go on without it.
 
-**During the work.** Give the ready check to every agent that runs the project or its tests: `@implementer`, `@task-reviewer`, `@escalator`, `@closure-auditor`, `@scout`. They leave the environment running (see Development environment in `AGENTS.md`). A container started outside the environment, for an experiment or a check, is recorded under Throwaway and removed as soon as it is no longer needed. When the work adds or changes a service, restart what it affects and update Environment.
+**During the work.** Give the ready check, and the slot's variables when the project is isolated, to every agent that runs the project or its tests: `@implementer`, `@task-reviewer`, `@escalator`, `@closure-auditor`, `@scout`, `@security-auditor`, `@design-reviewer`. The URLs given at a gate or for a review use the slot's ports. They leave the environment running (see Development environment in `AGENTS.md`). A container started outside the environment, for an experiment or a check, is recorded under Throwaway and removed as soon as it is no longer needed. When the work adds or changes a service, restart what it affects and update Environment.
 
 **Resume.** When resuming a workflow, run the ready check and start again what `state.md` records as started by the workflow: the host may have restarted in the meantime.
 
 **Down.** Whenever `state.md` becomes `closed` or `abandoned`, once the delivery gate's choice has been executed:
 
 1. Stop what the workflow started. When it started every service of the environment, use the documented stop command; otherwise remove those services alone (`docker compose rm --stop --force <service>…`). Containers and networks go; the data volumes of the environment stay, since they are the project's development data. What is recorded under Throwaway goes too, volumes included.
-2. Leave running what was already running at the start, and everything another active workflow of the project records under its own Environment.
+2. Leave running what was already running at the start, everything another active workflow of the project records under its own Environment, and the environments of other checkouts.
 3. Check that nothing started by the work is left (`docker compose ps`, `docker ps`), and say in the final report what was stopped and what was left running.
 
 ## Closure review
@@ -317,7 +324,11 @@ A switch is a gate. On approval, close the current `state.md` (status `closed`, 
 
 Unless the project says otherwise, create a branch before the first change to project files (a prototype or implementation): `<workflow>/<slug>` (for example `feature/csv-export`, `fix/login-500`). Greenfield works on the default branch of a new repository or of one with no project yet (no commits, or only the agent harness), and on `greenfield/<slug>` inside a repository that already holds a project. A site works like greenfield when it is a project of its own, and on `site/<slug>` inside an existing repository. Spikes use `spike/<slug>` and are never merged. A security audit creates no branch: it changes no project files. Docs bootstrapping uses `docs-init/<slug>`, design context bootstrapping `design-init/<slug>`.
 
-Work on a branch in the current checkout; use worktrees only if the user asks. Creating branches and committing are autonomous. Pushing, merging and destructive git operations are not: they happen only at the delivery gate or with explicit permission.
+Work on a branch in the current checkout. Creating branches and committing are autonomous. Pushing, merging and destructive git operations are not: they happen only at the delivery gate or with explicit permission.
+
+**Parallel work.** To run pieces of work at the same time, each one gets its own git worktree, created next to the main checkout with `/worktree new <slug>` (see `project-isolation`), and its own session opened inside it. In that session the worktree is the project: the workflow runs as anywhere else, creates its branch there and keeps its work directory, temporary files and environment in the worktree. Never run two sessions in one worktree, and never work on another checkout's files. A project that is not isolated can still have worktrees, but only one of its checkouts can run its environment at a time (see Environment); propose `/env-init` when parallel work needs more. After delivery, the worktree is removed with `/worktree remove <slug>` from another checkout, once the user agrees.
+
+**Integration of parallel work.** Other work may have been integrated into the base branch since this branch started. Before executing a merge or a pull request at the delivery gate, bring the branch up to date with the base: merge the base into it, or rebase when the project prefers it and the branch was never pushed. Resolve conflicts, run the project's full verification again and report the result. A conflict whose resolution changes approved behavior is an unplanned gate.
 
 ## Superpowers skills
 

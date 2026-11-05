@@ -76,7 +76,7 @@ Present **G1** with:
 
 ### 3. Evidence
 
-1. **Environment.** Only when runtime checks were approved: bring the environment up (see Environment in `workflow-rules`), start the app detached on a local port, wait for its ready check and note the command and process in `state.md`.
+1. **Environment.** Only when runtime checks were approved: bring the environment up (see Environment in `workflow-rules`), start the app detached on a local port (the slot's, when the project is isolated), wait for its ready check and note the command and process in `state.md`.
 2. **Scanners.** Dispatch `@security-auditor` in scan mode with the work directory and the ready check if any. It runs every scanner command of the plan and writes `evidence/scans.md`. A scanner that cannot run is reported with the reason; the audit continues without it, and G2 says which scanners did not run.
 3. **Areas.** Dispatch one `@security-auditor` per area in area mode, with the work directory, the area id, the app URL when the area has runtime checks, and the scanner results of its area from `evidence/scans.md`. Dispatch them in parallel, in the foreground, in batches of at most five, each batch awaited before the next. Each writes `evidence/<area id>.md`.
 4. Stop the app if you started it. Give a CHECKPOINT with the evidence collected, by area and status, and the scanners that did not run.
