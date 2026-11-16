@@ -17,7 +17,7 @@ The workflows:
 - **site** — a product's public website: facts, strategy and every word decided by stronger models and approved by you, a model page built in production code by a stronger model, the other pages built by the cheaper implementer and checked against the approved copy by a script. See [Public sites](#public-sites).
 - **feature** — new or changed behavior in an existing project: spec and plan approved together (separately when a UI prototype is needed), then implementation task by task, each one reviewed.
 - **fix** — something works wrong: reproduces it, finds the root cause, fixes it test-first. The most autonomous workflow: it asks you only when the fix is risky or the expected behavior is unclear.
-- **refactor** — better structure, same behavior: pins current behavior with tests before touching the code, then restructures in small steps that keep every test green.
+- **refactor** — better structure, same behavior: pins current behavior with tests before touching the code, then restructures in small steps that keep the affected tests and the invariants green.
 - **spike** — a question to answer before building (is it feasible? which library?): researches and runs throwaway experiments within a set budget, and ends with a written recommendation.
 - **docs-init** — brings an existing project to a complete docs map in one pass, instead of letting it fill in as work goes.
 - **security-audit** — how secure is an existing codebase: a strong model maps the threats and plans the audit by area, scanners and cheaper auditors collect the evidence in parallel, and the strong model confirms every finding and rates it High, Medium or Low. Ends with a prioritized list and the follow-up work to choose from; changes no code. See [Security audit](#security-audit).
@@ -123,6 +123,8 @@ Projects that run on services (a database, a cache, the app itself in containers
 
 Tests never write to your development database. When tests persist data, the project gets a dedicated test database that the test commands use by default, E2E included (their app instance runs on it, on its own port), and a test run pointed at the development database stops instead of writing to it. A greenfield project sets it up in its spec and walking skeleton; a feature or fix on a project without it sets it up before adding tests that need it. Task and closure reviews check that a test run leaves the development database unchanged. The mechanism is the project's choice; the rule is in `AGENTS.md`.
 
+Full test suites run once, at the end of the work. While tasks are implemented, reviewed or escalated, only the tests affected by the task's changes run: the tests of the changed code and of the code that depends on it, and E2E only for the journeys the task touches. The final verification runs every suite on the work's last commit and records the result in `state.md` with that commit; the closure review quotes that record instead of running the suites again, and they run again only after the code changes (closure fixes, a merge that brought new commits). The rules are in `AGENTS.md` (Test scope) and `skills/workflow-rules`.
+
 ## Public sites
 
 `/site` builds a product's public website (home, features, pricing, legal pages) with the work split by what it needs: the decisions that make a site good are taken by stronger, more expensive models and approved by you; building the rest of the pages is transcription, done by the cheap implementer and checked by a script instead of by a strong reviewer.
@@ -166,7 +168,7 @@ Each checkout has a **slot**: the main checkout is slot 0, worktrees 1 to 9. In 
 
 This needs a project whose ports and names are not fixed. New projects are built that way by greenfield; for an existing one, `/env-init` inventories every port bound on the host (Compose, dev servers, the test server, E2E, prototypes) and every reference to it, makes each one a variable with today's value as default, pins what must stay fixed (an OAuth redirect URI, a webhook) and verifies two slots side by side. The contract, `.canovaccio/isolation.json` and the recipes per stack are in `skills/project-isolation`; the script there creates, lists, checks and removes worktrees.
 
-Parallel branches meet again at delivery: the branch is brought up to date with the base and verified again before it is merged, and `CHANGELOG.md merge=union` in `.gitattributes` keeps the changelog entries of both sides.
+Parallel branches meet again at delivery: the branch is brought up to date with the base and, when that brought new commits, verified again before it is merged, and `CHANGELOG.md merge=union` in `.gitattributes` keeps the changelog entries of both sides.
 
 ## Security audit
 

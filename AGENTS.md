@@ -167,6 +167,16 @@ Do not duplicate substantial lower-level coverage through E2E unless the complet
 
 Tests should be deterministic and should not depend on arbitrary sleeps when observable readiness conditions are available.
 
+### Test scope
+
+Full test suites are expensive, and some machines running the work have few resources. Run them once, not after every change.
+
+- **During the work** (a task, a fix round, a task review, an escalation), run only the tests affected by the current task's changes: the tests of the changed code, those of the code that depends on it, and the tests the task adds or changes; E2E only for the journeys the task touches. Changing shared code widens the selection to its dependents, not to the full suite. When the affected set cannot be determined (test setup, global configuration, a dependency upgrade), run what can be identified, say so in the report and leave the rest to the final run.
+- **At the end of the assigned work**, run the full suites (unit, integration, E2E and any other): in a workflow, at its final verification; outside a workflow, before reporting the work done.
+- **One full run per commit.** A full run holds for the commit it ran on: record the commit with its result, and do not repeat it on that commit, whoever ran it. Run it again only after the code changed, and only once those changes are complete (after the closure fixes, after a merge that brought new commits).
+
+A workflow may record a baseline of the suite before changing anything, when its verification compares against it; that is the only full run before the end.
+
 ### Test data isolation
 
 Tests never write to the local development database. When tests persist data, the development environment provides a dedicated, isolated test database:

@@ -67,7 +67,7 @@ Present **G1** with `plan.md`, the pinned ports and what they cost, and the mino
 Create the branch. Run the Review loop of `workflow-rules` for each step: one `@implementer` dispatch per step, passing the step, `plan.md`, the `project-isolation` skill and its recipes, and the ready check; then `@task-reviewer` on its commits, before the next step. Each step:
 
 - keeps today's value as the default of every variable it introduces;
-- runs the affected part of the project in slot 0 and the test suite, green;
+- runs the affected part of the project in slot 0 and the tests it affects, green: a step that changes the test or E2E configuration runs the tests that configuration starts; the full suites run in the verification (see Test scope in `AGENTS.md`);
 - runs `isolation.mjs check` once the config file exists, and leaves no new error.
 
 Update `state.md`, give a one-line CHECKPOINT per step and go on with the next step in the same turn: from G1 the work runs to G2 without stopping (see Run to completion in `workflow-rules`).
@@ -75,11 +75,11 @@ Update `state.md`, give a one-line CHECKPOINT per step and go on with the next s
 ### 4. Verification
 
 1. **Contract.** `isolation.mjs check`: no errors. For each warning, the line is either fixed, or its value is not a dev or test port: record those in `decisions.md`.
-2. **Slot 0 unchanged.** In the main checkout, with no slot block, restart what the work touched and compare against the baseline of phase 1: same published ports, same ports opened by the dev servers and the test run, same test results, the documented commands working as written.
+2. **Slot 0 unchanged.** In the main checkout, with no slot block, restart what the work touched and compare against the baseline of phase 1: same published ports, same ports opened by the dev servers and the test run, the documented commands working as written. The test results are compared in the next check, on the run of the main checkout: the suite is not run twice.
 3. **Two slots side by side.** Commit, then create a verification worktree with `isolation.mjs new canovaccio-verify --base HEAD`, which also checks the env file rules, copies `include` and runs `setup`. In the worktree, with the main checkout's environment still running:
    - bring the environment up with the documented command, wait for its ready check;
    - start the app on the slot's port and check that it answers there, and that slot 0's app answers on its own port;
-   - run the full test suite in both checkouts at the same time, E2E included;
+   - run the full test suite in both checkouts at the same time, E2E included; the main checkout's results match the baseline;
    - check that slot 0's development data is unchanged.
 
    Record the commands and results in `state.md`. Then stop the worktree's app, run `docker compose -p <repo>-canovaccio-verify down -v` in the worktree (its data is throwaway) and `isolation.mjs remove canovaccio-verify` from the main checkout.

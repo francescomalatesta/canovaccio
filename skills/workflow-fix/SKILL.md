@@ -69,7 +69,7 @@ Dispatch `@doc-writer` for the docs sync described in `workflow-rules`, with the
 
 ### 6. Verification
 
-Run the project's full verification yourself: tests, build, type check, lint, and startup when relevant.
+Run the project's full verification yourself: tests, build, type check, lint, and startup when relevant. Record it in `state.md` (see Test scope and final verification in `workflow-rules`).
 
 Run the closure review (see Closure review in `workflow-rules`) only when G-fix was opened, against the base branch, with `repro.md` and the approved fix approach; docs and changelog are part of the change. Otherwise the task review plus full verification is the closure.
 

@@ -143,6 +143,9 @@ Work artifacts are the history of one piece of work. The rest of `docs/` holds t
 - T2 blocked on nothing; next action: dispatch implementer.
 - Doc discrepancy: docs/components/billing.md says VAT is computed in the job, it is in vat.ts.
 
+## Verification
+- a1b2c3d — `npm test` exit 0, 212 passed; `npm run e2e` exit 0, 18 passed; `npm run build` exit 0
+
 ## Deferred minor findings
 - T1: export filename not localized (task-reviewer)
 
@@ -173,6 +176,16 @@ For every implementation task:
 This replaces the fix-round limits of `superpowers:subagent-driven-development`, and overrides any grouping of tasks it or another skill suggests.
 
 Before dispatching the next task, check its predecessor's line in the Tasks section of `state.md`: each implementer and escalator round followed by its review, and the review's verdict last.
+
+## Test scope and final verification
+
+Inside the Review loop, `@implementer`, `@escalator` and `@task-reviewer` run only the tests affected by the task (see Test scope in `AGENTS.md`). Never ask them for the full suites, and do not run them yourself between tasks.
+
+The full suites run in the workflow's final verification, which you run yourself on the work's last commit. Record it in the Verification section of `state.md`: the commit, then each command with its exit status and counts. That record is the full run for that commit:
+
+- the closure review reuses it and does not run those suites again while HEAD is that commit (see Closure review);
+- after commits that change code (closure fixes, a merge that brought new commits), run the final verification once more, when those changes are complete, and record it with its new commit;
+- commits that change only workflow artifacts, docs or the changelog do not need a new run for the tests; run what they do affect (a docs build, a link check).
 
 ## Minor findings policy
 
@@ -275,7 +288,9 @@ Where a workflow runs the closure review, it names the authorities to pass and a
 2. **Evidence.** Dispatch `@closure-auditor` with the work directory and the base branch. It executes the plan and writes `closure-evidence.md`.
 3. **Verdict.** Dispatch `@closure-reviewer` in verdict mode with the authorities, `closure-plan.md` and `closure-evidence.md`, or continue its planning session with the evidence when the environment lets you resume a subagent. On NEEDS-EVIDENCE, send its requests to `@closure-auditor`, then ask for the verdict again; at most once per review round.
 
-On FAIL, fix the BLOCKING findings as the workflow says, then review again, scoped: the auditor on the fix commits and the previous findings, appended to the evidence, and the verdict on the previous findings and the new changes; the plan is not rewritten. The workflow says what happens after repeated failures.
+The full suites run once per commit (see Test scope and final verification). Give `@closure-reviewer` your Verification record from `state.md`: while HEAD is the recorded commit, its plan does not repeat those suites, and `@closure-auditor` quotes the record for them; the plan's commands cover what the record does not, such as a focused test, startup, an E2E journey or the design check.
+
+On FAIL, fix the BLOCKING findings as the workflow says, run the final verification again once the fixes are done and record it, then review again, scoped: the auditor on the fix commits and the previous findings, appended to the evidence, quoting the new record, and the verdict on the previous findings and the new changes; the plan is not rewritten. The workflow says what happens after repeated failures.
 
 A phase that fails for a reason outside the review, such as a harness or provider error, is repeated alone from the saved artifacts. It does not count as a closure failure.
 
@@ -328,7 +343,7 @@ Work on a branch in the current checkout. Creating branches and committing are a
 
 **Parallel work.** To run pieces of work at the same time, each one gets its own git worktree, created next to the main checkout with `/worktree new <slug>` (see `project-isolation`), and its own session opened inside it. In that session the worktree is the project: the workflow runs as anywhere else, creates its branch there and keeps its work directory, temporary files and environment in the worktree. Never run two sessions in one worktree, and never work on another checkout's files. A project that is not isolated can still have worktrees, but only one of its checkouts can run its environment at a time (see Environment); propose `/env-init` when parallel work needs more. After delivery, the worktree is removed with `/worktree remove <slug>` from another checkout, once the user agrees.
 
-**Integration of parallel work.** Other work may have been integrated into the base branch since this branch started. Before executing a merge or a pull request at the delivery gate, bring the branch up to date with the base: merge the base into it, or rebase when the project prefers it and the branch was never pushed. Resolve conflicts, run the project's full verification again and report the result. A conflict whose resolution changes approved behavior is an unplanned gate.
+**Integration of parallel work.** Other work may have been integrated into the base branch since this branch started. Before executing a merge or a pull request at the delivery gate, bring the branch up to date with the base: merge the base into it, or rebase when the project prefers it and the branch was never pushed. Resolve conflicts. When the merge or rebase brought new commits, run the project's full verification again, record it in `state.md` and report the result; when the branch was already up to date, the recorded run stands and is not repeated. A conflict whose resolution changes approved behavior is an unplanned gate.
 
 ## Superpowers skills
 

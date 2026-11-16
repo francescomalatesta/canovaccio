@@ -29,7 +29,7 @@ Write a review plan the auditor can execute without judgement of its own, number
 
 1. **Checks**, `C1`, `C2`…: one per requirement or acceptance criterion, one for each whole-work check below that fits the work, and the focus the controller gives (behavioral equivalence for a refactor, docs accuracy for docs bootstrapping). For each: what to verify, where to look, and the evidence to bring back (code excerpt, test name and result, command output).
 2. **Hotspots**, `H1`…: where the change is most likely wrong, such as interactions between tasks, data and migrations, security boundaries, error paths, concurrency. For each, the hunks or files to quote in full.
-3. **Commands**, `R1`…: the verification to run, including build, startup or E2E journeys when relevant.
+3. **Commands**, `R1`…: the verification to run, including build, startup or E2E journeys when relevant. The full suites run once per commit (see Test scope in `AGENTS.md`): a suite in the controller's verification record for the current HEAD is not repeated; ask the auditor to quote the record and to confirm HEAD is that commit. Plan commands for what the record does not cover.
 4. **Deferred minor findings**, `D1`…: for each, the evidence needed to decide whether it stays deferred.
 
 Whole-work checks:

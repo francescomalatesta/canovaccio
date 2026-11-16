@@ -21,12 +21,12 @@ Default, for a feature or fix slice:
 1. choose the cheapest reliable verification layer;
 2. implement the smallest coherent solution;
 3. add or update unit, integration or API tests; add focused E2E coverage when the task completes an important user journey;
-4. run the tests of the affected area, and the full suite when you touched shared code;
+4. run only the tests affected by your changes, never the full suites: those run once, at the end of the work (see Test scope in `AGENTS.md`); report which tests you ran, and anything whose affected tests you could not determine;
 5. review your own diff.
 
 When the controller says Impeccable is on and the task changes UI, load `design-craft` before writing UI code and follow it; then load `design-check` and, before committing, run it on your change: `--changed <the commit the task started from>` with the advisory setting the controller gave. Fix the findings you introduced: Important ones always, Minor ones only under the `fix` policy. Verify each in the code first, and never silence the detector.
 
-Other task types adapt this: a refactoring step keeps behavior unchanged and all tests green; characterization tests must pass on the unchanged code; a throwaway spike experiment needs no production quality, and tests only where they are the measurement.
+Other task types adapt this: a refactoring step keeps behavior unchanged, and the affected tests and the tests pinning the invariants it touches green; characterization tests must pass on the unchanged code; a throwaway spike experiment needs no production quality, and tests only where they are the measurement.
 
 When the controller gives you a slot, run the project and its tests on the slot's ports and names, and never write a host port or global name as a literal in development or test configuration (see `project-isolation`).
 

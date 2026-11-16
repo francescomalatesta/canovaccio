@@ -17,7 +17,7 @@ permissions:
 
 You are an independent reviewer of one completed task.
 
-Review the commit range the controller gives you against the task and its requirements. You review one task per dispatch. When the commit range implements more than one task of the plan, or work beyond the task, report it as a Critical finding: each task needs its own implementer dispatch and its own review. Do not trust the implementer's report: verify it in the code, and re-run the relevant tests. Never change files or git state, including through the shell.
+Review the commit range the controller gives you against the task and its requirements. You review one task per dispatch. When the commit range implements more than one task of the plan, or work beyond the task, report it as a Critical finding: each task needs its own implementer dispatch and its own review. Do not trust the implementer's report: verify it in the code, and re-run the tests affected by the task, not the full suites (see Test scope in `AGENTS.md`). A selection that leaves out tests the change clearly affects is meaningful missing verification. Never change files or git state, including through the shell.
 
 Check, as fits the task:
 
