@@ -30,7 +30,7 @@ There is no delivery gate: the batch ends at the Wrap-up, and the user reviews t
 
 Create the batch work directory `docs/work/<YYYY-MM-DD>-batch-<slug>/` with `brief.md` (the request, the stories as the user gave them, the classification and reason, and its Delivery constraints) and `state.md` (`Workflow: batch`). List the stories in order. When they come from a task tracker, each story has its item (see `project-tracker`), recorded in its `state.md` and in `batch.json`.
 
-**Delivery constraints**, a section of `brief.md`: everything the user said about how the work is delivered (pull requests, branches, the epic or milestone the stories belong to, merging, what must not be split), quoted as they said it, or "none stated". They bind How the batch runs: a choice there that does not follow from them is wrong, and a constraint the batch cannot meet is said at G1, never resolved silently.
+**Delivery constraints**, a section of `brief.md`: everything the user said about how the work is delivered (pull requests, branches, the epic or milestone the stories belong to, merging, what must not be split), at any point of the planning conversation and not only in the first request, and what the project `AGENTS.md` says about it, each quoted as written, or "none stated". How earlier work was delivered (one pull request per milestone in the history) is not a constraint and never decides the branches. They bind How the batch runs: a choice there that does not follow from them is wrong, and a constraint the batch cannot meet is said at G1, never resolved silently.
 
 ### 1. Discovery
 
@@ -76,7 +76,7 @@ The `state.md` of a story:
 Write `batch.json` in the batch work directory (see Batch file below), proposing:
 
 - **base**: the branch the batch starts from, normally the default branch;
-- **branches**: `single` by default, one branch `batch/<slug>` and, with a remote, one pull request for the whole batch; `stacked` only when the user asked for one branch and one pull request per story, `batch/<slug>/<nn>-<story-slug>`, each based on the previous one;
+- **branches**: `single` by default, one branch `batch/<slug>` and, with a remote, one pull request for the whole batch; `stacked` only when a Delivery constraint asks for one branch and one pull request per story, never by analogy with the project's history, `batch/<slug>/<nn>-<story-slug>`, each based on the previous one;
 - **pr**: with `single` branches, an open pull request the stories are added to instead of a new one, with `branch` set to its head: when the Delivery constraints ask for one pull request for an epic, a milestone or other work that already has one open (`gh pr list --head`, or the one the user names). The runner keeps its title and what others wrote in its body, and updates only its own section;
 - **remote**: the project's remote when it has one and `gh` works, otherwise `null`: the branches stay local;
 - **green**: `closure` (always) and `verification`, plus the commands the user names and `ci` when there is a remote and the project has CI;
