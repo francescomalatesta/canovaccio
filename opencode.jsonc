@@ -2,16 +2,15 @@
   "$schema": "https://opencode.ai/config.json",
 
   // Fallback model when neither the session nor the agent selects one.
-  // Variants are not parsed from this string: set them per agent with
-  // `variant` (see `agents`).
+  // Variants are not parsed from this string: set them per agent, as
+  // `provider/model#variant` (see `agents`).
   "model": "deepseek/deepseek-flash",
   // Runs the workflows in skills/; `build` stays available for ad-hoc work.
   "default_agent": "conductor",
 
   "agents": {
     "build": {
-      "model": "deepseek/deepseek-flash",
-      "variant": "high"
+      "model": "deepseek/deepseek-flash#high"
     }
   },
 
@@ -57,7 +56,7 @@
       "effect": "allow"
     },
     {
-      "action": "bash",
+      "action": "shell",
       "resource": "*",
       "effect": "allow"
     },
@@ -92,22 +91,22 @@
     // A trailing " *" also matches the bare command: "git push *" covers
     // "git push" too.
     {
-      "action": "bash",
+      "action": "shell",
       "resource": "git push *",
       "effect": "ask"
     },
     {
-      "action": "bash",
+      "action": "shell",
       "resource": "git reset --hard *",
       "effect": "ask"
     },
     {
-      "action": "bash",
+      "action": "shell",
       "resource": "git clean *",
       "effect": "ask"
     },
     {
-      "action": "bash",
+      "action": "shell",
       "resource": "rm -rf *",
       "effect": "ask"
     },
@@ -115,27 +114,27 @@
     // autonomous, deleting its data is not. "*down*-v*" also covers options
     // before "down" and --volumes.
     {
-      "action": "bash",
+      "action": "shell",
       "resource": "docker compose *down*-v*",
       "effect": "ask"
     },
     {
-      "action": "bash",
+      "action": "shell",
       "resource": "docker-compose *down*-v*",
       "effect": "ask"
     },
     {
-      "action": "bash",
+      "action": "shell",
       "resource": "docker volume rm *",
       "effect": "ask"
     },
     {
-      "action": "bash",
+      "action": "shell",
       "resource": "docker volume prune *",
       "effect": "ask"
     },
     {
-      "action": "bash",
+      "action": "shell",
       "resource": "docker system prune *",
       "effect": "ask"
     },
@@ -145,7 +144,7 @@
     // so a stray path fails and the agent retries inside the project instead
     // of stopping for approval. Resources are canonical directories: macOS
     // resolves /tmp and $TMPDIR under /private. This covers file tools and
-    // bash workdirs; paths inside a bash command are not checked.
+    // shell workdirs; paths inside a shell command are not checked.
     {
       "action": "external_directory",
       "resource": "/tmp/*",
@@ -173,7 +172,7 @@
     },
     // Cleaning the project's own temp directory needs no approval.
     {
-      "action": "bash",
+      "action": "shell",
       "resource": "rm -rf .canovaccio/tmp/*",
       "effect": "allow"
     },
@@ -181,19 +180,19 @@
     // clean clone, env-init verification worktree), volumes included. They are
     // named <repo>-canovaccio-verify and always called with an explicit -p.
     {
-      "action": "bash",
+      "action": "shell",
       "resource": "docker compose -p *canovaccio-verify *",
       "effect": "allow"
     },
     // Worktrees for parallel work (see the project-isolation skill): a forced
     // removal discards their uncommitted work.
     {
-      "action": "bash",
+      "action": "shell",
       "resource": "git worktree remove *--force*",
       "effect": "ask"
     },
     {
-      "action": "bash",
+      "action": "shell",
       "resource": "git worktree remove *-f *",
       "effect": "ask"
     }

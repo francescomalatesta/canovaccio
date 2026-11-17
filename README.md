@@ -322,11 +322,11 @@ The first time, the conductor finds the tool through what the environment alread
 
 ## First local check
 
-Things to verify once with `opencode2`:
+Things to verify once with opencode V2:
 
 1. The conductor is the default agent and the workflow commands are listed.
 2. `workflow-*` skills and superpowers skills are both available.
-3. The conductor can dispatch subagents. If subagent dispatch is not available in your opencode version, the workflows fall back to inline execution (see `workflow-rules`). Also check that the `subagent` permission action used in the agents matches your version's tool name.
-4. `git push` asks for approval; reading a file under `/tmp` is refused without asking.
+3. The conductor can dispatch subagents. If subagent dispatch is not available in your opencode version, the workflows fall back to inline execution (see `workflow-rules`). Permissions use the V2 action names (`shell`, `subagent`, `edit`) and agent models the V2 `provider/model#variant` form: a rule with a V1 name, such as `bash`, matches nothing and is ignored silently.
+4. `git push` asks for approval; reading a file under `/tmp` is refused without asking; `spec-reviewer` cannot run shell commands.
 5. A small `/fix` on a scratch project stops at the delivery gate with a `closure.md`, a `CHANGELOG.md` entry and, if the project has docs, a docs sync.
 6. `doc-writer` can edit `docs/` and `CHANGELOG.md` but not source files.

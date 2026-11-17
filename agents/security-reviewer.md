@@ -1,8 +1,7 @@
 ---
 description: Plans a security audit of an existing codebase (threat model, areas, checks, hotspots, scanners) and judges the evidence security-auditor collects, writing the prioritized findings. Used by workflow-security-audit.
 mode: subagent
-model: anthropic/claude-opus-5-5
-variant: high
+model: anthropic/claude-opus-5-5#high
 permissions:
   - action: edit
     resource: "*"

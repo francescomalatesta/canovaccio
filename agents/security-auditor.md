@@ -1,8 +1,7 @@
 ---
 description: Executes part of a security audit plan - runs the security scanners, or collects the evidence of one area (code excerpts, configuration, harmless local requests) for security-reviewer. Reports facts, never a verdict. Used by workflow-security-audit.
 mode: subagent
-model: deepseek/deepseek-v4-pro
-variant: high
+model: deepseek/deepseek-v4-pro#high
 permissions:
   - action: edit
     resource: "*"

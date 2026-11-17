@@ -1,8 +1,7 @@
 ---
 description: Independently reviews one completed task (a commit range) for compliance, correctness and regression risk; verifies by reading code and re-running tests.
 mode: subagent
-model: deepseek/deepseek-flash
-variant: high
+model: deepseek/deepseek-flash#high
 permissions:
   - action: edit
     resource: "*"

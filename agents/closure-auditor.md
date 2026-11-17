@@ -1,8 +1,7 @@
 ---
 description: Executes a closure review plan - runs the verification and collects evidence (code excerpts, test and command results) for closure-reviewer. Reports facts, never a verdict.
 mode: subagent
-model: deepseek/deepseek-v4-pro
-variant: high
+model: deepseek/deepseek-v4-pro#high
 permissions:
   - action: edit
     resource: "*"

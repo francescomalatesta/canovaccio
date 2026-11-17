@@ -1,8 +1,7 @@
 ---
 description: Sets up the project's prototype system, builds browser-rendered UI prototypes with mock data in it for approval before implementation, and keeps or removes them at delivery.
 mode: subagent
-model: deepseek/deepseek-flash
-variant: high
+model: deepseek/deepseek-flash#high
 permissions:
   - action: subagent
     resource: "*"

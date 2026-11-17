@@ -1,8 +1,7 @@
 ---
 description: Sets up a public site and builds its model page in production code - the building blocks, tokens and layout every other page reuses - then writes the prescriptive plan the implementer follows for the remaining pages. Used by workflow-site.
 mode: subagent
-model: anthropic/claude-opus-5-5
-variant: high
+model: anthropic/claude-opus-5-5#high
 permissions:
   - action: subagent
     resource: "*"

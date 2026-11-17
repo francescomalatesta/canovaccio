@@ -1,8 +1,7 @@
 ---
 description: Implements one narrowly scoped task (feature or fix slice, refactoring step, characterization tests, spike experiment) with appropriate tests, and commits it.
 mode: subagent
-model: deepseek/deepseek-flash
-variant: high
+model: deepseek/deepseek-flash#high
 permissions:
   - action: subagent
     resource: "*"

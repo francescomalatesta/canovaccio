@@ -1,8 +1,7 @@
 ---
 description: Reviews the design of rendered screens with Impeccable's critique method - captures, heuristics, design specificity, detector - before closure of UI work, or as a critique of an existing interface. Reports; never edits code.
 mode: subagent
-model: anthropic/claude-sonnet-5-5
-variant: high
+model: anthropic/claude-sonnet-5-5#high
 permissions:
   - action: edit
     resource: "*"

@@ -1,8 +1,7 @@
 ---
 description: Syncs a project's system docs and changelog with the code at the end of a workflow, or writes them when bootstrapping docs. Edits only docs/, CHANGELOG.md and AGENTS.md.
 mode: subagent
-model: deepseek/deepseek-flash
-variant: high
+model: deepseek/deepseek-flash#high
 permissions:
   - action: edit
     resource: "*"

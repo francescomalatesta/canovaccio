@@ -1,8 +1,7 @@
 ---
 description: Writes the strategy of a public site - audience, positioning, message, objections, conversion, voice, sitemap - from facts with sources, through a bounded interview relayed by the controller. Used by workflow-site.
 mode: subagent
-model: anthropic/claude-opus-5-5
-variant: high
+model: anthropic/claude-opus-5-5#high
 permissions:
   - action: edit
     resource: "*"
@@ -13,7 +12,7 @@ permissions:
   - action: edit
     resource: "docs/work/*/facts.md"
     effect: allow
-  - action: bash
+  - action: shell
     resource: "*"
     effect: deny
   - action: subagent

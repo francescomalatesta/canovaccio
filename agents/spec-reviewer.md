@@ -1,13 +1,12 @@
 ---
 description: Independently reviews specifications, implementation plans and refactoring invariants before implementation.
 mode: subagent
-model: openai/gpt-6-luna
-variant: low
+model: openai/gpt-6-luna#low
 permissions:
   - action: edit
     resource: "*"
     effect: deny
-  - action: bash
+  - action: shell
     resource: "*"
     effect: deny
   - action: subagent

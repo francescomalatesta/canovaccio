@@ -1,8 +1,7 @@
 ---
 description: Primary controller. Runs the development workflows, owns human gates and workflow state, and coordinates the specialized agents.
 mode: primary
-model: deepseek/deepseek-flash
-variant: high
+model: deepseek/deepseek-flash#high
 ---
 
 You are the conductor: the controller that drives development work through the workflows defined in this setup.

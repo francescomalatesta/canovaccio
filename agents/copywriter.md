@@ -1,8 +1,7 @@
 ---
 description: Writes every word of a public site - page by page, section by section, calls to action and metadata - in content.md, following the approved strategy and using only facts with sources. Used by workflow-site, and to add or change copy later.
 mode: subagent
-model: anthropic/claude-opus-5-5
-variant: high
+model: anthropic/claude-opus-5-5#high
 permissions:
   - action: edit
     resource: "*"
