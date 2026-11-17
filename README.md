@@ -23,6 +23,7 @@ The workflows:
 - **security-audit** — how secure is an existing codebase: a strong model maps the threats and plans the audit by area, scanners and cheaper auditors collect the evidence in parallel, and the strong model confirms every finding and rates it High, Medium or Low. Ends with a prioritized list and the follow-up work to choose from; changes no code. See [Security audit](#security-audit).
 - **design-init** — captures an existing project's product and visual system in `PRODUCT.md` and `DESIGN.md`, asking only what the code cannot tell, and optionally critiques its current interface.
 - **env-init** — makes an existing project run in several checkouts at once: every fixed port and global name of its environment, dev servers and tests becomes a slot variable whose default is today's value, then it proves that the main checkout is unchanged and that two checkouts run side by side. See [Parallel work](#parallel-work).
+- **batch** — several features built one after the other without you: every story's spec and plan approved at one gate, then a runner starts a fresh session per story and moves on only when the story is green by the conditions you set. Also one feature finished on its own. See [Batch](#batch).
 
 ## Layout
 
@@ -88,6 +89,7 @@ Start a workflow explicitly:
 /security-audit
 /env-init
 /worktree new csv-export
+/batch the three knowledge base stories in docs/specs/kb/backlog.md, one after the other
 ```
 
 Or just describe the work: the conductor classifies it with `workflow-router`, announces the choice, and you confirm it at the first gate. Questions and trivial changes run without a workflow.
@@ -106,6 +108,7 @@ Or just describe the work: the conductor classifies it with `workflow-router`, a
 | `design-init` | capturing an existing project's `PRODUCT.md` and `DESIGN.md` | delivery (with the optional critique) |
 | `security-audit` | a prioritized list of what to do to make an existing codebase more secure | scope (areas, scanners, runtime checks) · delivery (which findings become work) |
 | `env-init` | making an existing project run in several checkouts at once | slot plan (variables, pinned ports, env file) · delivery |
+| `batch` | features built in sequence, unattended | the batch: every spec and plan, branches, green conditions; none after it |
 
 Shared rules are in `skills/workflow-rules`: blocking gates vs. non-blocking checkpoints, when an unplanned gate is allowed, running an approved plan to completion, workflow switching, branches, and how superpowers skills are used inside a phase.
 
@@ -170,6 +173,27 @@ This needs a project whose ports and names are not fixed. New projects are built
 
 Parallel branches meet again at delivery: the branch is brought up to date with the base and, when that brought new commits, verified again before it is merged, and `CHANGELOG.md merge=union` in `.gitattributes` keeps the changelog entries of both sides.
 
+## Batch
+
+A batch builds several features one after the other while you are away, in a fresh session per story, so each story starts with a clean context.
+
+You list the stories (in a message, or as tracker items) and say how you want them delivered; you do not need `/batch`, the conductor recognizes a request to work in sequence or on its own. It writes every story's spec and plan with you, as a feature would, and presents them all at one gate together with how the batch runs:
+
+- **branches**: one branch for the whole batch, with one pull request when the project has a remote (the default); or stacked branches, one per story, each based on the previous one, with one pull request each;
+- **green**: when a story counts as done. The closure review is always required; on top of it, the final verification recorded on the story's last commit, any command you name (`make e2e`), and the CI of the pull request. Without a remote, a batch stays local and green is what runs locally;
+- **fix sessions**: how many times a story that is not green goes back for a fix, 2 by default.
+
+Once you approve, the conductor starts a runner, `skills/workflow-batch/scripts/batch.mjs`, as a separate process and the session can end. For each story the runner checks out its branch, starts an opencode session that implements it with no gates (a question that would need you blocks the story instead), checks the green conditions itself, pushes and opens or updates the pull request, and waits for CI. The first story that is not green, or that is blocked, stops the queue. A last session then closes the green stories, brings the environment down and writes a `summary.md` with what was done, what stopped and why, and the cost of every story.
+
+The sessions never get your approval for anything: they run without `--auto`, so every permission that asks is rejected, and they cannot push or merge. The runner pushes and opens pull requests, as the gate approved; nothing in a batch merges.
+
+```sh
+node <skill-dir>/scripts/batch.mjs status docs/work/<date>-batch-<slug>   # where it is
+node <skill-dir>/scripts/batch.mjs stop docs/work/<date>-batch-<slug>     # stop it
+```
+
+To resume a stopped batch, tell the conductor: it shows you the blocked story's question or the failed check, records your answer, and starts the runner again from that story. The rules are in `skills/workflow-batch` and in Unattended delivery in `skills/workflow-rules`.
+
 ## Security audit
 
 `/security-audit` studies an existing codebase and ends with a prioritized list of what to do to make it more secure. It is split like the closure review: a strong model plans and judges, cheaper ones do the volume, and every phase leaves its result on disk.
@@ -205,7 +229,7 @@ Requires Node 22.5+, no dependencies; the database is opened read-only. Costs ar
 Each workflow works in `docs/work/<date>-<slug>/` inside the target project:
 
 - versioned with the work: `spec.md`, `decisions.md`, `findings.md`; in site work also `facts.md`, `strategy.md` and the content files;
-- local only (git-ignored): `brief.md`, `plan.md`, `invariants.md`, `repro.md`, `design-interview.md`, `site-interview.md`, `design-review.md`, `closure-plan.md`, `closure-evidence.md`, `closure.md`, `state.md`; in a security audit, `surface.md`, `audit-plan.md`, `evidence/` and `security-findings.md`, which you may choose to commit at delivery.
+- local only (git-ignored): `brief.md`, `plan.md`, `invariants.md`, `repro.md`, `design-interview.md`, `site-interview.md`, `design-review.md`, `closure-plan.md`, `closure-evidence.md`, `closure.md`, `state.md`; in a batch, `batch.json`, `summary.md` and `logs/`; in a security audit, `surface.md`, `audit-plan.md`, `evidence/` and `security-findings.md`, which you may choose to commit at delivery.
 
 UI prototypes are not work artifacts: they live in the project's prototype system, described below.
 
@@ -330,3 +354,4 @@ Things to verify once with opencode V2:
 4. `git push` asks for approval; reading a file under `/tmp` is refused without asking; `spec-reviewer` cannot run shell commands.
 5. A small `/fix` on a scratch project stops at the delivery gate with a `closure.md`, a `CHANGELOG.md` entry and, if the project has docs, a docs sync.
 6. `doc-writer` can edit `docs/` and `CHANGELOG.md` but not source files.
+7. `opencode run --agent conductor "…"` works from a terminal with no TTY: the batch runner starts its sessions that way. `node --test skills/workflow-batch/scripts/batch.test.mjs` checks the runner itself.

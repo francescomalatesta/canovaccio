@@ -1,6 +1,6 @@
 ---
 name: workflow-rules
-description: Shared rules for every development workflow (greenfield, site, feature, refactor, fix, spike, docs-init, design-init, security-audit, env-init) - gates, checkpoints, running an approved plan to completion, artifacts, state, resumption, the development environment and its slots, parallel work in worktrees, system docs and changelog, the Impeccable choice, the task tracker, workflow switching and precedence over superpowers skills. Load before running or resuming any workflow.
+description: Shared rules for every development workflow (greenfield, site, feature, refactor, fix, spike, docs-init, design-init, security-audit, env-init, batch) - gates, checkpoints, running an approved plan to completion, unattended delivery of batch stories, artifacts, state, resumption, the development environment and its slots, parallel work in worktrees, system docs and changelog, the Impeccable choice, the task tracker, workflow switching and precedence over superpowers skills. Load before running or resuming any workflow.
 ---
 
 # Workflow rules
@@ -42,6 +42,7 @@ Once the gate that approves the plan is recorded, the workflow runs to its next 
 | docs-init | G1 map | G2 delivery |
 | design-init | its interview answered | G1 delivery |
 | security-audit | G1 scope | G2 delivery |
+| batch | G1 batch | the runner's launch; each story then runs unattended to `ready` (see Unattended delivery) |
 
 Between those two points, a turn ends only for:
 
@@ -56,7 +57,7 @@ Each of these sets `Status: waiting-gate` in `state.md`, with the reason in Note
 - stop because many tasks remain, the context is filling up or a compaction happened: progress is on disk and compaction is automatic;
 - stop to ask a question the approved artifacts already answer, or a routine engineering decision (see Autonomy in `AGENTS.md`).
 
-**End-of-turn check.** Before ending a turn, read `Status` in `state.md`. `waiting-gate`, `closed` or `abandoned`: you may end it. `active`: do not end the turn; execute the next action that `state.md` records. A turn that ends with `Status: active` is a stall, and the end-of-turn report is not a reason to stop.
+**End-of-turn check.** Before ending a turn, read `Status` in `state.md`. `waiting-gate`, `closed` or `abandoned`, and in a batch `running`, `ready` or `blocked`: you may end it. `active`: do not end the turn; execute the next action that `state.md` records. A turn that ends with `Status: active` is a stall, and the end-of-turn report is not a reason to stop.
 
 ## Work directory and artifacts
 
@@ -83,6 +84,9 @@ Each workflow instance works in `docs/work/<YYYY-MM-DD>-<slug>/` inside the targ
 | `design-review.md` | design review report, with its captures in `design-review/` | no |
 | `closure-plan.md` | closure review plan, saved by the controller | no |
 | `closure-evidence.md` | evidence collected for the closure review by `@closure-auditor` | no |
+| `batch.json` | in a batch, its stories, branches and green conditions, and the runner's progress (see `workflow-batch`) | no |
+| `summary.md` | in a batch, written by its Wrap-up: what each story delivered, what stopped and why | no |
+| `logs/` | in a batch, the runner's log, the session logs and the green logs | no |
 | `closure.md` | written by the controller: final review verdict, verification evidence, deferred minor findings, convention proposals, detector ignore proposals | no |
 | `state.md` | workflow state, see below | no |
 
@@ -117,7 +121,7 @@ Work artifacts are the history of one piece of work. The rest of `docs/` holds t
 # State
 
 - Workflow: feature
-- Status: active            <!-- active | waiting-gate | closed | abandoned -->
+- Status: active            <!-- active | waiting-gate | closed | abandoned; in a batch also queued | running | ready | blocked -->
 - Phase: implementation
 - Branch: feature/csv-export
 - Minor findings: defer     <!-- fix | defer -->
@@ -186,6 +190,22 @@ The full suites run in the workflow's final verification, which you run yourself
 - the closure review reuses it and does not run those suites again while HEAD is that commit (see Closure review);
 - after commits that change code (closure fixes, a merge that brought new commits), run the final verification once more, when those changes are complete, and record it with its new commit;
 - commits that change only workflow artifacts, docs or the changelog do not need a new run for the tests; run what they do affect (a docs build, a link check).
+
+## Unattended delivery
+
+A story of a batch (`Delivery: unattended` in its `state.md`, see `workflow-batch`) is implemented in sessions nobody watches. The batch runner starts them with a prompt that begins with `[canovaccio batch]`; opencode rejects every question and every permission that asks, and the runner reads the outcome from `state.md` when the session ends. The story's spec and plan were approved at the batch gate, G1 batch, which is the approval Run to completion needs.
+
+In such a session:
+
+1. **Resume.** Load the story's workflow skill (`workflow-feature`), re-read `state.md` and the artifacts it references, and set `Status: active`. A session that finds `active` was interrupted: continue from the first incomplete step.
+2. **Drift check**, in the first session of the story (`Status: queued`). The plan was written before the stories ahead of it were built: compare it with the code as it is now. Adjustments that keep the spec (a file moved, a helper named differently) go in `decisions.md`; a plan that no longer holds (an interface it builds on differs materially, a requirement already met or contradicted) blocks the story.
+3. **Environment.** Bring it up if it is down (see Environment), and record it.
+4. **Branch.** The runner has checked out the story's branch: never switch branch, push, merge or open a pull request. The runner does those.
+5. **Work.** Run the workflow's implementation, docs sync and closure phases without stopping. The base of the closure review is the commit the story starts from, which the prompt names, not the base branch.
+6. **No gates.** Wherever a gate or a question would open (an unplanned gate, a closure that failed twice, an escalation that did not converge, a product decision the approved artifacts do not settle, a permission the work cannot do without), do not ask and do not guess: write in Notes what is needed to go on, with the options when there are some, set `Status: blocked` and end the session.
+7. **End.** After the closure review passes and `closure.md` is written, put `- Closure: PASS` in the header of `state.md`, make sure the Verification section records the final verification on HEAD, set `Status: ready` and end the session. Leave the environment up for the next story, and leave `closed` to the batch's Wrap-up.
+
+A **fix session** is one whose prompt says the green conditions failed. Set `Status: active`, read the green log it names, and fix the cause as a fix task through the Review loop. When the code changed, run the final verification again and record it (see Test scope and final verification), run the closure review scoped as after a FAIL (see Closure review), then end at `ready` as above. A cause outside the code (the environment, an external service, a green command that cannot pass) blocks the story, with the evidence in Notes.
 
 ## Minor findings policy
 
@@ -337,9 +357,9 @@ A switch is a gate. On approval, close the current `state.md` (status `closed`, 
 
 ## Branches
 
-Unless the project says otherwise, create a branch before the first change to project files (a prototype or implementation): `<workflow>/<slug>` (for example `feature/csv-export`, `fix/login-500`). Greenfield works on the default branch of a new repository or of one with no project yet (no commits, or only the agent harness), and on `greenfield/<slug>` inside a repository that already holds a project. A site works like greenfield when it is a project of its own, and on `site/<slug>` inside an existing repository. Spikes use `spike/<slug>` and are never merged. A security audit creates no branch: it changes no project files. Docs bootstrapping uses `docs-init/<slug>`, design context bootstrapping `design-init/<slug>`.
+Unless the project says otherwise, create a branch before the first change to project files (a prototype or implementation): `<workflow>/<slug>` (for example `feature/csv-export`, `fix/login-500`). Greenfield works on the default branch of a new repository or of one with no project yet (no commits, or only the agent harness), and on `greenfield/<slug>` inside a repository that already holds a project. A site works like greenfield when it is a project of its own, and on `site/<slug>` inside an existing repository. Spikes use `spike/<slug>` and are never merged. A batch uses `batch/<slug>`, or with stacked branches `batch/<slug>/<nn>-<story-slug>` per story; its runner creates and checks them out (see `workflow-batch`). A security audit creates no branch: it changes no project files. Docs bootstrapping uses `docs-init/<slug>`, design context bootstrapping `design-init/<slug>`.
 
-Work on a branch in the current checkout. Creating branches and committing are autonomous. Pushing, merging and destructive git operations are not: they happen only at the delivery gate or with explicit permission.
+Work on a branch in the current checkout. Creating branches and committing are autonomous. Pushing, merging and destructive git operations are not: they happen only at the delivery gate or with explicit permission. In a batch, the G1 batch approval is that permission for the runner's pushes and pull requests; nothing in a batch merges.
 
 **Parallel work.** To run pieces of work at the same time, each one gets its own git worktree, created next to the main checkout with `/worktree new <slug>` (see `project-isolation`), and its own session opened inside it. In that session the worktree is the project: the workflow runs as anywhere else, creates its branch there and keeps its work directory, temporary files and environment in the worktree. Never run two sessions in one worktree, and never work on another checkout's files. A project that is not isolated can still have worktrees, but only one of its checkouts can run its environment at a time (see Environment); propose `/env-init` when parallel work needs more. After delivery, the worktree is removed with `/worktree remove <slug>` from another checkout, once the user agrees.
 

@@ -30,7 +30,7 @@ This does not change the language used to talk to the user, nor product content 
 
 ## Workflows
 
-Development workflows are defined as skills: `workflow-greenfield`, `workflow-site`, `workflow-feature`, `workflow-refactor`, `workflow-fix`, `workflow-spike`, `workflow-docs-init`, `workflow-design-init`, `workflow-security-audit` and `workflow-env-init`, with shared rules in `workflow-rules`.
+Development workflows are defined as skills: `workflow-greenfield`, `workflow-site`, `workflow-feature`, `workflow-refactor`, `workflow-fix`, `workflow-spike`, `workflow-docs-init`, `workflow-design-init`, `workflow-security-audit`, `workflow-env-init` and `workflow-batch`, with shared rules in `workflow-rules`.
 
 A workflow is active when it was started explicitly, selected by `workflow-router`, or recorded as active in a project's `docs/work/*/state.md`.
 
@@ -246,7 +246,7 @@ Normal role boundaries:
 
 Do not dispatch agents recursively unless a workflow explicitly requires it.
 
-Subagents run in the foreground: dispatch them and wait for their result in the same turn, never in the background. Several independent subagents may run in parallel (research, documentation), as long as all of them are dispatched and awaited within the turn. Never end a turn while a subagent is still working ("the review is running, I will resume when it ends"): a session is idle only when it waits for the user (a gate, a question) or when the work is finished or blocked and reported.
+Subagents run in the foreground: dispatch them and wait for their result in the same turn, never in the background. Several independent subagents may run in parallel (research, documentation), as long as all of them are dispatched and awaited within the turn. Never end a turn while a subagent is still working ("the review is running, I will resume when it ends"): a session is idle only when it waits for the user (a gate, a question) or when the work is finished or blocked and reported. The batch runner of `workflow-batch` is not a subagent: it is a separate process, launched once its gate is approved, that starts sessions of its own and outlives the turn by design.
 
 ## Evidence
 

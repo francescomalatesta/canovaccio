@@ -46,6 +46,8 @@ Only items that already exist and that the user named: the item of the work, and
 
 Each move happens once: task review rounds, closure review fix rounds and gates in between move nothing. When the work is delivered as a pull request, items stay at in-review: link them in the PR (`Closes #42`, or the tool's equivalent) and leave done to the merge and the board's automation. An abandoned workflow leaves its items where they are; the report says so.
 
+In a batch (see `workflow-batch`), each story is a piece of work with its own item, moved by its own sessions; the batch itself has none. Put the item in the story's `item` in `batch.json`, so the pull request the runner opens links it. Nothing in a batch merges, so items stay at in-review.
+
 ## Rules
 
 - **Read before moving.** Before each move, read the item's current status. Never move an item backwards: one already at or past the event's status (picked up while already In progress) stays where it is. If the user put it somewhere the work did not (Blocked, back to Backlog, Done), leave it there and say so in the next CHECKPOINT or gate; do not move it again in that work unless the user asks.

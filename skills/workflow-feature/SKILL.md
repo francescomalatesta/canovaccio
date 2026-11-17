@@ -18,6 +18,8 @@ New or changed behavior in an existing project. Apply `workflow-rules` throughou
 
 Split into G1a and G1b only when a prototype is needed, since it must be built on an approved spec. Otherwise present spec and plan together at G1.
 
+**A story of a batch** (`Delivery: unattended`, see `workflow-batch`) has phases 0 to 4 done at the batch's planning, and G1 approved at the batch gate. Its sessions start at phase 5 and follow Unattended delivery in `workflow-rules`: no gate opens, the closure review's base is the commit the story starts from, and phase 8 is replaced by ending at `ready`.
+
 ## Phases
 
 ### 0. Setup

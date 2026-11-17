@@ -1,6 +1,6 @@
 ---
 name: workflow-router
-description: Classifies a development request into the right workflow (greenfield, site, feature, refactor, fix, spike, docs-init, design-init, security-audit, env-init) when none was named explicitly, announces the choice and loads that workflow.
+description: Classifies a development request into the right workflow (greenfield, site, feature, refactor, fix, spike, docs-init, design-init, security-audit, env-init, batch) when none was named explicitly, recognizes when the user wants the work delivered unattended, announces the choice and loads that workflow.
 ---
 
 # Workflow router
@@ -22,13 +22,16 @@ When the answer depends on the codebase, take a quick look or dispatch `@scout`.
 | `workflow-refactor` | better structure, same behavior: restructure, extract, rename, migrate internals, upgrade with no functional change. A redesign the user can see is a feature |
 | `workflow-site` | a product's public website as a whole: marketing site, landing pages, pricing and legal pages, new or rebuilt. One page or copy changes on a site that already has its building blocks is a feature |
 | `workflow-greenfield` | no project yet (no repository, or one holding only the agent harness), or a new application that needs its own stack and architecture decisions |
+| `workflow-batch` | several features to build one after the other without the user: a list of stories or tracker items "in sequence", "one after the other", "on your own"; or one feature the user wants finished without them (see Unattended work below) |
 | `workflow-feature` | new or changed behavior in an existing project |
 
-Mixed requests: classify by the main intent and note the rest for `brief.md`. If the parts are independent and large, propose separate workflows in sequence.
+Mixed requests: classify by the main intent and note the rest for `brief.md`. If the parts are independent and large, propose separate workflows in sequence; when they are all features and the user wants them done without stopping between them, propose a batch.
+
+**Unattended work.** Independently of the workflow, look for signs that the user wants the work finished without them: "finish it on your own", "close it when CI is green", "I won't be here", "don't wait for me", conditions they give for calling it done. For features, that is `workflow-batch`, even with one story: it plans with the user, then runs without gates until the conditions they set are met. Other workflows have no unattended mode: say so and run them as usual. Propose unattended delivery, never assume it: it removes the delivery gate, so the user confirms it at the batch's gate.
 
 ## 2. When unsure, ask
 
-If two workflows remain plausible and the choice changes the gates (fix vs feature: "the export is missing the date column" may be a bug or a new requirement), ask the user with a short question stating both readings. This is the only gate the router may open.
+If two workflows remain plausible and the choice changes the gates (fix vs feature: "the export is missing the date column" may be a bug or a new requirement; a feature with its delivery gate or a batch delivered unattended), ask the user with a short question stating both readings. This is the only gate the router may open.
 
 ## 3. Announce and hand off
 
