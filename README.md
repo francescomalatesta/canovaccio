@@ -118,7 +118,7 @@ Once you approve a plan, the workflow runs every task to its next gate, usually 
 
 Subagents always run in the foreground. Independent research or documentation agents may run in parallel, but the conductor waits for all of them within the turn: a session is idle only when it waits for you at a gate or a question, or when the work is finished.
 
-Push, merge and destructive git commands also require approval through the permissions in `opencode.jsonc`.
+Push, merge and destructive git commands also require approval through the permissions in `opencode.jsonc`, and so do opening, changing and merging pull requests with `gh`.
 
 Work stays inside the project. Temporary files (scratch scripts, logs, captures, the clean clone of the greenfield closure) go in `.canovaccio/tmp/`, whose own `.gitignore` keeps the directory versioned and its content out of git; each workflow uses a subdirectory named after its work directory and deletes it when it closes. The permissions in `opencode.jsonc` deny the system temporary directories (`/tmp`, `/var/tmp` and their macOS equivalents) instead of asking, so a stray path fails and the agent retries inside the project without stopping for approval.
 
@@ -179,16 +179,16 @@ A batch builds several features one after the other while you are away, in a fre
 
 You list the stories (in a message, or as tracker items) and say how you want them delivered; you do not need `/batch`, the conductor recognizes a request to work in sequence or on its own. It writes every story's spec and plan with you, as a feature would, and presents them all at one gate together with how the batch runs:
 
-- **branches**: one branch for the whole batch, with one pull request when the project has a remote (the default); or stacked branches, one per story, each based on the previous one, with one pull request each;
-- **green**: when a story counts as done. The closure review is always required; on top of it, the final verification recorded on the story's last commit, any command you name (`make e2e`), and the CI of the pull request. Without a remote, a batch stays local and green is what runs locally;
+- **branches**: one branch for the whole batch, with one pull request when the project has a remote (the default); or stacked branches, one per story, each based on the previous one, with one pull request each, only when you ask for it. What you say about delivery ("a single PR for the whole epic") is recorded with your words and binds this choice; when the epic already has an open pull request, the batch adds its stories to it instead of opening another. The gate shows how many pull requests the batch will leave;
+- **green**: when a story counts as done. The closure review is always required; on top of it, the final verification, any command you name (`make e2e`), and the CI of the pull request. The session runs the final verification through `batch.mjs verify`, which runs the commands and writes the record with their real exit statuses: a record written by hand never counts, and the record stays valid across later commits that only change the work's artifacts in `docs/work/`. Without a remote, a batch stays local and green is what runs locally;
 - **fix sessions**: how many times a story that is not green goes back for a fix, 2 by default.
 
 Once you approve, the conductor starts a runner, `skills/workflow-batch/scripts/batch.mjs`, as a separate process and the session can end. For each story the runner checks out its branch, starts an opencode session that implements it with no gates (a question that would need you blocks the story instead), checks the green conditions itself, pushes and opens or updates the pull request, and waits for CI. The first story that is not green, or that is blocked, stops the queue. A last session then closes the green stories, brings the environment down and writes a `summary.md` with what was done, what stopped and why, and the cost of every story.
 
-The sessions never get your approval for anything: they run without `--auto`, so every permission that asks is rejected, and they cannot push or merge. The runner pushes and opens pull requests, as the gate approved; nothing in a batch merges.
+The sessions never get your approval for anything: they run without `--auto`, so every permission that asks is rejected: they cannot push, nor open, change or merge a pull request. The runner pushes and opens pull requests, as the gate approved; nothing in a batch merges.
 
 ```sh
-node <skill-dir>/scripts/batch.mjs status docs/work/<date>-batch-<slug>   # where it is
+node <skill-dir>/scripts/batch.mjs status docs/work/<date>-batch-<slug>   # where it is, and what runs now
 node <skill-dir>/scripts/batch.mjs stop docs/work/<date>-batch-<slug>     # stop it
 ```
 

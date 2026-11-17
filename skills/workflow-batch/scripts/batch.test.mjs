@@ -48,18 +48,29 @@ const action = list[Math.min(n, list.length - 1)] || {}
 if (action.sleep) { Atomics.wait(new Int32Array(new SharedArrayBuffer(4)), 0, 0, action.sleep * 1000) }
 const sh = (...a) => cp.execFileSync("git", a, { encoding: "utf8" }).trim()
 const stateFile = m ? path.join(m[1], "state.md") : null
-const verify = () => {
-  const head = sh("rev-parse", "--short=12", "HEAD")
-  fs.appendFileSync(stateFile, "- " + head + " — \`npm test\` " + (action.verify === true ? "exit 0" : action.verify) + ", 3 passed\\n")
-}
-if (action.verify && action.staleVerify) verify()
+// verify: true runs \`batch.mjs verify\` with a passing command, a string runs
+// that command instead ("exit 1").
+const verify = () =>
+  cp.execFileSync("node", [process.env.BATCH_SCRIPT, "verify", m[1], action.verify === true ? "true" : action.verify], { stdio: "ignore" }, )
+const run = (f) => { try { f() } catch {} }
+if (action.verify && action.staleVerify) run(verify)
 if (action.commit) {
   fs.writeFileSync(action.commit, key + " " + n + "\\n")
   sh("add", action.commit)
   sh("commit", "-q", "-m", key + " " + n)
 }
-if (action.verify && !action.staleVerify) verify()
+if (action.verify && !action.staleVerify) run(verify)
+// artifact: a workflow artifact of the story, committed after the verification.
+if (action.artifact) {
+  const file = path.join(m[1], action.artifact)
+  fs.appendFileSync(file, key + " " + n + "\\n")
+  sh("add", "-f", file)
+  sh("commit", "-q", "-m", "artifact " + key + " " + n)
+}
+// record: a line written by hand in the Verification section; {HEAD} is HEAD.
+if (action.record) fs.appendFileSync(stateFile, action.record.replace("{HEAD}", sh("rev-parse", "--short=12", "HEAD")) + "\\n")
 if (action.touch) fs.writeFileSync(action.touch, "")
+if (action.dirty) fs.appendFileSync(action.dirty, "uncommitted\\n")
 if (stateFile) {
   let text = fs.readFileSync(stateFile, "utf8")
   if (action.status) text = text.replace(/^- Status: .*$/m, "- Status: " + action.status)
@@ -91,6 +102,11 @@ if (a[0] === "pr" && a[1] === "create") {
   const pr = { number, url: "https://example.test/pull/" + number, head: opt("--head"), base: opt("--base"), title: opt("--title"), body: opt("--body") }
   state.prs.push(pr); saveState(); console.log(pr.url); process.exit(0)
 }
+if (a[0] === "pr" && a[1] === "view") {
+  const pr = state.prs.find((p) => p.number === Number(a[2]) || p.url === a[2])
+  if (!pr) { console.error("no pull request " + a[2]); process.exit(1) }
+  console.log(JSON.stringify({ state: "OPEN", headRefName: pr.head, ...pr })); process.exit(0)
+}
 if (a[0] === "pr" && a[1] === "edit") {
   const pr = state.prs.find((p) => p.number === Number(a[2])); pr.body = opt("--body"); saveState(); process.exit(0)
 }
@@ -109,7 +125,7 @@ function project({ stories = ["first", "second"], batch = {}, remote = false } =
   const root = path.join(dir, "project")
   fs.mkdirSync(root, { recursive: true })
   git(root, "init", "-q", "-b", "main")
-  fs.writeFileSync(path.join(root, ".gitignore"), "docs/work/*/*\n!docs/work/*/spec.md\n!docs/work/*/decisions.md\n")
+  fs.writeFileSync(path.join(root, ".gitignore"), "docs/work/*/*\n!docs/work/*/spec.md\n!docs/work/*/decisions.md\n*.flag\n")
   git(root, "add", ".gitignore")
   git(root, "commit", "-q", "-m", "init")
   if (remote) {
@@ -162,6 +178,7 @@ function project({ stories = ["first", "second"], batch = {}, remote = false } =
       CANOVACCIO_BATCH_POLL_SECONDS: "0",
       FAKE_SCENARIO: scenarioFile,
       FAKE_GH_STATE: ghState,
+      BATCH_SCRIPT: SCRIPT,
     },
     run: (cmd = "run", ...extra) =>
       spawnSync("node", [SCRIPT, cmd, batchDir, ...extra], {
@@ -175,6 +192,7 @@ function project({ stories = ["first", "second"], batch = {}, remote = false } =
           CANOVACCIO_BATCH_POLL_SECONDS: "0",
           FAKE_SCENARIO: scenarioFile,
           FAKE_GH_STATE: ghState,
+          BATCH_SCRIPT: SCRIPT,
         },
       }),
   }
@@ -253,11 +271,11 @@ test("a story still failing after the allowed fix sessions stops the batch", () 
   assert.equal(b.stories[1].status, undefined)
 })
 
-test("the recorded verification must be on HEAD", () => {
+test("the recorded verification must be on HEAD or before commits of workflow artifacts only", () => {
   const p = project({ stories: ["first"], batch: { attempts: 0 } })
   p.scenario({ first: [{ ...done("a.txt"), staleVerify: true }] })
   assert.equal(p.run().status, 1)
-  assert.match(p.batch().stories[0].note, /the recorded final verification is on \w+, not on HEAD/)
+  assert.match(p.batch().stories[0].note, /the recorded final verification is on \w+, and the commits after it up to HEAD \w+ change more than workflow artifacts \(a\.txt\)/)
 })
 
 test("a failing command in the recorded verification is not green", () => {
@@ -359,6 +377,7 @@ test("stop ends a running batch without a wrap-up", async () => {
   })
   const exited = new Promise((resolve) => child.on("exit", resolve))
   for (let i = 0; i < 100 && p.calls().length === 0; i++) await new Promise((r) => setTimeout(r, 100))
+  assert.match(p.run("status").stdout, /now: first\.1, running for \d+ min, log last written \d+ min ago \(docs\/work\/2026-11-17-batch-demo\/logs\/first\.1\.jsonl\)/)
   assert.equal(p.run("stop").status, 0)
   assert.equal(await exited, 1)
   const b = p.batch()
@@ -377,4 +396,167 @@ test("restack lists the stacked branches that no longer contain their parent", (
   git(p.root, "add", "review.txt")
   git(p.root, "commit", "-q", "-m", "review fix")
   assert.match(p.run("restack").stdout, /batch\/demo\/2-second no longer contains batch\/demo\/1-first/)
+})
+
+// --- the final verification record --------------------------------------------
+
+const verifyIn = (p, id, ...commands) =>
+  spawnSync("node", [SCRIPT, "verify", `docs/work/2026-11-17-${id}`, ...commands], {
+    cwd: p.root,
+    encoding: "utf8",
+    env: { ...process.env, ...GIT_ENV },
+  })
+
+test("verify runs the commands on HEAD and records them in the one format the runner reads", () => {
+  const p = project({ stories: ["first"] })
+  const head = git(p.root, "rev-parse", "HEAD")
+  const ok = verifyIn(p, "first", "true", "echo hello")
+  assert.equal(ok.status, 0, ok.stderr + ok.stdout)
+  assert.ok(p.state("first").includes(`## Verification\n- ${head} — \`true\` exit 0; \`echo hello\` exit 0 (recorded by batch.mjs verify)\n`))
+  const log = fs.readFileSync(path.join(p.root, "docs/work/2026-11-17-first/verification.log"), "utf8")
+  assert.match(log, /\$ echo hello\nhello\nexit 0/)
+  const failing = verifyIn(p, "first", "true", "echo broken && exit 3")
+  assert.equal(failing.status, 1)
+  assert.match(failing.stdout, /failed: `echo broken && exit 3`/)
+  assert.match(p.state("first"), /`echo broken && exit 3` exit 3 \(recorded by batch\.mjs verify\)\n$/)
+})
+
+test("verify refuses a working tree with uncommitted changes and commands with backticks", () => {
+  const p = project({ stories: ["first"] })
+  fs.writeFileSync(path.join(p.root, "new.txt"), "not committed\n")
+  const dirty = verifyIn(p, "first", "true")
+  assert.equal(dirty.status, 1)
+  assert.match(dirty.stderr, /commit the work first[\s\S]*new\.txt/)
+  fs.rmSync(path.join(p.root, "new.txt"))
+  assert.equal(verifyIn(p, "first", "echo `date`").status, 2)
+  assert.doesNotMatch(p.state("first"), /recorded by batch\.mjs verify/)
+})
+
+test("a record written by hand is not green, and the message quotes the line", () => {
+  const p = project({ stories: ["first"], batch: { attempts: 0 } })
+  p.scenario({ first: [{ commit: "a.txt", record: "- `{HEAD}` — `make test` exit 0", status: "ready", closure: "PASS" }] })
+  assert.equal(p.run().status, 1)
+  const note = p.batch().stories[0].note
+  assert.match(note, /no final verification recorded by batch\.mjs verify/)
+  assert.match(note, /its last line is "- `\w{12}` — `make test` exit 0"/)
+})
+
+test("notes after the record do not hide it", () => {
+  const p = project({ stories: ["first"], batch: { attempts: 0 } })
+  p.scenario({
+    first: [{ ...done("a.txt"), record: "- An earlier `make test` on the same commit had 2 failures, unrelated to this change" }],
+  })
+  const r = p.run()
+  assert.equal(r.status, 0, r.stderr + r.stdout)
+  assert.equal(p.batch().stories[0].status, "green")
+})
+
+test("commits of workflow artifacts after the record keep the story green", () => {
+  const p = project({ stories: ["first"], batch: { attempts: 0 } })
+  p.scenario({ first: [{ ...done("a.txt"), artifact: "decisions.md" }] })
+  const r = p.run()
+  assert.equal(r.status, 0, r.stderr + r.stdout)
+  const s = p.batch().stories[0]
+  assert.equal(s.status, "green")
+  assert.equal(s.endCommit, git(p.root, "rev-parse", "HEAD"))
+  assert.match(fs.readFileSync(path.join(p.batchDir, "logs", "first.green.1.log"), "utf8"), /GREEN/)
+})
+
+test("uncommitted changes to tracked files are not green", () => {
+  const p = project({ stories: ["first"], batch: { attempts: 0 } })
+  p.scenario({ first: [{ ...done("a.txt"), dirty: "a.txt" }] })
+  assert.equal(p.run().status, 1)
+  assert.match(p.batch().stories[0].note, /changes that are not committed, so they would not be pushed: a\.txt/)
+})
+
+// --- fix sessions -----------------------------------------------------------------
+
+test("a fix session that only rewrites the record is checked again, without a commit", () => {
+  const p = project({ stories: ["first"] })
+  p.scenario({
+    first: [
+      { commit: "a.txt", record: "- `{HEAD}` — `make test` exit 0", status: "ready", closure: "PASS" },
+      { verify: true, status: "ready" },
+    ],
+  })
+  const r = p.run()
+  assert.equal(r.status, 0, r.stderr + r.stdout)
+  const s = p.batch().stories[0]
+  assert.equal(s.status, "green")
+  assert.equal(s.attempts, 1)
+  assert.equal(s.sessions, 2)
+  const calls = p.calls().filter((c) => c.key === "first")
+  assert.equal(calls.length, 2)
+  assert.match(calls[1].prompt, /fix session 1 of 2/)
+  assert.match(calls[0].prompt, /Record the final verification with `node \S+batch\.mjs verify docs\/work\/2026-11-17-first/)
+})
+
+test("every fix session counts, also one that changed nothing", () => {
+  const p = project({ stories: ["first"] })
+  p.scenario({
+    first: [
+      { commit: "a.txt", record: "- `{HEAD}` — `make test` exit 0", status: "ready", closure: "PASS" },
+      {},
+      { verify: true, status: "ready" },
+    ],
+  })
+  const r = p.run()
+  assert.equal(r.status, 0, r.stderr + r.stdout)
+  const s = p.batch().stories[0]
+  assert.equal(s.status, "green")
+  assert.equal(s.attempts, 2)
+  const calls = p.calls().filter((c) => c.key === "first")
+  assert.equal(calls.length, 3)
+  assert.match(calls[1].prompt, /fix session 1 of 2/)
+  assert.match(calls[2].prompt, /fix session 2 of 2/)
+  assert.match(calls[2].prompt, /The previous session of this story changed nothing/)
+  // One green check per change: the session that changed nothing was not checked.
+  assert.deepEqual(fs.readdirSync(path.join(p.batchDir, "logs")).filter((f) => f.includes(".green.")).sort(), [
+    "first.green.1.log",
+    "first.green.2.log",
+  ])
+})
+
+test("fix sessions stop at the allowed number even when they change nothing", () => {
+  const p = project({ stories: ["first"], batch: { attempts: 1 } })
+  p.scenario({ first: [{ commit: "a.txt", record: "- `{HEAD}` — `make test` exit 0", status: "ready", closure: "PASS" }, {}] })
+  assert.equal(p.run().status, 1)
+  const s = p.batch().stories[0]
+  assert.equal(s.status, "failed")
+  assert.match(s.note, /still not green after 1 fix session/)
+  assert.equal(p.calls().filter((c) => c.key === "first").length, 2)
+})
+
+// --- pull requests --------------------------------------------------------------
+
+test("an existing pull request named in pr gets every story, and its body keeps what others wrote", () => {
+  const p = project({ remote: true, batch: { pr: 7, green: [{ type: "closure" }, { type: "verification" }] } })
+  p.gh({ prs: [{ number: 7, url: "https://example.test/pull/7", head: "batch/demo", base: "main", title: "Epic", body: "Epic description by a human." }] })
+  p.scenario({ first: [done("first.txt")], second: [done("second.txt")] })
+  const r = p.run()
+  assert.equal(r.status, 0, r.stderr + r.stdout)
+  const prs = p.ghState().prs
+  assert.equal(prs.length, 1)
+  assert.equal(prs[0].title, "Epic")
+  assert.match(prs[0].body, /^Epic description by a human\.\n\n<!-- canovaccio batch 2026-11-17-batch-demo -->/)
+  assert.match(prs[0].body, /- \[x\] Story first\n- \[x\] Story second/)
+  assert.equal(prs[0].body.match(/<!-- canovaccio batch /g).length, 1)
+  assert.deepEqual(p.batch().stories.map((s) => s.pr), ["https://example.test/pull/7", "https://example.test/pull/7"])
+  assert.match(p.run("status").stdout, /pull requests: one: every story is added to the existing pull request 7, batch\/demo/)
+})
+
+test("check rejects a pr that is not on the batch branch, or with stacked branches", () => {
+  const p = project({ remote: true, batch: { pr: 7 } })
+  p.gh({ prs: [{ number: 7, url: "https://example.test/pull/7", head: "feature/other", base: "main" }] })
+  const r = p.run("check")
+  assert.equal(r.status, 1)
+  assert.match(r.stderr, /pr: pull request https:\/\/example\.test\/pull\/7 is on feature\/other, not on batch\/demo/)
+  const stacked = project({ remote: true, batch: { pr: 7, branches: "stacked" } })
+  assert.match(stacked.run("check").stderr, /pr needs "single" branches/)
+})
+
+test("status says how many pull requests the batch leaves", () => {
+  assert.match(project({ remote: true }).run("status").stdout, /pull requests: one for the whole batch, batch\/demo into main/)
+  assert.match(project({ remote: true, batch: { branches: "stacked" } }).run("status").stdout, /pull requests: one per story \(2\)/)
+  assert.match(project().run("status").stdout, /pull requests: none: the branches stay local/)
 })

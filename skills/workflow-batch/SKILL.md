@@ -28,7 +28,9 @@ There is no delivery gate: the batch ends at the Wrap-up, and the user reviews t
 
 ### 0. Setup
 
-Create the batch work directory `docs/work/<YYYY-MM-DD>-batch-<slug>/` with `brief.md` (the request, the stories as the user gave them, the classification and reason) and `state.md` (`Workflow: batch`). List the stories in order. When they come from a task tracker, each story has its item (see `project-tracker`), recorded in its `state.md` and in `batch.json`.
+Create the batch work directory `docs/work/<YYYY-MM-DD>-batch-<slug>/` with `brief.md` (the request, the stories as the user gave them, the classification and reason, and its Delivery constraints) and `state.md` (`Workflow: batch`). List the stories in order. When they come from a task tracker, each story has its item (see `project-tracker`), recorded in its `state.md` and in `batch.json`.
+
+**Delivery constraints**, a section of `brief.md`: everything the user said about how the work is delivered (pull requests, branches, the epic or milestone the stories belong to, merging, what must not be split), quoted as they said it, or "none stated". They bind How the batch runs: a choice there that does not follow from them is wrong, and a constraint the batch cannot meet is said at G1, never resolved silently.
 
 ### 1. Discovery
 
@@ -74,16 +76,19 @@ The `state.md` of a story:
 Write `batch.json` in the batch work directory (see Batch file below), proposing:
 
 - **base**: the branch the batch starts from, normally the default branch;
-- **branches**: `single` by default, one branch `batch/<slug>` and, with a remote, one pull request for the whole batch; `stacked` when the user wants one branch and one pull request per story, `batch/<slug>/<nn>-<story-slug>`, each based on the previous one;
+- **branches**: `single` by default, one branch `batch/<slug>` and, with a remote, one pull request for the whole batch; `stacked` only when the user asked for one branch and one pull request per story, `batch/<slug>/<nn>-<story-slug>`, each based on the previous one;
+- **pr**: with `single` branches, an open pull request the stories are added to instead of a new one, with `branch` set to its head: when the Delivery constraints ask for one pull request for an epic, a milestone or other work that already has one open (`gh pr list --head`, or the one the user names). The runner keeps its title and what others wrote in its body, and updates only its own section;
 - **remote**: the project's remote when it has one and `gh` works, otherwise `null`: the branches stay local;
 - **green**: `closure` (always) and `verification`, plus the commands the user names and `ci` when there is a remote and the project has CI;
 - **attempts**: `2` fix sessions per story.
+
+Check the proposal against the Delivery constraints: "one pull request for everything", "a single PR for the epic" and the like mean `single`, every story the constraint covers in this one batch, and `pr` when that pull request already exists. Never split stories the user wants in one pull request across batches or branches; when they cannot all be in this batch (a story needs a prototype, or is a fix), say so at G1 and propose how they reach the same pull request.
 
 Then run `batch.mjs check` and fix what it reports.
 
 ### 4. G1 batch
 
-Present **G1**: the output of `batch.mjs status`, then for each story its `spec.md` and `plan.md` with a two-line summary and what it builds on, the minor-findings policy, the Impeccable preference when a story changes the UI and the project has none yet (see Impeccable in `workflow-rules`), the tracker mapping when it is new. Say what happens after approval: the runner starts, nobody is asked anything until the end, how to follow it and how to stop it.
+Present **G1**: the output of `batch.mjs status`, with its `pull requests:` line next to the Delivery constraints of `brief.md`, quoted, so the user sees that the pull requests the batch will leave are the ones they asked for; then for each story its `spec.md` and `plan.md` with a two-line summary and what it builds on, the minor-findings policy, the Impeccable preference when a story changes the UI and the project has none yet (see Impeccable in `workflow-rules`), the tracker mapping when it is new. Say what happens after approval: the runner starts, nobody is asked anything until the end, how to follow it and how to stop it.
 
 The approval covers every spec and plan presented, and their unattended delivery. Record it in the batch's `state.md` and in each story's `state.md` (G1 checked with the date). A later change to a story's spec or plan needs a new approval.
 
@@ -107,9 +112,9 @@ The runner, not you. For each story, in order:
 
 1. it checks out the story's branch, creating it from its parent when missing (`single`: the batch branch, from the base; `stacked`: from the previous story's branch), and records the commit the story starts from;
 2. it starts a session whose prompt begins with `[canovaccio batch]`, names the story's work directory, branch and start commit; the session runs Unattended delivery (see `workflow-rules`) and ends with the story's `state.md` at `ready` or `blocked`;
-3. at `ready`, it checks the green conditions in order: `closure`, `verification`, each `command`; then, with a remote, it pushes the branch and opens or updates the pull request; then `ci`;
-4. not green: it starts a fix session with the reason and the log, up to `attempts` times; still not green, the story is `failed` and the queue stops;
-5. `blocked`, `waiting-gate`, or two sessions in a row that change nothing (no commit, same `Status`): the story is `blocked` and the queue stops.
+3. at `ready`, it checks the green conditions in order: `closure`, `verification`, each `command`, after making sure the working tree has nothing uncommitted that would not be pushed; then, with a remote, it pushes the branch and opens or updates the pull request (`pr`, or the open one of the branch); then `ci`;
+4. not green: it starts a fix session with the reason and the log, up to `attempts` times. After every session, a story at `ready` is checked again if HEAD, its `state.md` or the working tree changed, with or without a commit; every fix session started counts, also one that changed nothing. Still not green after the last one, the story is `failed` and the queue stops;
+5. `blocked`, `waiting-gate`, or two sessions in a row that change nothing (same HEAD, same `state.md`, same working tree): the story is `blocked` and the queue stops.
 
 When the queue is done or stops, it starts the Wrap-up session. `batch.mjs stop` ends the runner and its current session without a Wrap-up.
 
@@ -169,13 +174,14 @@ A user who wants to stop for good: set the batch and its remaining stories to `a
 | `branch` | with `single`, the batch branch |
 | `stories[].branch` | with `stacked`, each story's branch |
 | `remote` | the remote to push to and open pull requests on, or `null` to keep everything local |
-| `green` | the conditions of a green story, checked in this order: `closure` (required: `Closure: PASS` in the story's `state.md`), `verification` (the last line of its Verification section is on HEAD and every command in it exited 0), `command` (`run` exits 0 from the project root), `ci` (every check reported on HEAD succeeded; needs a remote) |
+| `pr` | with `single` branches and a remote, an open pull request (number or URL) whose head is `branch`: the stories are added to it instead of a new one |
+| `green` | the conditions of a green story, checked in this order: `closure` (required: `Closure: PASS` in the story's `state.md`), `verification` (the last record `batch.mjs verify` wrote in its Verification section has every command at exit 0, and is on HEAD or on a commit followed only by commits under `docs/work/`; lines written by hand never count), `command` (`run` exits 0 from the project root), `ci` (every check reported on HEAD succeeded; needs a remote) |
 | `stories[].green` | the conditions of one story, instead of the batch's |
 | `stories[].item` | the story's tracker item (`#42`, a card link); the pull request links it |
 | `attempts` | fix sessions a story gets after a failed green check |
 | `agent`, `model` | the agent (default `conductor`) and model of the sessions, when not the project default |
 
-The runner adds `status`, `pid`, `startedAt`, `finishedAt` and `stopReason` to the batch, and `status` (`running`, `green`, `blocked`, `failed`), `startCommit`, `endCommit`, `pr`, `attempts`, `sessions`, `cost`, `failure` and `note` to each story. Session logs and green logs go to `logs/` in the batch work directory.
+The runner adds `status`, `pid`, `startedAt`, `finishedAt`, `stopReason` and `session` (what runs now, its log and when it started) to the batch, and `status` (`running`, `green`, `blocked`, `failed`), `startCommit`, `endCommit`, `pr`, `attempts` (fix sessions started), `sessions`, `checks` (green checks run), `lastSession`, `cost`, `failure` and `note` to each story. Session logs and green logs go to `logs/` in the batch work directory.
 
 ## Script
 
@@ -187,9 +193,12 @@ node <skill-dir>/scripts/batch.mjs status <batch-dir> [--json]
 node <skill-dir>/scripts/batch.mjs run <batch-dir>
 node <skill-dir>/scripts/batch.mjs stop <batch-dir>
 node <skill-dir>/scripts/batch.mjs restack <batch-dir>
+node <skill-dir>/scripts/batch.mjs verify <story-dir> "<command>" ["<command>"...]
 ```
 
-The sessions run `opencode run --agent conductor --format json` without `--auto`: a permission that asks is rejected, so a session cannot push, merge or delete what the configuration gates. The runner does the pushing and opens the pull requests itself.
+`verify` is for the story sessions: it runs a story's final verification on HEAD and writes the record the `verification` condition reads (see Unattended delivery in `workflow-rules`). The runner gives its exact command in every story prompt. `status` also shows how many pull requests the batch leaves and, while the runner works, what runs now, for how long and when its log was last written: a session that has not written for a while is usually still at work in a long command.
+
+The sessions run `opencode run --agent conductor --format json` without `--auto`: a permission that asks is rejected, so a session cannot push, open, edit or merge a pull request, or delete what the configuration gates (see the permissions in `opencode.jsonc`). The runner does the pushing and opens the pull requests itself.
 
 ## Switching
 

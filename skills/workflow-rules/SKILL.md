@@ -87,6 +87,7 @@ Each workflow instance works in `docs/work/<YYYY-MM-DD>-<slug>/` inside the targ
 | `batch.json` | in a batch, its stories, branches and green conditions, and the runner's progress (see `workflow-batch`) | no |
 | `summary.md` | in a batch, written by its Wrap-up: what each story delivered, what stopped and why | no |
 | `logs/` | in a batch, the runner's log, the session logs and the green logs | no |
+| `verification.log` | in a story of a batch, the output of the last `batch.mjs verify` | no |
 | `closure.md` | written by the controller: final review verdict, verification evidence, deferred minor findings, convention proposals, detector ignore proposals | no |
 | `state.md` | workflow state, see below | no |
 
@@ -191,6 +192,8 @@ The full suites run in the workflow's final verification, which you run yourself
 - after commits that change code (closure fixes, a merge that brought new commits), run the final verification once more, when those changes are complete, and record it with its new commit;
 - commits that change only workflow artifacts, docs or the changelog do not need a new run for the tests; run what they do affect (a docs build, a link check).
 
+The record is one line per run: `- <commit> — \`<command>\` exit <status>, <counts>; \`<command>\` exit <status>, …`. Notes about a run (a flaky test, an earlier failing attempt) go in Notes, not in the Verification section. In a story of a batch the record is written by `batch.mjs verify`, never by hand (see Unattended delivery).
+
 ## Unattended delivery
 
 A story of a batch (`Delivery: unattended` in its `state.md`, see `workflow-batch`) is implemented in sessions nobody watches. The batch runner starts them with a prompt that begins with `[canovaccio batch]`; opencode rejects every question and every permission that asks, and the runner reads the outcome from `state.md` when the session ends. The story's spec and plan were approved at the batch gate, G1 batch, which is the approval Run to completion needs.
@@ -203,9 +206,10 @@ In such a session:
 4. **Branch.** The runner has checked out the story's branch: never switch branch, push, merge or open a pull request. The runner does those.
 5. **Work.** Run the workflow's implementation, docs sync and closure phases without stopping. The base of the closure review is the commit the story starts from, which the prompt names, not the base branch.
 6. **No gates.** Wherever a gate or a question would open (an unplanned gate, a closure that failed twice, an escalation that did not converge, a product decision the approved artifacts do not settle, a permission the work cannot do without), do not ask and do not guess: write in Notes what is needed to go on, with the options when there are some, set `Status: blocked` and end the session.
-7. **End.** After the closure review passes and `closure.md` is written, put `- Closure: PASS` in the header of `state.md`, make sure the Verification section records the final verification on HEAD, set `Status: ready` and end the session. Leave the environment up for the next story, and leave `closed` to the batch's Wrap-up.
+7. **Final verification.** Run it with the `batch.mjs verify` command the prompt gives, one argument per command of the project's full verification, after committing the work: it refuses a working tree with uncommitted changes, runs the commands from the project root, writes their output to `verification.log` in the work directory and appends the record to the Verification section. It is the only record the runner reads: a run written by hand, or a record edited by hand, does not count. Commit `spec.md` and `decisions.md` before it when you can; later commits that change only files under `docs/work/` keep the record valid, any other commit needs a new run.
+8. **End.** After the closure review passes and `closure.md` is written, put `- Closure: PASS` in the header of `state.md`, make sure the last record of `batch.mjs verify` is on HEAD, or on a commit followed only by commits under `docs/work/`, with every command at exit 0, set `Status: ready` and end the session. Leave the environment up for the next story, and leave `closed` to the batch's Wrap-up.
 
-A **fix session** is one whose prompt says the green conditions failed. Set `Status: active`, read the green log it names, and fix the cause as a fix task through the Review loop. When the code changed, run the final verification again and record it (see Test scope and final verification), run the closure review scoped as after a FAIL (see Closure review), then end at `ready` as above. A cause outside the code (the environment, an external service, a green command that cannot pass) blocks the story, with the evidence in Notes.
+A **fix session** is one whose prompt says the green conditions failed. Set `Status: active`, read the green log it names, and fix the cause as a fix task through the Review loop. When the code changed, run the final verification again with `batch.mjs verify`, run the closure review scoped as after a FAIL (see Closure review), then end at `ready` as above. When only the record is at fault (missing, written by hand, on a commit that is no longer HEAD), the fix is running `batch.mjs verify` on HEAD: no code change and no closure review are needed. After every session the runner checks a story at `ready` again if HEAD, its `state.md` or the working tree changed, commit or not; a fix session that changes none of them still counts as one of the story's fix sessions. A cause outside the code (the environment, an external service, a green command that cannot pass) blocks the story, with the evidence in Notes.
 
 ## Minor findings policy
 

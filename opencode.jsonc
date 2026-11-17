@@ -95,6 +95,67 @@
       "resource": "git push *",
       "effect": "ask"
     },
+    // Options before the subcommand do not bypass it.
+    {
+      "action": "shell",
+      "resource": "git -C * push *",
+      "effect": "ask"
+    },
+    {
+      "action": "shell",
+      "resource": "git -c * push *",
+      "effect": "ask"
+    },
+    // Pull requests are opened, changed and merged at a delivery gate, or by
+    // the batch runner, which calls gh itself: never by an unattended session.
+    // Reading them (gh pr view, list, diff, checks) stays allowed.
+    {
+      "action": "shell",
+      "resource": "gh pr create *",
+      "effect": "ask"
+    },
+    {
+      "action": "shell",
+      "resource": "gh pr merge *",
+      "effect": "ask"
+    },
+    {
+      "action": "shell",
+      "resource": "gh pr edit *",
+      "effect": "ask"
+    },
+    {
+      "action": "shell",
+      "resource": "gh pr close *",
+      "effect": "ask"
+    },
+    {
+      "action": "shell",
+      "resource": "gh pr reopen *",
+      "effect": "ask"
+    },
+    {
+      "action": "shell",
+      "resource": "gh pr ready *",
+      "effect": "ask"
+    },
+    // The same through the API: REST pulls and merges, GraphQL mutations on
+    // pull requests (createPullRequest, mergePullRequest, ...).
+    {
+      "action": "shell",
+      "resource": "gh api *pulls*",
+      "effect": "ask"
+    },
+    {
+      "action": "shell",
+      "resource": "gh api *merges*",
+      "effect": "ask"
+    },
+    {
+      "action": "shell",
+      "resource": "gh api *PullRequest*",
+      "effect": "ask"
+    },
     {
       "action": "shell",
       "resource": "git reset --hard *",
