@@ -183,12 +183,12 @@ You list the stories (in a message, or as tracker items) and say how you want th
 - **green**: when a story counts as done. The closure review is always required; on top of it, the final verification, any command you name (`make e2e`), and the CI of the pull request. The session runs the final verification through `batch.mjs verify`, which runs the commands and writes the record with their real exit statuses: a record written by hand never counts, and the record stays valid across later commits that only change the work's artifacts in `docs/work/`. Without a remote, a batch stays local and green is what runs locally;
 - **fix sessions**: how many times a story that is not green goes back for a fix, 2 by default.
 
-Once you approve, the conductor starts a runner, `skills/workflow-batch/scripts/batch.mjs`, as a separate process and the session can end. For each story the runner checks out its branch, starts an opencode session that implements it with no gates (a question that would need you blocks the story instead), checks the green conditions itself, pushes and opens or updates the pull request, and waits for CI. The first story that is not green, or that is blocked, stops the queue. A last session then closes the green stories, brings the environment down and writes a `summary.md` with what was done, what stopped and why, and the cost of every story.
+Once you approve, the conductor starts a runner, `skills/workflow-batch/scripts/batch.mjs`, as a separate process and the session can end. For each story the runner checks out its branch, starts an opencode session that implements it with no gates (a question that would need you blocks the story instead), checks the green conditions itself, pushes and opens or updates the pull request, and waits for CI. The first story that is not green, or that is blocked, stops the queue. A last session then closes the green stories, brings the environment down and writes a `summary.md` with what was done, what stopped and why, and the cost of every story, its subagents included.
 
 The sessions never get your approval for anything: they run without `--auto`, so every permission that asks is rejected: they cannot push, nor open, change or merge a pull request. The runner pushes and opens pull requests, as the gate approved; nothing in a batch merges.
 
 ```sh
-node <skill-dir>/scripts/batch.mjs status docs/work/<date>-batch-<slug>   # where it is, and what runs now
+node <skill-dir>/scripts/batch.mjs status docs/work/<date>-batch-<slug>   # where it is, the cost so far, what runs now and its session id
 node <skill-dir>/scripts/batch.mjs stop docs/work/<date>-batch-<slug>     # stop it
 ```
 
@@ -354,4 +354,4 @@ Things to verify once with opencode V2:
 4. `git push` asks for approval; reading a file under `/tmp` is refused without asking; `spec-reviewer` cannot run shell commands.
 5. A small `/fix` on a scratch project stops at the delivery gate with a `closure.md`, a `CHANGELOG.md` entry and, if the project has docs, a docs sync.
 6. `doc-writer` can edit `docs/` and `CHANGELOG.md` but not source files.
-7. `opencode run --agent conductor "…"` works from a terminal with no TTY: the batch runner starts its sessions that way. `node --test skills/workflow-batch/scripts/batch.test.mjs` checks the runner itself.
+7. `opencode run --agent conductor "…"` works from a terminal with no TTY: the batch runner starts its sessions that way; `opencode api get /api/info` answers, since the runner reads the sessions' costs through it. `node --test skills/workflow-batch/scripts/batch.test.mjs` checks the runner itself.

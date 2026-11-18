@@ -31,9 +31,32 @@ const GIT_ENV = {
 const git = (cwd, ...a) => execFileSync("git", a, { cwd, encoding: "utf8", env: { ...process.env, ...GIT_ENV } }).trim()
 
 // The fake opencode: plays the scenario's next action for the story named in
-// the prompt, records every call, prints one cost event.
+// the prompt, records every call and the session it ran in, with its subagents,
+// and prints a step event that names the session. \`opencode api\` answers from
+// those sessions, two children per page, or fails when <scenario>.api-down exists.
+// A session costs 0.01 (action.cost) and its log says 0.004, so a test can tell
+// where a cost was read.
 const FAKE_OPENCODE = `#!/usr/bin/env node
 const fs = require("fs"), path = require("path"), cp = require("child_process")
+const sessionsFile = process.env.FAKE_SCENARIO + ".sessions.json"
+const sessions = fs.existsSync(sessionsFile) ? JSON.parse(fs.readFileSync(sessionsFile, "utf8")) : {}
+if (process.argv[2] === "api") {
+  if (fs.existsSync(process.env.FAKE_SCENARIO + ".api-down")) { console.error("no background service"); process.exit(1) }
+  const u = new URL(process.argv[4], "http://fake")
+  const one = u.pathname.match(/^\\/api\\/session\\/([^/]+)$/)
+  if (process.argv[3] === "get" && one) {
+    const s = sessions[decodeURIComponent(one[1])]
+    if (!s) { console.error("session not found"); process.exit(1) }
+    console.log(JSON.stringify({ data: s })); process.exit(0)
+  }
+  if (process.argv[3] === "get" && u.pathname === "/api/session") {
+    const all = Object.values(sessions).filter((s) => s.parentID === u.searchParams.get("parentID"))
+    const from = Number(u.searchParams.get("cursor") || 0)
+    const next = from + 2 < all.length ? String(from + 2) : null
+    console.log(JSON.stringify({ data: all.slice(from, from + 2), cursor: { previous: null, next } })); process.exit(0)
+  }
+  console.error("fake opencode: unsupported api " + process.argv.slice(3).join(" ")); process.exit(1)
+}
 const prompt = process.argv[process.argv.length - 1]
 const scenario = JSON.parse(fs.readFileSync(process.env.FAKE_SCENARIO, "utf8"))
 const callsFile = process.env.FAKE_SCENARIO + ".calls.json"
@@ -45,6 +68,14 @@ calls.push({ key, prompt, args: process.argv.slice(2) })
 fs.writeFileSync(callsFile, JSON.stringify(calls, null, 2))
 const list = scenario[key] || []
 const action = list[Math.min(n, list.length - 1)] || {}
+const sessionID = "ses_" + key + "_" + n
+const register = (id, parentID, spec) => {
+  sessions[id] = { id, ...(parentID ? { parentID } : {}), cost: spec.cost ?? 0.01 }
+  ;(spec.subagents || []).forEach((sub, i) => register(id + "_" + i, id, sub))
+}
+register(sessionID, null, action)
+fs.writeFileSync(sessionsFile, JSON.stringify(sessions, null, 2))
+console.log(JSON.stringify({ type: "step_start", sessionID, part: { type: "step-start" } }))
 if (action.sleep) { Atomics.wait(new Int32Array(new SharedArrayBuffer(4)), 0, 0, action.sleep * 1000) }
 const sh = (...a) => cp.execFileSync("git", a, { encoding: "utf8" }).trim()
 const stateFile = m ? path.join(m[1], "state.md") : null
@@ -80,7 +111,7 @@ if (stateFile) {
       : text.replace(/^(- Status: .*)$/m, "$1\\n- Closure: " + action.closure)
   fs.writeFileSync(stateFile, text)
 }
-console.log(JSON.stringify({ type: "step_finish", part: { cost: 0.01 } }))
+console.log(JSON.stringify({ type: "step_finish", sessionID, part: { cost: 0.004 } }))
 process.exit(action.exit || 0)
 `
 
@@ -217,6 +248,7 @@ test("single branch: every story runs in its own session and the batch ends done
   assert.match(calls[0].prompt, /The branch batch\/demo is checked out/)
   assert.ok(calls[0].args.includes("--format") && !calls[0].args.includes("--auto"))
   assert.equal(b.stories[0].cost, 0.01)
+  assert.deepEqual(b.stories[0].lastSession, { name: "first.1", id: "ses_first_0", exit: 0, log: "docs/work/2026-11-17-batch-demo/logs/first.1.jsonl" })
   assert.ok(fs.existsSync(path.join(p.batchDir, "logs", "first.1.jsonl")))
 })
 
@@ -377,13 +409,51 @@ test("stop ends a running batch without a wrap-up", async () => {
   })
   const exited = new Promise((resolve) => child.on("exit", resolve))
   for (let i = 0; i < 100 && p.calls().length === 0; i++) await new Promise((r) => setTimeout(r, 100))
-  assert.match(p.run("status").stdout, /now: first\.1, running for \d+ min, log last written \d+ min ago \(docs\/work\/2026-11-17-batch-demo\/logs\/first\.1\.jsonl\)/)
+  assert.match(p.run("status").stdout, /now: first\.1, session ses_first_0, running for \d+ min, log last written \d+ min ago \(docs\/work\/2026-11-17-batch-demo\/logs\/first\.1\.jsonl\)/)
+  assert.equal(JSON.parse(p.run("status", "--json").stdout).session.id, "ses_first_0")
   assert.equal(p.run("stop").status, 0)
   assert.equal(await exited, 1)
   const b = p.batch()
   assert.equal(b.status, "stopped")
   assert.equal(b.stopReason, "stopped by the user")
   assert.deepEqual(p.calls().map((c) => c.key), ["first"])
+})
+
+// --- costs ---------------------------------------------------------------------
+
+test("a story's cost includes the subagents of its sessions, read from opencode", () => {
+  const p = project({ stories: ["first"] })
+  // Three subagents (two pages of children), one with a subagent of its own; a
+  // fix session after a failed check adds its own cost.
+  const subagents = [{ cost: 0.02, subagents: [{ cost: 0.03 }] }, { cost: 0.04 }, { cost: 0.05 }]
+  p.scenario({ first: [{ ...done("a.txt"), closure: "FAIL", subagents }, { ...done("b.txt"), cost: 0.1 }] })
+  const r = p.run()
+  assert.equal(r.status, 0, r.stderr + r.stdout)
+  const b = p.batch()
+  const s = b.stories[0]
+  assert.equal(s.cost, 0.25)
+  assert.equal(s.costPartial, undefined)
+  assert.deepEqual(s.sessionIDs, ["ses_first_0", "ses_first_1"])
+  assert.equal(b.cost, 0.01)
+  assert.match(r.stdout, /session first\.1 ended: exit 0, ses_first_0, cost 0\.1500 \(5 session\(s\), with its subagents\)/)
+  const status = p.run("status").stdout
+  assert.match(status, /cost so far: 0\.2600, sessions and their subagents\n/)
+  assert.match(status, /1\. first — green .*cost 0\.2500$/m)
+})
+
+test("without opencode's API the cost comes from the session log and is marked partial", () => {
+  const p = project({ stories: ["first"] })
+  p.scenario({ first: [{ ...done("a.txt"), subagents: [{ cost: 0.02 }] }] })
+  fs.writeFileSync(`${p.env.FAKE_SCENARIO}.api-down`, "")
+  const r = p.run()
+  assert.equal(r.status, 0, r.stderr + r.stdout)
+  const b = p.batch()
+  assert.equal(b.stories[0].status, "green")
+  assert.equal(b.stories[0].cost, 0.004)
+  assert.equal(b.stories[0].costPartial, true)
+  assert.equal(b.costPartial, true)
+  assert.match(r.stdout, /cost 0\.0040 \(partial, from its log only: .*api get \/api\/session\/ses_first_0 failed: no background service\)/)
+  assert.match(p.run("status").stdout, /cost so far: 0\.0080, sessions and their subagents \(partial: some sessions were counted from their log only, without their subagents\)/)
 })
 
 test("restack lists the stacked branches that no longer contain their parent", () => {

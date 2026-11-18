@@ -19,6 +19,13 @@
 // Exit codes: 0 ok, 1 errors, a failed verification or a batch that stopped
 // before the end, 2 usage.
 //
+// Costs: after each session the runner reads, through `opencode api` (the client
+// of opencode's background service, which finds it and authenticates), the cost
+// of the session and of every session under it, its subagents and theirs:
+// opencode records on each session only its own cost. When that fails, the cost
+// comes from the step events of the session's log, which miss the subagents and
+// may miss the last step, and is marked partial.
+//
 // Environment: CANOVACCIO_OPENCODE (default: opencode), CANOVACCIO_GH (default:
 // gh), CANOVACCIO_BATCH_POLL_SECONDS (CI polling interval, default: 30).
 // No dependencies: Node 18+.
@@ -59,8 +66,8 @@ function fail(message, code = 1) {
 const now = () => new Date().toISOString()
 const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms))
 
-function sh(cmd, a, cwd) {
-  const r = spawnSync(cmd, a, { cwd, encoding: "utf8", stdio: ["ignore", "pipe", "pipe"], maxBuffer: 64 * 1024 * 1024 })
+function sh(cmd, a, cwd, timeout) {
+  const r = spawnSync(cmd, a, { cwd, encoding: "utf8", stdio: ["ignore", "pipe", "pipe"], maxBuffer: 64 * 1024 * 1024, timeout })
   return { ok: r.status === 0, code: r.status, out: r.stdout || "", err: (r.stderr || r.error?.message || "").trim() }
 }
 
@@ -353,6 +360,82 @@ function costOf(logFile) {
   return cost
 }
 
+// The id of the session a log belongs to: the first event that names one. Only
+// the start of the log is read, so status can call it while the session writes.
+function sessionIdOf(logFile) {
+  let text
+  try {
+    const fd = fs.openSync(logFile, "r")
+    const buf = Buffer.alloc(256 * 1024)
+    const n = fs.readSync(fd, buf, 0, buf.length, 0)
+    fs.closeSync(fd)
+    text = buf.toString("utf8", 0, n)
+  } catch {
+    return undefined
+  }
+  for (const line of text.split("\n")) {
+    if (!line.startsWith("{")) continue
+    try {
+      const id = JSON.parse(line).sessionID
+      if (typeof id === "string" && id) return id
+    } catch {
+      // not an event line, or cut at the end of what was read
+    }
+  }
+  return undefined
+}
+
+function opencodeApi(root, p) {
+  const r = sh(OPENCODE, ["api", "get", p], root, 60_000)
+  if (!r.ok) throw new Error(`${OPENCODE} api get ${p} failed: ${r.err || `exit ${r.code}`}`)
+  try {
+    return JSON.parse(r.out)
+  } catch {
+    throw new Error(`unreadable output of ${OPENCODE} api get ${p}`)
+  }
+}
+
+const payload = (json) => (json && typeof json === "object" && "data" in json ? json.data : json)
+
+function costValue(session, id) {
+  const cost = Number(session?.cost)
+  if (session?.cost == null || !Number.isFinite(cost)) throw new Error(`opencode reports no cost for session ${id}`)
+  return cost
+}
+
+// The cost of a session and of every session under it: opencode records on each
+// session only its own cost, and a subagent is a child session of the session
+// that dispatched it.
+function treeCost(root, sessionID) {
+  let cost = costValue(payload(opencodeApi(root, `/api/session/${encodeURIComponent(sessionID)}`)), sessionID)
+  let sessions = 1
+  const seen = new Set([sessionID])
+  const queue = [sessionID]
+  while (queue.length) {
+    const parent = queue.shift()
+    const cursors = new Set()
+    let cursor
+    do {
+      const query = new URLSearchParams({ parentID: parent })
+      if (cursor) query.set("cursor", cursor)
+      const page = opencodeApi(root, `/api/session?${query}`)
+      const children = payload(page)
+      if (!Array.isArray(children)) throw new Error(`unreadable list of the sessions under ${parent}`)
+      for (const child of children) {
+        if (!child?.id || seen.has(child.id)) continue
+        seen.add(child.id)
+        queue.push(child.id)
+        cost += costValue(child, child.id)
+        sessions++
+      }
+      cursor = page?.cursor?.next
+      if (cursor && cursors.has(cursor)) break
+      if (cursor) cursors.add(cursor)
+    } while (cursor)
+  }
+  return { cost, sessions }
+}
+
 async function session(ctx, batch, name, title, prompt) {
   fs.mkdirSync(ctx.logs, { recursive: true })
   const logFile = path.join(ctx.logs, `${name}.jsonl`)
@@ -365,9 +448,22 @@ async function session(ctx, batch, name, title, prompt) {
   save(ctx, batch)
   const r = await runAsync(OPENCODE, a, { cwd: ctx.root, logFile })
   delete batch.session
-  const cost = costOf(logFile)
-  console.log(`[${now()}] session ${name} ended: exit ${r.code}, cost ${cost.toFixed(4)}`)
-  return { name, code: r.code, cost, log: rel(ctx, logFile) }
+  const id = sessionIdOf(logFile)
+  let cost
+  let counted
+  let partial
+  try {
+    if (!id) throw new Error("its log names no session")
+    const tree = treeCost(ctx.root, id)
+    cost = tree.cost
+    counted = `${tree.sessions} session(s), with its subagents`
+  } catch (e) {
+    cost = costOf(logFile)
+    partial = e.message
+    counted = `partial, from its log only: ${partial}`
+  }
+  console.log(`[${now()}] session ${name} ended: exit ${r.code}${id ? `, ${id}` : ""}, cost ${cost.toFixed(4)} (${counted})`)
+  return { name, id, code: r.code, cost, partial, log: rel(ctx, logFile) }
 }
 
 function storyPrompt(ctx, batch, i, { idle = 0 } = {}) {
@@ -698,7 +794,9 @@ async function runStory(ctx, batch, i) {
         storyPrompt(ctx, batch, i, { idle }),
       )
       story.cost = Number(((story.cost || 0) + r.cost).toFixed(6))
-      story.lastSession = { name: r.name, exit: r.code, log: r.log }
+      if (r.partial) story.costPartial = true
+      if (r.id) story.sessionIDs = [...(story.sessionIDs || []), r.id]
+      story.lastSession = { name: r.name, ...(r.id ? { id: r.id } : {}), exit: r.code, log: r.log }
       save(ctx, batch)
       if (stopping) break
       idle = fingerprint(ctx, story) === print ? idle + 1 : 0
@@ -721,6 +819,7 @@ async function wrapUp(ctx, batch) {
   batch.wrapUps = (batch.wrapUps || 0) + 1
   const r = await session(ctx, batch, `wrap-up.${batch.wrapUps}`, `batch ${path.basename(ctx.batchDir)} · wrap-up`, prompt)
   batch.cost = Number(((batch.cost || 0) + r.cost).toFixed(6))
+  if (r.partial) batch.costPartial = true
 }
 
 async function runBatch(ctx) {
@@ -796,21 +895,24 @@ function printStatus(ctx, batch) {
     const age = (t) => `${Math.max(0, Math.round((Date.now() - t) / 60000))} min`
     const log = path.join(ctx.root, batch.session.log)
     const written = fs.existsSync(log) ? `, log last written ${age(fs.statSync(log).mtimeMs)} ago` : ""
-    console.log(`  now: ${batch.session.name}, running for ${age(Date.parse(batch.session.startedAt))}${written} (${batch.session.log})`)
+    const id = sessionIdOf(log)
+    console.log(`  now: ${batch.session.name}${id ? `, session ${id}` : ""}, running for ${age(Date.parse(batch.session.startedAt))}${written} (${batch.session.log})`)
   }
   console.log(`  green: ${(batch.green || []).map((g) => (g.type === "command" ? `command \`${g.run}\`` : g.type)).join(", ")}; fix sessions per story: ${batch.attempts}`)
-  console.log(`  cost so far: ${total.toFixed(4)}`)
+  const partial = batch.costPartial || (batch.stories || []).some((s) => s.costPartial)
+  console.log(`  cost so far: ${total.toFixed(4)}, sessions and their subagents${partial ? " (partial: some sessions were counted from their log only, without their subagents)" : ""}`)
   for (const [i, s] of (batch.stories || []).entries()) {
     const st = readState(ctx.root, s)
     const extra = [
       batch.branches === "stacked" ? s.branch : null,
       s.attempts ? `fix sessions ${s.attempts}` : null,
       s.pr || null,
+      s.cost ? `cost ${s.cost.toFixed(4)}${s.costPartial ? " (partial)" : ""}` : null,
     ].filter(Boolean)
     console.log(`  ${i + 1}. ${s.id} — ${s.status || "queued"} (state.md: ${st.status || "?"})${extra.length ? ` · ${extra.join(" · ")}` : ""}`)
     if (s.note) console.log(`     ${s.note}`)
     if (s.lastSession && s.lastSession.exit !== 0)
-      console.log(`     last session ${s.lastSession.name} exited ${s.lastSession.exit} (${s.lastSession.log})`)
+      console.log(`     last session ${s.lastSession.name}${s.lastSession.id ? ` (${s.lastSession.id})` : ""} exited ${s.lastSession.exit} (${s.lastSession.log})`)
     if (s.failure && s.status !== "green") console.log(`     last failure: ${s.failure.summary} (${s.failure.log})`)
   }
 }
@@ -851,6 +953,10 @@ switch (command) {
     if (flag("--json")) {
       for (const s of batch.stories || []) s.state = readState(ctx.root, s).status
       batch.alive = alive(batch.pid)
+      if (batch.session) {
+        const id = sessionIdOf(path.join(ctx.root, batch.session.log))
+        if (id) batch.session.id = id
+      }
       console.log(JSON.stringify(batch, null, 2))
     } else printStatus(ctx, batch)
     break

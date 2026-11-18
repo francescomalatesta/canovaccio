@@ -126,7 +126,7 @@ A session the runner starts at the end, with a prompt beginning with `[canovacci
 2. Each green story: set its `state.md` to `closed` and delete its temporary directory (see Work directory and artifacts in `workflow-rules`). Tracker items stay at in-review: nothing in a batch merges (see `project-tracker`).
 3. The story that stopped keeps its `state.md` and temporary directory as they are; queued stories are left untouched.
 4. Bring the environment down (see Environment in `workflow-rules`), from the Environment sections of the batch and of its stories.
-5. Write `summary.md` in the batch work directory: the outcome; for each story its status, its commits (`<start>..<end>`), its pull request, its fix sessions and cost; the deferred minor findings and convention candidates of every story, by story; when the batch stopped, why, where the details are (the story's Notes, the green log) and what the user can do.
+5. Write `summary.md` in the batch work directory: the outcome; for each story its status, its commits (`<start>..<end>`), its pull request, its fix sessions and cost (sessions and their subagents; say so when it is partial); the deferred minor findings and convention candidates of every story, by story; when the batch stopped, why, where the details are (the story's Notes, the green log) and what the user can do.
 6. Set the batch's `state.md` to `closed` when the batch is done, or to `blocked` with the reason in Notes when it stopped. End the session.
 
 ### 8. Resume
@@ -181,7 +181,9 @@ A user who wants to stop for good: set the batch and its remaining stories to `a
 | `attempts` | fix sessions a story gets after a failed green check |
 | `agent`, `model` | the agent (default `conductor`) and model of the sessions, when not the project default |
 
-The runner adds `status`, `pid`, `startedAt`, `finishedAt`, `stopReason` and `session` (what runs now, its log and when it started) to the batch, and `status` (`running`, `green`, `blocked`, `failed`), `startCommit`, `endCommit`, `pr`, `attempts` (fix sessions started), `sessions`, `checks` (green checks run), `lastSession`, `cost`, `failure` and `note` to each story. Session logs and green logs go to `logs/` in the batch work directory.
+The runner adds `status`, `pid`, `startedAt`, `finishedAt`, `stopReason`, `session` (what runs now, its log and when it started), `cost` (the Wrap-up's) and `costPartial` to the batch, and `status` (`running`, `green`, `blocked`, `failed`), `startCommit`, `endCommit`, `pr`, `attempts` (fix sessions started), `sessions` (how many), `sessionIDs` (the opencode sessions, in order), `checks` (green checks run), `lastSession` (with its session `id`), `cost`, `costPartial`, `failure` and `note` to each story. Session logs and green logs go to `logs/` in the batch work directory.
+
+**Costs.** After each session the runner reads from opencode, with `opencode api`, the cost of the session and of every session under it: its subagents and theirs, since opencode records on each session only its own cost. When it cannot (opencode's background service does not answer, the log names no session), it takes the cost from the step events of the session's log, which miss the subagents and may miss the last step, and sets `costPartial`; `status` then says the total is partial.
 
 ## Script
 
@@ -196,7 +198,7 @@ node <skill-dir>/scripts/batch.mjs restack <batch-dir>
 node <skill-dir>/scripts/batch.mjs verify <story-dir> "<command>" ["<command>"...]
 ```
 
-`verify` is for the story sessions: it runs a story's final verification on HEAD and writes the record the `verification` condition reads (see Unattended delivery in `workflow-rules`). The runner gives its exact command in every story prompt. `status` also shows how many pull requests the batch leaves and, while the runner works, what runs now, for how long and when its log was last written: a session that has not written for a while is usually still at work in a long command.
+`verify` is for the story sessions: it runs a story's final verification on HEAD and writes the record the `verification` condition reads (see Unattended delivery in `workflow-rules`). The runner gives its exact command in every story prompt. `status` also shows how many pull requests the batch leaves, the cost so far and of each story and, while the runner works, what runs now, its opencode session id (to open it in opencode and follow it), for how long and when its log was last written: a session that has not written for a while is usually still at work in a long command. `status --json` gives the id as `session.id`.
 
 The sessions run `opencode run --agent conductor --format json` without `--auto`: a permission that asks is rejected, so a session cannot push, open, edit or merge a pull request, or delete what the configuration gates (see the permissions in `opencode.jsonc`). The runner does the pushing and opens the pull requests itself.
 
