@@ -196,7 +196,7 @@ The record is one line per run: `- <commit> — \`<command>\` exit <status>, <co
 
 ## Unattended delivery
 
-A story of a batch (`Delivery: unattended` in its `state.md`, see `workflow-batch`) is implemented in sessions nobody watches. The batch runner starts them with a prompt that begins with `[canovaccio batch]`; opencode rejects every question and every permission that asks, and the runner reads the outcome from `state.md` when the session ends. The story's spec and plan were approved at the batch gate, G1 batch, which is the approval Run to completion needs.
+A story of a batch (`Delivery: unattended` in its `state.md`, see `workflow-batch`) is implemented in sessions nobody watches. The batch runner starts them with a prompt that begins with `[canovaccio batch]`; opencode rejects every question (the permissions in `opencode.jsonc` allow everything, so none asks), and the runner reads the outcome from `state.md` when the session ends. The story's spec and plan were approved at the batch gate, G1 batch, which is the approval Run to completion needs.
 
 In such a session:
 

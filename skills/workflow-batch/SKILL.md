@@ -200,7 +200,7 @@ node <skill-dir>/scripts/batch.mjs verify <story-dir> "<command>" ["<command>"..
 
 `verify` is for the story sessions: it runs a story's final verification on HEAD and writes the record the `verification` condition reads (see Unattended delivery in `workflow-rules`). The runner gives its exact command in every story prompt. `status` also shows how many pull requests the batch leaves, the cost so far and of each story and, while the runner works, what runs now, its opencode session id (to open it in opencode and follow it), for how long and when its log was last written: a session that has not written for a while is usually still at work in a long command. `status --json` gives the id as `session.id`.
 
-The sessions run `opencode run --agent conductor --format json` without `--auto`: a permission that asks is rejected, so a session cannot push, open, edit or merge a pull request, or delete what the configuration gates (see the permissions in `opencode.jsonc`). The runner does the pushing and opens the pull requests itself.
+The sessions run `opencode run --agent conductor --format json` without `--auto`: a question is rejected. The permissions in `opencode.jsonc` allow everything, so a session is kept from pushing, switching branch, or opening, editing or merging a pull request by Unattended delivery in `workflow-rules`, not by a permission. The runner does the pushing and opens the pull requests itself.
 
 ## Switching
 
