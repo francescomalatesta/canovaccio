@@ -33,6 +33,8 @@ A change is not material when it rewords, clarifies, or fixes a detail without c
 
 An approval covers only the artifact that was presented. It does not approve artifacts that do not exist yet, and it does not carry over to a different task. If an approved artifact later needs a material change, it needs a new approval.
 
+**Questions** to the user outside a gate (clarifying questions, the interviews of `design-context` and of site work, which workflow a message continues) are asked with the `question` tool too, never as plain text at the end of a turn. When one is dismissed without an answer, end the turn: the user's next message is the answer.
+
 **CHECKPOINT** — a non-blocking status update. Report briefly what was done and what comes next, then continue in the same turn with the next step. A CHECKPOINT is never a question and never ends the turn: the user can interrupt at any time, but you do not invite it ("let me know if…", "shall I go on?").
 
 **Unplanned gates** are allowed only for the escalation reasons in `AGENTS.md`: a genuine unresolved product decision, materially conflicting requirements, a material scope or UX change, or an operation that requires explicit permission. Do not invent others.

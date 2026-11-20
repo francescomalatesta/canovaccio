@@ -50,7 +50,7 @@ Summary: <a few lines per file>
 Assumed / Open: <each item, with its file>
 ```
 
-**The controller** keeps the interview in `design-interview.md` in the work directory: every round's questions and answers, verbatim. It asks each round with the `question` tool when it fits, otherwise in a message, and waits for the answer; it notes the round in `state.md` so a resumed session continues the interview instead of restarting it. Then it dispatches `@design-director` again with the whole interview so far.
+**The controller** keeps the interview in `design-interview.md` in the work directory: every round's questions and answers, verbatim. It asks each round with the `question` tool, always, never as a plain message: one tool question per interview question, its header naming the round and the question (`Design 1.3 palette`), its proposed answer as the first option and, for a choice, the other options and "decide for me"; the user can always write an answer of their own. It waits for the answers; it notes the round in `state.md` so a resumed session continues the interview instead of restarting it. Then it dispatches `@design-director` again with the whole interview so far.
 
 ## Using the files
 
