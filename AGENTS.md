@@ -66,6 +66,8 @@ Escalate only when:
 - proceeding would require a material scope or UX change;
 - an operation requires explicit permission.
 
+What makes a change material is defined in Gates and checkpoints of `workflow-rules` (Material change).
+
 Do not manufacture approval points.
 
 ## Scope discipline

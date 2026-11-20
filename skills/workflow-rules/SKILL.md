@@ -1,6 +1,6 @@
 ---
 name: workflow-rules
-description: Shared rules for every development workflow (greenfield, site, feature, refactor, fix, spike, docs-init, design-init, security-audit, env-init, batch) - gates, checkpoints, running an approved plan to completion, unattended delivery of batch stories, sessions started by canovacc.io and their prompt header, artifacts, state, resumption, the development environment and its slots, parallel work in worktrees, system docs and changelog, the Impeccable choice, the task tracker, workflow switching and precedence over superpowers skills. Load before running or resuming any workflow.
+description: Shared rules for every development workflow (greenfield, site, feature, refactor, fix, spike, docs-init, design-init, security-audit, env-init, batch) - gates, checkpoints, running an approved plan to completion, unattended mode and unattended delivery of batch stories, sessions started by canovacc.io and their prompt header, the material change, the verify.mjs record, artifacts, state, resumption, the development environment and its slots, parallel work in worktrees, system docs and changelog, the Impeccable choice, the task tracker, workflow switching and precedence over superpowers skills. Load before running or resuming any workflow.
 ---
 
 # Workflow rules
@@ -19,8 +19,17 @@ These rules apply to every workflow. A workflow skill defines its phases and gat
 3. Do not proceed past the gate until the answer is in. When the question is dismissed without an answer, leave `Status: waiting-gate` and end the turn: the user's next message is the answer.
 4. Handle the answer, then set `Status: active` again:
    - **approved** → record it in `state.md` (gate, date, artifact) and proceed;
-   - **approved with changes** → apply them; if a change is material to what was approved, present the result again, otherwise record and proceed;
+   - **approved with changes** → apply them; if a change is material to what was approved (see Material change below), present the result again, otherwise record it in `decisions.md` as "Applied after approval: <change> (<gate>)" and proceed;
    - **rejected or redirected** → revise, or propose another workflow, and present again.
+
+**Material change.** A change to an approved artifact is material when it changes:
+
+- a requirement or an acceptance criterion;
+- scope or out of scope;
+- a technical choice recorded in the spec;
+- the list of the plan's tasks: a task added, removed, split or merged.
+
+A change is not material when it rewords, clarifies, or fixes a detail without changing behavior. When in doubt, it is material. Wherever these rules, `AGENTS.md` or a workflow speak of a material change to what was approved, this is what they mean.
 
 An approval covers only the artifact that was presented. It does not approve artifacts that do not exist yet, and it does not carry over to a different task. If an approved artifact later needs a material change, it needs a new approval.
 
@@ -47,6 +56,8 @@ Once the gate that approves the plan is recorded, the workflow runs to its next 
 | security-audit | G1 scope | G2 delivery |
 | batch | G1 batch | the runner's launch; each story then runs unattended to `ready` (see Unattended delivery) |
 
+A story in unattended mode (see Unattended mode) was approved at canovacc.io's batch gate, and runs to `ready` without stopping.
+
 Between those two points, a turn ends only for:
 
 - an unplanned gate, for the escalation reasons in `AGENTS.md` or where a workflow rule opens one (an escalation that did not converge, a closure that failed twice, a spike budget run out);
@@ -60,7 +71,7 @@ Each of these sets `Status: waiting-gate` in `state.md`, with the reason in Note
 - stop because many tasks remain, the context is filling up or a compaction happened: progress is on disk and compaction is automatic;
 - stop to ask a question the approved artifacts already answer, or a routine engineering decision (see Autonomy in `AGENTS.md`).
 
-**End-of-turn check.** Before ending a turn, read `Status` in `state.md`. `waiting-gate`, `closed` or `abandoned`, and in a batch `running`, `ready` or `blocked`: you may end it. `active`: do not end the turn; execute the next action that `state.md` records. A turn that ends with `Status: active` is a stall, and the end-of-turn report is not a reason to stop.
+**End-of-turn check.** Before ending a turn, read `Status` in `state.md`. `waiting-gate`, `closed` or `abandoned`; `ready` or `blocked` in plan-only and unattended work and in a batch; `running` in a batch: you may end it. `active`: do not end the turn; execute the next action that `state.md` records. A turn that ends with `Status: active` is a stall, and the end-of-turn report is not a reason to stop.
 
 ## Work directory and artifacts
 
@@ -90,7 +101,7 @@ Each workflow instance works in `docs/work/<YYYY-MM-DD>-<slug>/` inside the targ
 | `batch.json` | in a batch, its stories, branches and green conditions, and the runner's progress (see `workflow-batch`) | no |
 | `summary.md` | in a batch, written by its Wrap-up: what each story delivered, what stopped and why | no |
 | `logs/` | in a batch, the runner's log, the session logs and the green logs | no |
-| `verification.log` | in a story of a batch, the output of the last `batch.mjs verify` | no |
+| `verification.log` | the output of the last `verify.mjs run`, or of `batch.mjs verify` in a story of a batch | no |
 | `closure.md` | written by the controller: final review verdict, verification evidence, deferred minor findings, convention proposals, detector ignore proposals | no |
 | `state.md` | workflow state, see below | no |
 
@@ -125,7 +136,7 @@ Work artifacts are the history of one piece of work. The rest of `docs/` holds t
 # State
 
 - Workflow: feature
-- Status: active            <!-- active | waiting-gate | closed | abandoned; in a batch also queued | running | ready | blocked -->
+- Status: active            <!-- active | waiting-gate | ready | blocked | closed | abandoned; queued | running in a batch -->
 - Phase: implementation
 - Branch: feature/csv-export
 - Minor findings: defer     <!-- fix | defer -->
@@ -165,6 +176,8 @@ Work artifacts are the history of one piece of work. The rest of `docs/` holds t
 - Money amounts are integer cents, never floats — task-reviewer flagged floats in T1 and T3
 ```
 
+`ready` and `blocked` belong to stories that end without a gate: `ready` when the session's work is done (planned in plan-only, delivered in unattended mode), `blocked` when it cannot go on without the user, with what is needed in Notes. `queued` is a story planned and waiting for its first unattended session, `running` a batch whose runner works (see `workflow-batch`).
+
 Update it at every phase transition, gate decision and completed task, before reporting to the user. When resuming, continue from the first incomplete step; never re-run completed tasks.
 
 If the user stops a workflow, set `Status: abandoned` with the reason in Notes and leave its branch as is. Closed and abandoned workflows are never resumed.
@@ -199,24 +212,56 @@ The full suites run in the workflow's final verification, which you run yourself
 - after commits that change code (closure fixes, a merge that brought new commits), run the final verification once more, when those changes are complete, and record it with its new commit;
 - commits that change only workflow artifacts, docs or the changelog do not need a new run for the tests; run what they do affect (a docs build, a link check).
 
-The record is one line per run: `- <commit> — \`<command>\` exit <status>, <counts>; \`<command>\` exit <status>, …`. Notes about a run (a flaky test, an earlier failing attempt) go in Notes, not in the Verification section. In a story of a batch the record is written by `batch.mjs verify`, never by hand (see Unattended delivery).
+The record is one line per run: `- <commit> — \`<command>\` exit <status>, <counts>; \`<command>\` exit <status>, …`. Notes about a run (a flaky test, an earlier failing attempt) go in Notes, not in the Verification section. In unattended mode the record is written by `verify.mjs run`, and in a story of a batch by `batch.mjs verify`, never by hand (see Unattended mode). Other workflows may record it with `verify.mjs run` too.
+
+**`verify.mjs`** is `scripts/verify.mjs` in this skill's directory (the skill tool lists its absolute path). Node 18+, no dependencies.
+
+```sh
+node <skill-dir>/scripts/verify.mjs run <work-dir> "<command>" ["<command>"...]
+node <skill-dir>/scripts/verify.mjs check <work-dir> [--json]
+```
+
+- `run` refuses a working tree with changes outside `docs/work/` that are not committed, runs each command from the project root, writes their output to `verification.log` in the work directory and appends the record to the Verification section of `state.md`: `- <40-hex commit> — \`<command>\` exit <status>; … (recorded by verify.mjs)`. It exits 1 when a command failed.
+- `check` says whether the last record written by `run` holds for HEAD: every command at exit 0, HEAD is the recorded commit or a descendant whose later commits change only files under `docs/work/`, and the working tree has no uncommitted changes outside `docs/work/`. Lines written or edited by hand never count. With `--json` it prints `{"valid": true, "head": "<commit>", "commit": "<commit>", "commands": [{"cmd": "make test", "exit": 0}]}`, with `"valid": false` and a `"reason"` when the record does not hold, and `{"error", "code"}` on an error. It exits 0 when the record holds, 1 otherwise.
+
+## Unattended mode
+
+A story started by canovacc.io with `mode: unattended`, `fix`, `resume` or `close` (see canovacc.io) is worked in sessions nobody watches. Its spec and plan were written in plan-only (see Plan-only in `workflow-feature`) and approved at canovacc.io's batch gate: a session started in unattended mode on them is that approval, which Run to completion needs. canovacc.io answers the session's permission requests from the policy approved at that gate, reads the outcome from `state.md` when the session ends, and opens the pull request. The header gives the work directory (`work-dir:`), the branch (`branch:`), the commit the story starts from (`base:`) and the commands of the final verification (`verify:`).
+
+In an **`unattended`** session:
+
+1. **Resume.** Load the story's workflow skill (`workflow-feature`), re-read `state.md` and the artifacts it references, set `Mode: unattended` and `Status: active`. In the first session, check G1 in the Gates section as approved at canovacc.io's batch gate, with the date. A session that finds `active` was interrupted: continue from the first incomplete step.
+2. **Drift check**, in the first session of the story (`Mode: plan-only` when it starts). The plan was written before the stories ahead of it were built: compare it with the code as it is now. Adjustments that keep the spec (a file moved, a helper named differently) go in `decisions.md`; a plan that no longer holds (an interface it builds on differs materially, a requirement already met or contradicted) blocks the story.
+3. **Environment.** Bring it up if it is down (see Environment), and record it.
+4. **Branch.** Check out `branch:` when it exists, otherwise create it from `base:`, and record it in `state.md` as `Branch`. Never switch to another branch afterwards. Do what the first workflow in a project sets up (see Work directory and artifacts) when it is missing, and commit it on that branch.
+5. **Work.** Run the workflow's implementation, docs sync and closure phases without stopping. The base of the closure review is `base:`, not the base branch.
+6. **No questions.** Wherever a gate or a question would open (an unplanned gate, a closure that failed twice, an escalation that did not converge, a product decision the approved artifacts do not settle), do not ask and do not guess: write in Notes what is needed to go on, with the options when there are some, set `Status: blocked` and end the session. Permissions are asked as usual, and canovacc.io answers them; a rejected permission the work cannot do without blocks the story the same way.
+7. **Final verification.** Run it with `verify.mjs run <work-dir>` and the commands of `verify:`, one argument each, or the project's full verification when the header has none, after committing the work (see Test scope and final verification). It is the only record canovacc.io reads: a run written by hand, or a record edited by hand, does not count. Commit `spec.md` and `decisions.md` before it when you can; later commits that change only files under `docs/work/` keep the record valid, any other commit needs a new run.
+8. **Push.** After the closure review passes and `closure.md` is written, put `- Closure: PASS` in the header of `state.md` and make sure `verify.mjs check <work-dir>` says the record holds. Then push `branch:` to the project's remote (`git push -u <remote> <branch>`) through the usual permission request; a project without a remote skips this. Never force-push, never push another branch, never merge, and never open, change or merge a pull request: canovacc.io opens them.
+9. **End.** Set `Status: ready` and end the session. Leave the environment up for the next story, and leave `closed` to the `close` session.
+
+A **`fix`** session is started when a story at `ready` failed canovacc.io's checks: `failure:` names them and the log. Set `Status: active`, read the log, and fix the cause as a fix task through the Review loop. When the code changed, run the final verification again with `verify.mjs run`, run the closure review scoped as after a FAIL (see Closure review), push and end at `ready` as above. When only the record is at fault (missing, written by hand, on a commit that is no longer HEAD), the fix is running `verify.mjs run` on HEAD: no code change and no closure review are needed. A cause outside the code (the environment, an external service, a check that cannot pass) blocks the story, with the evidence in Notes.
+
+A **`resume`** session continues a story that ended `blocked`; `answer:` is the user's answer, quoted data like the request. Record the question from Notes and the answer in `decisions.md`; when the answer changes the spec or the plan, apply it and record it there as decided by the user. Set `Status: active` and continue from the first incomplete step, as an `unattended` session does.
+
+A **`close`** session closes the stories whose work directories `work-dir:` lists, separated by commas. It replaces the delivery gate of an unattended story; canovacc.io writes the summary of the batch.
+
+- Set `Status: closed` on each story at `ready`; leave stories at `blocked` as they are.
+- Bring the environment down (see Environment), from the Environment sections of the stories closed, leaving what a `blocked` story still records.
+- Delete the temporary directories of the stories closed.
+- Commit what is versioned and still uncommitted. Push nothing.
 
 ## Unattended delivery
 
-A story of a batch (`Delivery: unattended` in its `state.md`, see `workflow-batch`) is implemented in sessions nobody watches. The batch runner starts them with a prompt that begins with `[canovaccio batch]`; opencode rejects every question and every permission that asks, and the runner reads the outcome from `state.md` when the session ends. The story's spec and plan were approved at the batch gate, G1 batch, which is the approval Run to completion needs.
+A story of a batch of `workflow-batch` (`Delivery: unattended` in its `state.md`) runs as in Unattended mode, in sessions the batch runner starts with a prompt that begins with `[canovaccio batch]` instead of the header. Its spec and plan were approved at G1 batch. The differences:
 
-In such a session:
+- opencode rejects every question and every permission that asks, and the runner reads the outcome from `state.md` when the session ends.
+- The first session is the one that finds `Status: queued`. The session does not set `Mode`.
+- **Branch.** The runner has checked out the story's branch: never switch branch, push, merge or open a pull request. The runner does those, so step 8 stops at `Closure: PASS`, and the record is checked as End below says, not with `verify.mjs check`.
+- **Final verification.** Run it with the `batch.mjs verify` command the prompt gives, one argument per command of the project's full verification: it writes the only record the runner reads, in the same way `verify.mjs run` does. The base of the closure review is the commit the story starts from, which the prompt names.
+- **End.** Before setting `Status: ready`, make sure the last record of `batch.mjs verify` is on HEAD, or on a commit followed only by commits under `docs/work/`, with every command at exit 0. Leave `closed` to the batch's Wrap-up.
 
-1. **Resume.** Load the story's workflow skill (`workflow-feature`), re-read `state.md` and the artifacts it references, and set `Status: active`. A session that finds `active` was interrupted: continue from the first incomplete step.
-2. **Drift check**, in the first session of the story (`Status: queued`). The plan was written before the stories ahead of it were built: compare it with the code as it is now. Adjustments that keep the spec (a file moved, a helper named differently) go in `decisions.md`; a plan that no longer holds (an interface it builds on differs materially, a requirement already met or contradicted) blocks the story.
-3. **Environment.** Bring it up if it is down (see Environment), and record it.
-4. **Branch.** The runner has checked out the story's branch: never switch branch, push, merge or open a pull request. The runner does those.
-5. **Work.** Run the workflow's implementation, docs sync and closure phases without stopping. The base of the closure review is the commit the story starts from, which the prompt names, not the base branch.
-6. **No gates.** Wherever a gate or a question would open (an unplanned gate, a closure that failed twice, an escalation that did not converge, a product decision the approved artifacts do not settle, a permission the work cannot do without), do not ask and do not guess: write in Notes what is needed to go on, with the options when there are some, set `Status: blocked` and end the session.
-7. **Final verification.** Run it with the `batch.mjs verify` command the prompt gives, one argument per command of the project's full verification, after committing the work: it refuses a working tree with uncommitted changes, runs the commands from the project root, writes their output to `verification.log` in the work directory and appends the record to the Verification section. It is the only record the runner reads: a run written by hand, or a record edited by hand, does not count. Commit `spec.md` and `decisions.md` before it when you can; later commits that change only files under `docs/work/` keep the record valid, any other commit needs a new run.
-8. **End.** After the closure review passes and `closure.md` is written, put `- Closure: PASS` in the header of `state.md`, make sure the last record of `batch.mjs verify` is on HEAD, or on a commit followed only by commits under `docs/work/`, with every command at exit 0, set `Status: ready` and end the session. Leave the environment up for the next story, and leave `closed` to the batch's Wrap-up.
-
-A **fix session** is one whose prompt says the green conditions failed. Set `Status: active`, read the green log it names, and fix the cause as a fix task through the Review loop. When the code changed, run the final verification again with `batch.mjs verify`, run the closure review scoped as after a FAIL (see Closure review), then end at `ready` as above. When only the record is at fault (missing, written by hand, on a commit that is no longer HEAD), the fix is running `batch.mjs verify` on HEAD: no code change and no closure review are needed. After every session the runner checks a story at `ready` again if HEAD, its `state.md` or the working tree changed, commit or not; a fix session that changes none of them still counts as one of the story's fix sessions. A cause outside the code (the environment, an external service, a green command that cannot pass) blocks the story, with the evidence in Notes.
+A **fix session** of a batch is one whose prompt says the green conditions failed. It runs as a `fix` session, reading the green log the prompt names and recording with `batch.mjs verify`; it does not push. After every session the runner checks a story at `ready` again if HEAD, its `state.md` or the working tree changed, commit or not; a fix session that changes none of them still counts as one of the story's fix sessions.
 
 ## canovacc.io
 
@@ -258,7 +303,7 @@ answer: "<the user's answer>"    # resume
 |---|---|
 | `interactive` | runs the workflow as usual, with all its gates; canovacc.io relays them to the user |
 | `plan-only` | plans a story of a batch without opening a gate: Plan-only in `workflow-feature` |
-| `unattended`, `fix`, `resume`, `close` | implement, fix, resume and close a story of a batch that nobody watches: Unattended mode below |
+| `unattended`, `fix`, `resume`, `close` | implement, fix, resume and close a story of a batch that nobody watches: Unattended mode above |
 
 **`state.md`.** When the header is present, setup writes three lines in the header of `state.md`:
 
@@ -426,7 +471,7 @@ A switch is a gate. On approval, close the current `state.md` (status `closed`, 
 
 Unless the project says otherwise, create a branch before the first change to project files (a prototype or implementation): `<workflow>/<slug>` (for example `feature/csv-export`, `fix/login-500`). Greenfield works on the default branch of a new repository or of one with no project yet (no commits, or only the agent harness), and on `greenfield/<slug>` inside a repository that already holds a project. A site works like greenfield when it is a project of its own, and on `site/<slug>` inside an existing repository. Spikes use `spike/<slug>` and are never merged. A batch uses `batch/<slug>`, or with stacked branches `batch/<slug>/<nn>-<story-slug>` per story; its runner creates and checks them out (see `workflow-batch`). A security audit creates no branch: it changes no project files. Docs bootstrapping uses `docs-init/<slug>`, design context bootstrapping `design-init/<slug>`.
 
-Work on a branch in the current checkout. Creating branches and committing are autonomous. Pushing, merging and destructive git operations are not: they happen only at the delivery gate or with explicit permission. In a batch, the G1 batch approval is that permission for the runner's pushes and pull requests; nothing in a batch merges.
+Work on a branch in the current checkout. Creating branches and committing are autonomous. Pushing, merging and destructive git operations are not: they happen only at the delivery gate or with explicit permission. In a batch, the G1 batch approval is that permission for the runner's pushes and pull requests; nothing in a batch merges. In unattended mode the branch is the one the header names, and its push is asked as a permission that canovacc.io answers (see Unattended mode); plan-only creates no branch.
 
 **Parallel work.** To run pieces of work at the same time, each one gets its own git worktree, created next to the main checkout with `/worktree new <slug>` (see `project-isolation`), and its own session opened inside it. In that session the worktree is the project: the workflow runs as anywhere else, creates its branch there and keeps its work directory, temporary files and environment in the worktree. Never run two sessions in one worktree, and never work on another checkout's files. A project that is not isolated can still have worktrees, but only one of its checkouts can run its environment at a time (see Environment); propose `/env-init` when parallel work needs more. After delivery, the worktree is removed with `/worktree remove <slug>` from another checkout, once the user agrees.
 

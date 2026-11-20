@@ -1,6 +1,6 @@
 ---
 name: workflow-feature
-description: Workflow for adding or changing behavior in an existing project - scout, spec, optional prototype, plan, gated approval, subagent-driven implementation, closure review and delivery gate.
+description: Workflow for adding or changing behavior in an existing project - scout, spec, optional prototype, plan, gated approval, subagent-driven implementation, closure review and delivery gate. Also plans a story without a gate in canovacc.io's plan-only mode.
 ---
 
 # Feature workflow
@@ -18,7 +18,9 @@ New or changed behavior in an existing project. Apply `workflow-rules` throughou
 
 Split into G1a and G1b only when a prototype is needed, since it must be built on an approved spec. Otherwise present spec and plan together at G1.
 
-**A story of a batch** (`Delivery: unattended`, see `workflow-batch`) has phases 0 to 4 done at the batch's planning, and G1 approved at the batch gate. Its sessions start at phase 5 and follow Unattended delivery in `workflow-rules`: no gate opens, the closure review's base is the commit the story starts from, the final verification of phase 7 is run and recorded with `batch.mjs verify`, and phase 8 is replaced by ending at `ready`.
+**A story in unattended mode** (started by canovacc.io, see Unattended mode in `workflow-rules`) has phases 0 to 4 done in plan-only (see Plan-only below), and G1 approved at canovacc.io's batch gate. Its sessions start at phase 5 and follow Unattended mode: no gate opens, the branch and the closure review's base come from the header, the final verification of phase 7 is run and recorded with `verify.mjs run`, and phase 8 is replaced by pushing the branch and ending at `ready`.
+
+**A story of a batch** (`Delivery: unattended`, see `workflow-batch`) has phases 0 to 4 done at the batch's planning, and G1 approved at the batch gate. Its sessions start at phase 5 and follow Unattended delivery in `workflow-rules`: as in unattended mode, except that the runner owns the branch and its pushes, and the final verification is recorded with `batch.mjs verify`.
 
 ## Phases
 
@@ -98,6 +100,18 @@ Dispatch `@doc-writer` for the docs sync described in `workflow-rules`, with the
 ### 8. Delivery
 
 Present **G2** with `closure.md`, the list of commits and the integration options from `superpowers:finishing-a-development-branch`; its convention proposals are accepted or rejected one by one, and accepted ones applied before integration (see Project conventions in `workflow-rules`). When a prototype was built, the user also keeps or removes it (see Keep or remove in `project-prototypes`). Execute the chosen option (push and merge need this approval), then set `state.md` to `closed`.
+
+## Plan-only
+
+A session started by canovacc.io with `mode: plan-only` (see canovacc.io in `workflow-rules`) plans one story of a batch. canovacc.io runs one such session per story, in order, each seeing the specs of the stories before it, then approves them all at its batch gate; the stories are then delivered in unattended mode.
+
+- **Phases 0 to 4** run as above: setup (with the canovacc.io lines in `state.md`), discovery, spec with `@spec-reviewer`, plan with `@spec-reviewer`. Discovery does not bring the environment up: nothing in plan-only runs the project. Clarifying questions are allowed while drafting, asked with the `question` tool and batched rather than one per turn.
+- **Earlier stories.** `earlier-specs:` lists the `spec.md` of the stories planned before this one. Read them: the story is planned against the code as it will be when they are done, and its plan names what it builds on from them, by their specs. Every task the unattended session runs must be decidable from the approved artifacts: settle product decisions now, in the spec or in `decisions.md`, since nobody answers questions later.
+- **Delivery constraints.** `delivery-constraints:` is quoted in `brief.md` under Delivery constraints, as written. A constraint the story cannot meet is written in Notes for the batch gate, never resolved silently.
+- **Prototype.** A story whose spec has material UX changes needs a prototype, which plan-only does not build: once the spec shows it, set `Status: blocked` with "needs a prototype: run as a single feature" in Notes, and end the session.
+- **Settings.** The minor-findings policy is the request's or the default. Impeccable follows the project preference; without one, the story runs with Impeccable off, and Notes say so for the batch gate.
+- **No G1.** The Gates section lists `- [ ] G1 spec+plan — to be approved at the batch gate`, unchecked. Findings of `@spec-reviewer` not addressed are listed in Notes with the reason, for the batch gate. End with spec and plan written and reviewed, `Status: ready` and `Phase: implementation`, and end the session.
+- **Nothing outside the work directory.** Create no branch, make no commit and change no project file outside `docs/work/<dir>/`; temporary files go in `.canovaccio/tmp/<dir>/` as usual and are deleted at the end. What the first workflow in a project sets up is left to the story's first unattended session.
 
 ## Switching
 

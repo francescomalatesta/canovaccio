@@ -194,6 +194,34 @@ node <skill-dir>/scripts/batch.mjs stop docs/work/<date>-batch-<slug>     # stop
 
 To resume a stopped batch, tell the conductor: it shows you the blocked story's question or the failed check, records your answer, and starts the runner again from that story. The rules are in `skills/workflow-batch` and in Unattended delivery in `skills/workflow-rules`.
 
+## canovacc.io
+
+canovacc.io drives opencode servers with canovaccio installed: it starts sessions, shows you their gates and questions, answers permission requests and reads `state.md`. canovaccio still decides how each piece of work is done; canovacc.io decides how pieces of work are orchestrated: queues, batches, pull requests, CI, the tracker.
+
+A session canovacc.io starts begins with a header that sets how it runs, followed by your request as quoted data:
+
+```
+[canovacc.io]
+mode: unattended
+item: FAT-42
+workflow: feature
+work-dir: docs/work/2026-11-19-csv-export
+branch: kb/csv-export
+base: 4e91c0a
+verify: "make test" "make e2e"
+[/canovacc.io]
+
+Export the invoices as CSV
+```
+
+- **interactive** runs the workflow as usual; every gate is a question whose title starts with the gate's label in `state.md`, so the app can show it and recognize it when it comes back after changes.
+- **plan-only** writes and reviews a feature's spec and plan without opening G1, against the specs of the stories planned before it, and ends at `ready`, touching nothing outside its work directory.
+- **unattended** delivers a story planned that way and approved at canovacc.io's batch gate: it creates its branch from the base, works to `ready` with no questions (what would need you blocks the story), records the final verification with `skills/workflow-rules/scripts/verify.mjs` and pushes its branch through a permission request. canovacc.io opens the pull request. **fix**, **resume** and **close** fix a story that failed its checks, continue a blocked one with your answer, and close the batch's stories.
+
+Work started this way has `Managed by: canovacc.io` in its `state.md`, and the task tracker preference is not used: canovacc.io moves the items itself. `node verify.mjs check <work-dir> --json` tells whether the last recorded verification still holds for HEAD, and `isolation.mjs new` and `remove` print JSON with `--json`, for creating worktrees from a program.
+
+Without canovacc.io you can still start such a session by hand with the header, as an advanced use: you then answer its permission requests yourself. A session without the header behaves as described in the rest of this README. The rules are in canovacc.io and Unattended mode in `skills/workflow-rules`, and Plan-only in `skills/workflow-feature`.
+
 ## Security audit
 
 `/security-audit` studies an existing codebase and ends with a prioritized list of what to do to make it more secure. It is split like the closure review: a strong model plans and judges, cheaper ones do the volume, and every phase leaves its result on disk.
@@ -355,3 +383,4 @@ Things to verify once with opencode V2:
 5. A small `/fix` on a scratch project stops at the delivery gate with a `closure.md`, a `CHANGELOG.md` entry and, if the project has docs, a docs sync.
 6. `doc-writer` can edit `docs/` and `CHANGELOG.md` but not source files.
 7. `opencode run --agent conductor "…"` works from a terminal with no TTY: the batch runner starts its sessions that way; `opencode api get /api/info` answers, since the runner reads the sessions' costs through it. `node --test skills/workflow-batch/scripts/batch.test.mjs` checks the runner itself.
+8. `node --test skills/workflow-rules/scripts/verify.test.mjs skills/project-isolation/scripts/isolation.test.mjs` checks `verify.mjs` and the JSON output of `isolation.mjs`.
