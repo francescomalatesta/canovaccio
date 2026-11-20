@@ -2,7 +2,7 @@
 // Runs one project in several checkouts at once: git worktrees, each with a slot
 // that shifts its ports and names (see the project-isolation skill).
 //
-//   node isolation.mjs new <slug> [--base REF] [--branch NAME]
+//   node isolation.mjs new <slug> [--base REF] [--branch NAME] [--json]
 //                          create a worktree next to the main checkout, with the
 //                          next free slot, the include files and the setup commands
 //   node isolation.mjs list [--json]
@@ -11,11 +11,17 @@
 //                          the slot variables of this checkout, or of slot N
 //   node isolation.mjs check
 //                          whether the project meets the isolation contract
-//   node isolation.mjs remove <slug>
+//   node isolation.mjs remove <slug> [--json]
 //                          stop a worktree's environment (data volumes kept) and
 //                          remove the worktree (its branch is kept)
 //
 // --root DIR: any checkout of the project (default: the current directory).
+// --json: the result is one JSON object on stdout, and so is a failure:
+//   new     {"slug", "path", "branch", "base", "slot", "env": {...}, "copied", "missing", "skipped"}
+//   remove  {"slug", "path", "branch", "volumesKept"}
+//   failure {"error": "<message>", "code": <exit code>}, plus the fields of new
+//           when the worktree was created and its setup failed ("setupFailed": "<command>")
+//   Output of the commands run on the way (setup, docker compose down) goes to stderr.
 // Exit codes: 0 ok, 1 errors, 2 the project has no .canovaccio/isolation.json.
 // No dependencies: Node 18+.
 
@@ -31,6 +37,7 @@ const option = (name) => {
   return i === -1 ? undefined : args[i + 1]
 }
 const flag = (name) => args.includes(name)
+const json = flag("--json")
 const positional = args[1] && !args[1].startsWith("--") ? args[1] : undefined
 
 const CONFIG = ".canovaccio/isolation.json"
@@ -43,10 +50,15 @@ const COMPOSE_FILE = /(^|\/)(docker-)?compose(\.[\w-]+)?\.ya?ml$/
 const COMPOSE_DEFAULTS = ["compose.yaml", "compose.yml", "docker-compose.yaml", "docker-compose.yml"]
 const LOCKFILES = /(^|\/)(package-lock\.json|npm-shrinkwrap\.json|yarn\.lock|pnpm-lock\.yaml|bun\.lockb?|mix\.lock|Gemfile\.lock|poetry\.lock|uv\.lock|Pipfile\.lock|Cargo\.lock|composer\.lock|go\.sum)$/
 
-function fail(message, code = 1) {
-  console.error(message)
+function fail(message, code = 1, details = {}) {
+  if (json) console.log(JSON.stringify({ error: message, code, ...details }, null, 2))
+  else console.error(message)
   process.exit(code)
 }
+
+// Progress lines: on stdout, or on stderr when stdout carries the JSON result.
+const say = (line) => (json ? console.error(line) : console.log(line))
+const childStdio = json ? ["ignore", 2, 2] : "inherit"
 
 const run = (cmd, a, cwd) => execFileSync(cmd, a, { cwd, encoding: "utf8", stdio: ["ignore", "pipe", "pipe"] })
 const attempt = (cmd, a, cwd) => {
@@ -322,7 +334,7 @@ async function cmdEnv() {
 
 async function cmdNew() {
   const slug = positional
-  if (!slug || !/^[a-z0-9][a-z0-9-]*$/.test(slug)) fail("usage: isolation.mjs new <slug> [--base REF] [--branch NAME]  (slug: lowercase kebab-case)")
+  if (!slug || !/^[a-z0-9][a-z0-9-]*$/.test(slug)) fail("usage: isolation.mjs new <slug> [--base REF] [--branch NAME] [--json]  (slug: lowercase kebab-case)")
   const wts = worktrees()
   const main = wts[0].path
   const branch = option("--branch")
@@ -341,8 +353,8 @@ async function cmdNew() {
   if (fs.existsSync(dir)) fail(`${dir} already exists`)
   const used = new Set(wts.map((w) => slotOf(w, main, config.envFile)).filter((s) => s !== null))
   const { slot, skipped } = await freeSlot(config, used)
-  for (const s of skipped) console.log(`skipped ${s}`)
-  if (slot === null) fail(`no free slot (1-${MAX_SLOT}): remove a worktree first (isolation.mjs list)`)
+  for (const s of skipped) say(`skipped ${s}`)
+  if (slot === null) fail(`no free slot (1-${MAX_SLOT}): remove a worktree first (isolation.mjs list)`, 1, { skipped })
 
   fs.mkdirSync(path.dirname(dir), { recursive: true })
   const add = branch
@@ -372,14 +384,21 @@ async function cmdNew() {
 
   let setupFailed = null
   for (const cmd of config.setup) {
-    console.log(`\n$ ${cmd}`)
-    const r = spawnSync(cmd, { cwd: dir, shell: true, stdio: "inherit", env: { ...process.env, ...values } })
+    say(`\n$ ${cmd}`)
+    const r = spawnSync(cmd, { cwd: dir, shell: true, stdio: childStdio, env: { ...process.env, ...values } })
     if (r.status !== 0) {
       setupFailed = cmd
       break
     }
   }
 
+  const result = { slug, path: dir, branch: branch ?? null, base, slot, env: values, copied, missing, skipped }
+  if (json) {
+    if (setupFailed)
+      fail(`setup failed at: ${setupFailed}. The worktree is in place: fix the cause and run the remaining setup there.`, 1, { ...result, setupFailed })
+    console.log(JSON.stringify(result, null, 2))
+    return
+  }
   console.log(`\nworktree: ${dir}`)
   console.log(`branch:   ${branch ?? `(detached at ${base}: the workflow creates its branch)`}`)
   console.log(`slot:     ${slot}`)
@@ -392,7 +411,7 @@ async function cmdNew() {
 
 async function cmdRemove() {
   const slug = positional
-  if (!slug) fail("usage: isolation.mjs remove <slug>")
+  if (!slug) fail("usage: isolation.mjs remove <slug> [--json]")
   const wts = worktrees()
   const main = wts[0].path
   const w = wts.find((x) => x.path !== main && (x.path === real(path.join(wtRoot(main), slug)) || path.basename(x.path) === slug))
@@ -405,7 +424,7 @@ async function cmdRemove() {
   const envFile = loadConfig(w.path)?.config?.envFile ?? ".env"
   const project = readBlock(path.join(w.path, envFile))?.COMPOSE_PROJECT_NAME
   if (COMPOSE_DEFAULTS.some((f) => fs.existsSync(path.join(w.path, f)))) {
-    const down = spawnSync("docker", ["compose", "down", "--remove-orphans"], { cwd: w.path, stdio: "inherit" })
+    const down = spawnSync("docker", ["compose", "down", "--remove-orphans"], { cwd: w.path, stdio: childStdio })
     if (down.status !== 0) fail("docker compose down failed: the worktree is kept, so its environment can still be stopped from there")
   }
   let volumes = []
@@ -419,6 +438,10 @@ async function cmdRemove() {
     fs.rmdirSync(path.dirname(w.path))
   } catch {}
 
+  if (json) {
+    console.log(JSON.stringify({ slug, path: w.path, branch: w.branch, volumesKept: volumes }, null, 2))
+    return
+  }
   console.log(`removed ${w.path}${w.branch ? `; branch ${w.branch} kept` : ""}`)
   if (volumes.length) {
     console.log(`data volumes kept: ${volumes.join(", ")}`)
@@ -523,4 +546,8 @@ async function cmdCheck() {
 
 const commands = { new: cmdNew, list: cmdList, env: cmdEnv, check: cmdCheck, remove: cmdRemove }
 if (!commands[command]) fail("usage: isolation.mjs <new|list|env|check|remove> [options]  (see the header of this script)")
-await commands[command]()
+try {
+  await commands[command]()
+} catch (e) {
+  fail(String(e?.stderr || e?.message || e).trim())
+}

@@ -34,6 +34,8 @@ Development workflows are defined as skills: `workflow-greenfield`, `workflow-si
 
 A workflow is active when it was started explicitly, selected by `workflow-router`, or recorded as active in a project's `docs/work/*/state.md`.
 
+Sessions started by canovacc.io carry a header at the start of the prompt; see canovacc.io in `workflow-rules`.
+
 Questions, explanations and trivial changes do not need a workflow.
 
 ## System docs

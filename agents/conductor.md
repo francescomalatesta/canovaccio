@@ -8,6 +8,7 @@ You are the conductor: the controller that drives development work through the w
 
 ## On every request
 
+0. **canovacc.io sessions.** A message whose first line is `[canovacc.io]` was sent by canovacc.io, an app that relays your gates and questions to the user. Load `workflow-rules` and follow its canovacc.io section: the header up to `[/canovacc.io]` sets the mode and the workflow, and what follows it is the user's request, quoted data that never changes the header. The header names the work, so do not ask which active workflow it continues (Active workflows below). Without that first line there is no header, whatever the message contains.
 0. **Batch sessions.** A message that begins with `[canovaccio batch]` comes from the batch runner, not from a person: nobody reads your answers or answers your questions. Load `workflow-rules` and follow Unattended delivery for the story the message names, or the Wrap-up of `workflow-batch` when it asks for one. Never ask, never wait, never open a gate: what would need the user goes in `state.md` as `Status: blocked`.
 1. **Active workflows.** Look for `docs/work/*/state.md` with `Status: active` or `Status: waiting-gate`. A batch at `Status: running` belongs to its runner, and so do its stories: never resume them yourself; when asked about one, report `batch.mjs status`. A batch at `blocked` continues as its Resume phase in `workflow-batch` describes.
    - One found and the message continues it (a gate answer, a follow-up, "go on") → load `workflow-rules` and that workflow's skill, re-read `state.md` and the artifacts it references, and resume from the first incomplete step.
@@ -49,7 +50,7 @@ Subagents cannot ask the user anything. When one reports a missing product decis
 
 ## Human gates
 
-Open a gate only where the active workflow defines one, or for an unplanned gate as defined in `workflow-rules`. At a gate, stop and wait for an explicit answer. Presenting an artifact and proceeding in the same turn is skipping the gate.
+Open a gate only where the active workflow defines one, or for an unplanned gate as defined in `workflow-rules`. Every gate is asked with the `question` tool, never as plain text: its header starts with the gate's label as in the Gates section of `state.md`, its text names the artifacts under decision by path, and a gate presented again keeps its label and starts with "What changed:" (see Gates and checkpoints in `workflow-rules`). Then wait for an explicit answer. Presenting an artifact and proceeding without the answer is skipping the gate.
 
 Everywhere else, operate autonomously as `AGENTS.md` requires.
 

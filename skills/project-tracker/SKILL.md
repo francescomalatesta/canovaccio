@@ -1,11 +1,17 @@
 ---
 name: project-tracker
-description: How workflows keep an external task tracker (GitHub Projects, Jira, Linear, ClickUp, Trello) in step with the work - the project preference, mapping workflow events to the board's statuses, access, and the limits on what is changed. Load when a workflow works on a tracker item, or the user names a tracker or an item and the project has no preference yet.
+description: How workflows keep an external task tracker (GitHub Projects, Jira, Linear, ClickUp, Trello) in step with the work - the project preference, mapping workflow events to the board's statuses, access, and the limits on what is changed. Load when a workflow works on a tracker item, or the user names a tracker or an item and the project has no preference yet; never in work managed by canovacc.io.
 ---
 
 # Project tracker
 
 When the user tracks the project in an external tool, workflows move the items they work on to the status that matches the work, so the board shows where the work is without anyone updating it by hand. The conductor does it; subagents never touch the tracker.
+
+**Managed work comes first.** When `state.md` says `Managed by: canovacc.io` (see canovacc.io in `workflow-rules`), this skill does nothing, whatever the project preference and whatever item the header names; canovacc.io is the only writer of the items of the work it runs:
+
+- no preference is created or proposed;
+- no status is moved;
+- no link is added to pull requests, because canovacc.io adds them.
 
 ## The preference
 

@@ -85,11 +85,11 @@ The rest of the file is left alone, except that lines setting one of the slot va
 `scripts/isolation.mjs` in this skill's directory (the skill tool lists its absolute path). Node 18+, no dependencies. Run it from any checkout of the project, or with `--root <dir>`.
 
 ```sh
-node <skill-dir>/scripts/isolation.mjs new <slug> [--base <ref>] [--branch <name>]
+node <skill-dir>/scripts/isolation.mjs new <slug> [--base <ref>] [--branch <name>] [--json]
 node <skill-dir>/scripts/isolation.mjs list [--json]
 node <skill-dir>/scripts/isolation.mjs env [--slot <n>|free] [--project <name>] [--write <file>] [--json]
 node <skill-dir>/scripts/isolation.mjs check
-node <skill-dir>/scripts/isolation.mjs remove <slug>
+node <skill-dir>/scripts/isolation.mjs remove <slug> [--json]
 ```
 
 - `new` reads the config **at the base**, refuses when the base is not isolated or the env file is tracked or not ignored, picks the lowest slot not used by another worktree whose ports are free on `127.0.0.1`, adds the worktree, copies `include`, writes the slot block and runs `setup`.
@@ -99,6 +99,16 @@ node <skill-dir>/scripts/isolation.mjs remove <slug>
 - `remove` refuses a worktree with uncommitted or untracked files and the worktree the session runs in, stops its environment with `docker compose down` (volumes kept), removes the worktree and prints the command that would delete its volumes.
 
 Exit codes: 0 ok, 1 errors, 2 the project has no `.canovaccio/isolation.json`.
+
+**`--json`** is for programs that create worktrees, such as canovacc.io. The result is one JSON object on stdout, and the output of the commands run on the way (setup, `docker compose down`) goes to stderr. The exit codes stay the same.
+
+- `new`: `{"slug", "path", "branch", "base", "slot", "env": {…}, "copied", "missing", "skipped"}`, where `branch` is `null` for a detached worktree and `env` holds the slot variables written to its env file.
+- `remove`: `{"slug", "path", "branch", "volumesKept": […]}`.
+- A failure: `{"error": "<message>", "code": <exit code>}`. When `new` created the worktree and its setup failed, the object also has the fields of a success and `"setupFailed": "<command>"`: the worktree is in place.
+
+`list` and `env` print JSON with `--json` as well; their failures are reported the same way.
+
+The tests of the script are in `scripts/isolation.test.mjs` (`node --test`).
 
 ## Recipes
 
