@@ -122,7 +122,7 @@ After each accepted task, update `state.md`, give a one-line CHECKPOINT and disp
 
 ### 8. Docs sync
 
-Dispatch `@doc-writer` for the docs sync described in `workflow-rules`, with the work directory, the base branch (none for a site of its own: full mode), workflow type `site` and the discrepancies recorded in `state.md`. `docs/site.md` is completed with what the tasks added, and the changelog gets the site's entry. Review its report; commit the docs and changelog changes with the work.
+Dispatch `@doc-writer` for the docs sync described in `workflow-rules`, with the work directory, the base branch (none for a site of its own: full mode), workflow type `site` and the discrepancies recorded in `state.md`. `docs/site.md` is completed with what the tasks added, `ARCHITECTURE.md`, in an existing project, says where the site lives and how it is built and served, and the changelog gets the site's entry. Review its report; commit the docs and changelog changes with the work.
 
 ### 9. Closure
 

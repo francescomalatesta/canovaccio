@@ -87,7 +87,7 @@ Update `state.md`, give a one-line CHECKPOINT per step and go on with the next s
 
 ### 5. Docs sync
 
-Dispatch `@doc-writer` for the docs sync described in `workflow-rules`, with the work directory, the base branch, workflow type `env-init` and the discrepancies recorded in `state.md`. `docs/environment.md` gets its Isolation section (see `project-docs`), created with the doc when the project had none; README and the commands in the docs read as they are typed in any slot. Review its report; commit the docs and changelog changes with the work.
+Dispatch `@doc-writer` for the docs sync described in `workflow-rules`, with the work directory, the base branch, workflow type `env-init` and the discrepancies recorded in `state.md`. `docs/environment.md` gets its Isolation section (see `project-docs`), created with the doc when the project had none; README and the commands in the docs read as they are typed in any slot; `ARCHITECTURE.md` changes when the work changed its runtime or deployment. Review its report; commit the docs and changelog changes with the work.
 
 ### 6. Closure
 

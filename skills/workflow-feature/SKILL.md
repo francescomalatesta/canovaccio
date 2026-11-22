@@ -88,7 +88,7 @@ When the feature changed the UI and `Design review: on`, run the Design review o
 
 ### 6. Docs sync
 
-Dispatch `@doc-writer` for the docs sync described in `workflow-rules`, with the work directory, the base branch, workflow type `feature` and the discrepancies recorded in `state.md`. New components introduced by the feature get their own doc. Review its report; commit the docs and changelog changes with the work.
+Dispatch `@doc-writer` for the docs sync described in `workflow-rules`, with the work directory, the base branch, workflow type `feature` and the discrepancies recorded in `state.md`. New components introduced by the feature get their own doc; `FEATURES.md` gets the entries the feature added, changed or removed, and `ARCHITECTURE.md` changes when the feature changed what it describes. Review its report; commit the docs and changelog changes with the work.
 
 ### 7. Closure
 

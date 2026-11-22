@@ -54,4 +54,6 @@ Assumed / Open: <each item, with its file>
 
 ## Using the files
 
+**Capabilities and `FEATURES.md`.** What the product does is listed in `FEATURES.md` (see `project-docs`), not in `PRODUCT.md`. When the project has `FEATURES.md`, the Capabilities and Constraints section of `PRODUCT.md` points to it for the capabilities and keeps only constraints, terminology and undecided product facts. Without it (a greenfield seed, before anything is built), the section states the confirmed capabilities, and the docs sync replaces them with the pointer once `FEATURES.md` is written.
+
 When Impeccable is on and the files exist, whoever writes or reviews UI reads them (`design-craft`, `design-review`), and the docs sync keeps them current: `@doc-writer` updates `DESIGN.md` for the tokens and components the work added or changed, in its format, and `PRODUCT.md` only where the work made a statement untrue. A project without them works as before.

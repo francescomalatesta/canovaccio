@@ -1,13 +1,13 @@
 ---
 name: workflow-docs-init
-description: Workflow for bootstrapping system docs in an existing, undocumented or partially documented project - survey the codebase, propose the map (index, architecture, components), then write and verify the component docs. Changes no code.
+description: Workflow for bootstrapping system docs in an existing, undocumented or partially documented project - survey the codebase, propose the map (index, architecture, components), then write and verify the component docs, and FEATURES.md and ARCHITECTURE.md when missing. Changes no code.
 ---
 
 # Docs init workflow
 
-Bring an existing project to a complete docs map in one pass, instead of letting it fill in incrementally. Apply `workflow-rules` and `project-docs` throughout.
+Bring an existing project to a complete docs map in one pass, instead of letting it fill in incrementally, with the two overviews for people (`FEATURES.md`, `ARCHITECTURE.md`, see `project-docs`) when it has none. Apply `workflow-rules` and `project-docs` throughout.
 
-This workflow changes only docs, `.docsignore` and the project `AGENTS.md`. It adds no changelog entry, and has no Review loop, so no minor-findings policy applies.
+This workflow changes only docs, `.docsignore`, the project `AGENTS.md`, and `FEATURES.md` and `ARCHITECTURE.md` when they are missing: existing ones are left as they are. It adds no changelog entry, and has no Review loop, so no minor-findings policy applies.
 
 ## Gates
 
@@ -38,6 +38,7 @@ Identify the top-level areas from the repository layout, build files and entry p
 - the services it needs to run or be tested (database, cache, containers), and how they start, are checked ready and stop;
 - the ports it binds on the host in development and test, and whether each comes from a variable or is fixed (see `project-isolation`);
 - for UI areas, any tool for previewing UI in isolation (Storybook, a dev-only playground);
+- the features the area gives its users (routes, screens, commands, jobs), each in a sentence, for `FEATURES.md`;
 - anything surprising: pitfalls, dead code, unclear boundaries.
 
 ### 3. Map proposal
@@ -49,7 +50,8 @@ From the survey, write the proposal yourself: it is the gate artifact.
 - the proposed `covers` of each component, in `plan.md`, one entry per component;
 - `docs/.docsignore` for tests, generated code, fixtures and other paths no doc should cover;
 - when the project needs services to run or be tested, `docs/environment.md` in the index, following the `project-docs` template, with its Isolation section: the slot variables when `.canovaccio/isolation.json` exists, otherwise the fixed ports that keep two checkouts from running at once;
-- when the project has a tool meeting the prototype system contract of `project-prototypes` (Storybook or similar), `docs/prototypes.md` in the index, adopting it as the project's prototype system.
+- when the project has a tool meeting the prototype system contract of `project-prototypes` (Storybook or similar), `docs/prototypes.md` in the index, adopting it as the project's prototype system;
+- when `FEATURES.md` or `ARCHITECTURE.md` is missing, its link in the index and the sections it will have (for `FEATURES.md`, the areas as users see them).
 
 Aim for components that are meaningful units, typically a handful to a few dozen for a large system, not one per directory.
 
@@ -59,14 +61,14 @@ G1 may also propose up to three entries for `docs/conventions.md`: the least obv
 
 ### 4. Writing
 
-From G1 the work runs to G2 without stopping, however many components the map has (see Run to completion in `workflow-rules`). Dispatch `@doc-writer` with the docs writing task for each approved component, in parallel batches in the foreground, each batch awaited before the next, passing the approved index, architecture and the component's covers. Then dispatch it for the flows, and for `docs/environment.md` and `docs/prototypes.md` when the map includes them.
+From G1 the work runs to G2 without stopping, however many components the map has (see Run to completion in `workflow-rules`). Dispatch `@doc-writer` with the docs writing task for each approved component, in parallel batches in the foreground, each batch awaited before the next, passing the approved index, architecture and the component's covers. Then dispatch it for the flows, and for `docs/environment.md` and `docs/prototypes.md` when the map includes them. Last, when they are missing, dispatch it for `FEATURES.md` and `ARCHITECTURE.md`, with the survey and the approved sections: they draw on the component docs written before them.
 
 Add the system docs pointer to the project `AGENTS.md` yourself, outside the canovaccio block if there is one.
 
 ### 5. Verification
 
 1. Commit the docs, then run the checker in full mode: no errors.
-2. Run the closure review (see Closure review in `workflow-rules`) against the base branch, with the approved map; the change is the written docs. The focus is accuracy against the code, checking a meaningful sample of concrete statements in every doc (entry points, dependencies, invariants), and adherence to `project-docs`.
+2. Run the closure review (see Closure review in `workflow-rules`) against the base branch, with the approved map; the change is the written docs. The focus is accuracy against the code, checking a meaningful sample of concrete statements in every doc (entry points, dependencies, invariants), and adherence to `project-docs`; for a `FEATURES.md` written here, also that no feature the survey found is missing.
 3. On FAIL, send the findings to `@doc-writer` and verify again; after two failures, open an unplanned gate.
 4. Write `closure.md`: docs written, coverage report, verification run, known gaps.
 

@@ -64,7 +64,7 @@ Update `state.md`, give a one-line CHECKPOINT per step and go on with the next s
 
 ### 5. Docs sync
 
-Dispatch `@doc-writer` for the docs sync described in `workflow-rules`, with the work directory, the base branch, workflow type `refactor` and the discrepancies recorded in `state.md`. A refactor changes where things live more than any other workflow: moved paths, new or merged components, changed boundaries and interactions must all be reflected, starting from the `covers` globs. Review its report; commit the docs and changelog changes with the work.
+Dispatch `@doc-writer` for the docs sync described in `workflow-rules`, with the work directory, the base branch, workflow type `refactor` and the discrepancies recorded in `state.md`. A refactor changes where things live more than any other workflow: moved paths, new or merged components, changed boundaries and interactions must all be reflected, starting from the `covers` globs, and in `ARCHITECTURE.md` when they change its code map, runtime or decisions. Review its report; commit the docs and changelog changes with the work.
 
 ### 6. Closure
 

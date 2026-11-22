@@ -1,6 +1,6 @@
 ---
 name: project-docs
-description: How a project's system docs work - a compact map of the codebase under docs/ (index, architecture, components, flows, environment, prototypes), read at the start of every workflow and synced with the code at the end. Includes principles, templates, the reading protocol and a checker script.
+description: How a project's system docs work - a compact map of the codebase under docs/ (index, architecture, components, flows, environment, prototypes), read at the start of every workflow and synced with the code at the end, and the two overviews for people at the project root (FEATURES.md, ARCHITECTURE.md). Includes principles, templates, which workflow updates what, the reading protocol and a checker script.
 ---
 
 # Project docs
@@ -18,6 +18,8 @@ System docs are a **map** of the codebase: they tell an agent or a person where 
 ## Structure
 
 ```
+FEATURES.md               # for people: what the software does, feature by feature
+ARCHITECTURE.md           # for people: how the system works, told as a narrative
 AGENTS.md                 # points to docs/index.md
 docs/
   index.md                # compact entry point, read first
@@ -33,6 +35,10 @@ docs/
 ```
 
 A component is a unit people reason about as a whole: a module, a service, a bounded area. Not a file. Keep each doc under roughly 150-200 lines; split a component that outgrows it.
+
+### Overviews for people
+
+`FEATURES.md` and `ARCHITECTURE.md`, at the project root (for a greenfield project built inside a repository that already holds another project, its own directory), are not part of the map. They are written for a person, the project owner or a developer new to it, who reads them from top to bottom to know what the software does and how it works. They follow principles 2, 4 and 5 above, but not the first: they explain, they do not point. They may repeat what `docs/architecture.md` or a component doc says; the readers differ, so the duplication is intended. They have no `covers`: what keeps them current is the table in Overviews by workflow below, the docs sync and the closure review.
 
 ## Templates
 
@@ -56,6 +62,7 @@ Keep it under about 100 lines: it is read at the start of every workflow.
 <One or two sentences: what the system is.>
 
 - [Architecture](architecture.md) — components, boundaries, main flows
+- [Features](../FEATURES.md) and [architecture overview](../ARCHITECTURE.md) — for people: what the software does and how it works (only if the files exist)
 - [Environment](environment.md) — services the project runs on, how to start and stop them (only if the project has them)
 - [UI prototypes](prototypes.md) — how to write prototypes (only if the project has them)
 - [Conventions](conventions.md) — how code is written here (only if the file exists)
@@ -88,6 +95,72 @@ Every system doc must be linked from `index.md`.
 ## Cross-cutting   — auth, config, errors, logging, i18n: where each lives
 ## Running locally — how to start and test, or a pointer to the README;
                     the services it needs are in environment.md
+```
+
+### `FEATURES.md`
+
+The inventory of what the software does today, seen by the people who use it.
+
+```markdown
+# Features
+
+What <Product> does today, feature by feature. How it changed over time is in [CHANGELOG.md](CHANGELOG.md).
+
+## <Area, as users see it>
+
+- **<Feature>** — <one or two sentences: what it lets whom do>.
+```
+
+- **One entry per feature**, of one or two sentences, never more. A feature is something its users would call by name and a release note would announce: "PDF export", not "the export button shows a spinner".
+- **Sections by area as the users perceive it** (accounts and access, invoicing, administration), not by code module. Split a section that grows past about fifteen entries.
+- **Every feature that exists is listed**, including those behind a feature flag or open to some users only, with no marker: they exist, so they are documented.
+- **Include**: what each kind of user can do (end user, administrator, operator); for a library or a CLI, its commands or API capabilities; integrations as users see them ("export to Google Drive"); cross-cutting capabilities users perceive (languages, offline use, roles, notifications); a rule or limit only when it is part of what the feature is ("over the last 12 months").
+- **Exclude**: how a feature is built (technologies, components, code paths: `ARCHITECTURE.md`); history (`CHANGELOG.md`); planned features and roadmap; edge cases, error messages, UI details; known bugs; internal developer tooling (scripts, seeds, dev tools).
+
+Example:
+
+```markdown
+## Invoicing
+
+- **Invoices** — Draft an invoice from a customer and line items; VAT and totals are computed as you type.
+- **Recurring invoices** — An invoice can repeat monthly or yearly and is issued automatically on its date.
+- **PDF export** — Every issued invoice can be downloaded as a PDF with the workspace logo.
+```
+
+### `ARCHITECTURE.md`
+
+The text a person reads in ten to fifteen minutes to hold the model of the system in their head: what runs, where the code is, how a request goes through it, where the data lives, which structural decisions must not be broken. Prose, not lists of facts; typically 150-300 lines. Only the sections that apply.
+
+```markdown
+# Architecture
+
+## In one paragraph        — what the system is and its shape: the main runtime pieces and the stack, by name
+## Runtime                 — the processes and stores that run and how they talk to each other, with a
+                             small diagram; what each process does and does not do
+## Code map                — the top-level directories and what lives in each
+## How it works            — one to three representative flows told end to end (see below)
+## Data                    — where data lives, who owns what, what can be lost and what cannot
+## Security and access     — how the system decides who sees and does what: authentication, roles, tenancy
+## Integrations            — external services, what each is used for, where they are wrapped
+## Cross-cutting           — configuration and secrets, errors and logging, i18n, feature flags: how each works
+## Deployment              — where and how it runs in production, when known
+## Decisions and constraints — the structural decisions in force and the system-wide invariants,
+                             each with its reason in one line
+```
+
+- **The flows of How it works** are chosen because they cross most of the architecture and show mechanisms the rest of the system reuses: a request that hands work to a background job, an event arriving from an external service, a scheduled job when it is central. Not one per feature: the step-by-step journey of a feature belongs in `docs/flows/`. Name the main pieces a flow goes through when that helps find them.
+- **Include**: the stack by name; processes, stores and the boundaries between them; the code map down to the top-level directories; the data model in outline (main entities, who owns them); the security model; integrations; the decisions and invariants that span the system.
+- **Exclude**: the internals of single components (`docs/components/`); signatures, table fields, lists of endpoints; versions (the lockfile has them); edge cases and local workarounds; how to start the project (`docs/environment.md`, the README); coding conventions (`docs/conventions.md`); the history of decisions (only the decision in force and its reason).
+
+Example:
+
+```markdown
+## How it works: issuing an invoice
+
+The controller validates the input and calls the `IssueInvoice` action. Inside a transaction it locks
+the workspace's counter row, assigns the number and saves the invoice, then queues `SendToExchange`.
+The worker sends the invoice to the exchange, which answers later through a webhook that updates the
+delivery status. External services are only ever called from jobs, so a slow provider never blocks a request.
 ```
 
 ### `docs/components/<name>.md`
@@ -218,6 +291,24 @@ How code is written in this project, where the model would otherwise get it wron
 ```
 
 Only the sections that have entries. One entry per line: the rule, a short reason, and a reference file as example. Nothing a linter, formatter or type checker already enforces. Keep it under about 150 lines: it is read for every task.
+
+## Overviews by workflow
+
+`@doc-writer` writes and updates `FEATURES.md` and `ARCHITECTURE.md` as part of the docs sync, from the diff and the current code:
+
+| Workflow | `FEATURES.md` | `ARCHITECTURE.md` |
+|---|---|---|
+| `workflow-greenfield` | written at the docs sync, with the features of the first version | written with the docs scaffold, from the spec and the walking skeleton; brought up to date at the docs sync |
+| `workflow-feature` | entries added, changed or removed for the behavior the work added, changed or removed, consistent with the changelog entry | updated when the work changed what it describes: runtime pieces, code map, data, security, integrations, cross-cutting mechanisms, deployment, a decision or an invariant |
+| `workflow-fix` | only when the fix made an entry untrue, or the entry was already wrong | only when the fix changed what it describes |
+| `workflow-refactor`, `workflow-env-init` | only when an entry was wrong | updated when the work changed what it describes; a refactor usually does |
+| `workflow-site` | no change: the public site is not a feature of the software | in an existing project, updated to say where the site lives and how it is built and served; a site of its own has neither file |
+| `workflow-docs-init` | written when missing, from the survey; an existing one is left as it is | written when missing, from the survey; an existing one is left as it is |
+| `workflow-spike`, `workflow-security-audit`, `workflow-design-init` | no change | no change |
+
+Every workflow corrects a statement it proves untrue in either file, and records the discrepancy like any other.
+
+**When a file is missing**, only greenfield and docs-init create it: a docs sync elsewhere does not, because an inventory that covers only what one piece of work touched would read as complete. The docs sync reports it, and the controller mentions `/docs-init` once at the delivery gate.
 
 ## Reading protocol (start of a workflow)
 

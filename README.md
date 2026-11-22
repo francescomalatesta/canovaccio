@@ -19,7 +19,7 @@ The workflows:
 - **fix** — something works wrong: reproduces it, finds the root cause, fixes it test-first. The most autonomous workflow: it asks you only when the fix is risky or the expected behavior is unclear.
 - **refactor** — better structure, same behavior: pins current behavior with tests before touching the code, then restructures in small steps that keep the affected tests and the invariants green.
 - **spike** — a question to answer before building (is it feasible? which library?): researches and runs throwaway experiments within a set budget, and ends with a written recommendation.
-- **docs-init** — brings an existing project to a complete docs map in one pass, instead of letting it fill in as work goes.
+- **docs-init** — brings an existing project to a complete docs map in one pass, instead of letting it fill in as work goes, and writes `FEATURES.md` and `ARCHITECTURE.md` when it has none.
 - **security-audit** — how secure is an existing codebase: a strong model maps the threats and plans the audit by area, scanners and cheaper auditors collect the evidence in parallel, and the strong model confirms every finding and rates it High, Medium or Low. Ends with a prioritized list and the follow-up work to choose from; changes no code. See [Security audit](#security-audit).
 - **design-init** — captures an existing project's product and visual system in `PRODUCT.md` and `DESIGN.md`, asking only what the code cannot tell, and optionally critiques its current interface.
 - **env-init** — makes an existing project run in several checkouts at once: every fixed port and global name of its environment, dev servers and tests becomes a slot variable whose default is today's value, then it proves that the main checkout is unchanged and that two checkouts run side by side. See [Parallel work](#parallel-work).
@@ -347,15 +347,22 @@ Projects keep a **map** of their codebase in `docs/`, defined by `skills/project
 
 Docs describe what the code does not say easily (purpose, boundaries, entry points, interactions, pitfalls); the code stays the source of truth.
 
+Two more files, at the project root, are written for you rather than for the agents, to be read from top to bottom:
+
+- `FEATURES.md` lists what the software does today, one or two sentences per feature, in sections by area as users see them; features behind a flag are listed like the others;
+- `ARCHITECTURE.md` tells how the system works: what runs, where the code is, one to three representative flows end to end, data, security, integrations, the structural decisions in force. It may repeat `docs/architecture.md`, which stays the agents' compact overview.
+
+Greenfield writes both; feature, fix, refactor, env-init and site keep them current at the docs sync, each where its work changed what they say; `/docs-init` writes them in a project that has none. The table is in `skills/project-docs`, under Overviews by workflow.
+
 `docs/conventions.md` is different: it prescribes how code is written in the project, to correct the model where it tends to err. Workflows collect evidence of such errors (your corrections at gates, recurring review findings, guesses between inconsistent patterns) and propose at most three entries at delivery. **Nothing enters the file unless you accept it explicitly**, entry by entry.
 
-Every workflow except spike starts from the docs to find where to work, and every one except spike and security-audit ends with a **docs sync** step: `@doc-writer` maps the diff to the impacted docs through `covers`, updates them, documents new areas and adds the `CHANGELOG.md` entry ([Keep a Changelog](https://keepachangelog.com), rules in `skills/project-changelog`). The closure review checks both. Projects without docs get them incrementally, as work touches the code, or all at once with `/docs-init`.
+Every workflow except spike starts from the docs to find where to work, and every one except spike and security-audit ends with a **docs sync** step: `@doc-writer` maps the diff to the impacted docs through `covers`, updates them, `FEATURES.md` and `ARCHITECTURE.md`, documents new areas and adds the `CHANGELOG.md` entry ([Keep a Changelog](https://keepachangelog.com), rules in `skills/project-changelog`). The closure review checks all of them. Projects without docs get them incrementally, as work touches the code, or all at once with `/docs-init`.
 
 `skills/project-docs/scripts/check-docs.mjs` (Node 18+, no dependencies) checks a project's docs: covers matching real files, links, index completeness, uncovered code; with `--changed <base>` it lists the docs a change impacts.
 
 ## Language
 
-Commit messages, pull request titles and descriptions, and documentation are always in English, whatever language you write in: system docs, `CHANGELOG.md`, README files, `PRODUCT.md`, `DESIGN.md` and the workflow artifacts in `docs/work/`. The conductor still talks to you in your language, and product content such as UI copy follows the product's requirements. Existing docs in another language are not translated along the way: what the work adds or rewrites is in English, and a full translation is separate work you can ask for. The rule is in `AGENTS.md`, under Language.
+Commit messages, pull request titles and descriptions, and documentation are always in English, whatever language you write in: system docs, `FEATURES.md`, `ARCHITECTURE.md`, `CHANGELOG.md`, README files, `PRODUCT.md`, `DESIGN.md` and the workflow artifacts in `docs/work/`. The conductor still talks to you in your language, and product content such as UI copy follows the product's requirements. Existing docs in another language are not translated along the way: what the work adds or rewrites is in English, and a full translation is separate work you can ask for. The rule is in `AGENTS.md`, under Language.
 
 ## Task tracker
 
@@ -381,6 +388,6 @@ Things to verify once with opencode V2:
 3. The conductor can dispatch subagents. If subagent dispatch is not available in your opencode version, the workflows fall back to inline execution (see `workflow-rules`). Permissions use the V2 action names (`shell`, `subagent`, `edit`) and agent models the V2 `provider/model#variant` form: a rule with a V1 name, such as `bash`, matches nothing and is ignored silently.
 4. `git push` asks for approval; reading a file under `/tmp` is refused without asking; `spec-reviewer` cannot run shell commands.
 5. A small `/fix` on a scratch project stops at the delivery gate with a `closure.md`, a `CHANGELOG.md` entry and, if the project has docs, a docs sync.
-6. `doc-writer` can edit `docs/` and `CHANGELOG.md` but not source files.
+6. `doc-writer` can edit `docs/`, `FEATURES.md`, `ARCHITECTURE.md` and `CHANGELOG.md` but not source files.
 7. `opencode run --agent conductor "…"` works from a terminal with no TTY: the batch runner starts its sessions that way; `opencode api get /api/info` answers, since the runner reads the sessions' costs through it. `node --test skills/workflow-batch/scripts/batch.test.mjs` checks the runner itself.
 8. `node --test skills/workflow-rules/scripts/verify.test.mjs skills/project-isolation/scripts/isolation.test.mjs` checks `verify.mjs` and the JSON output of `isolation.mjs`.

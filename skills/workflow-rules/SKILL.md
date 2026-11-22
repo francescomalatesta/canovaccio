@@ -380,11 +380,11 @@ When the project `AGENTS.md` has a Task tracker preference and the work has item
 
 ## System docs and changelog
 
-Greenfield, site, feature, refactor and fix read the system docs at the start and bring them, and `CHANGELOG.md`, up to date at the end. Spikes do neither; a security audit reads them and writes neither; `workflow-docs-init` has its own flow. The rules are in the `project-docs` and `project-changelog` skills.
+Greenfield, site, feature, refactor and fix read the system docs at the start and bring them, `FEATURES.md`, `ARCHITECTURE.md` and `CHANGELOG.md` up to date at the end. Spikes do neither; a security audit reads them and writes neither; `workflow-docs-init` has its own flow. The rules are in the `project-docs` and `project-changelog` skills; Overviews by workflow in `project-docs` says what each workflow does with `FEATURES.md` and `ARCHITECTURE.md`.
 
 - **At the start**, in the discovery phase: follow the `project-docs` reading protocol, and pass the relevant doc paths to `@scout` as starting points. Record doc/code discrepancies in `state.md` Notes.
-- **At the end**, as a step of its own right before closure: **docs sync**. Dispatch `@doc-writer` with the work directory, the base branch, the workflow type and the recorded discrepancies; when the work built a prototype, also pass the prototyper's report so `docs/prototypes.md` is completed from it. Review its report and commit its changes with the work.
-- **At closure**, the closure review also checks that the docs match the delivered code and that the changelog entry fits the work.
+- **At the end**, as a step of its own right before closure: **docs sync**. Dispatch `@doc-writer` with the work directory, the base branch, the workflow type and the recorded discrepancies; when the work built a prototype, also pass the prototyper's report so `docs/prototypes.md` is completed from it. Review its report and commit its changes with the work. When it reports `FEATURES.md` or `ARCHITECTURE.md` missing, mention `/docs-init` once at the delivery gate.
+- **At closure**, the closure review also checks that the docs, `FEATURES.md` and `ARCHITECTURE.md` match the delivered code and that the changelog entry fits the work.
 
 Docs sync adds no gate: its result is part of the diff presented at delivery. It never touches `docs/conventions.md`.
 

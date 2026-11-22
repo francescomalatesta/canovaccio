@@ -81,7 +81,7 @@ Present **G3**.
 
 Run `superpowers:subagent-driven-development` over `plan.md` with the Review loop of `workflow-rules`. One task per `@implementer` dispatch, and `@task-reviewer` after each one, before the next task (see Review loop). Give `@implementer` the task, the relevant spec sections, the prototype commit if any and the minor-findings policy; give `@task-reviewer` the task, its requirements and the commit range.
 
-After the walking skeleton is accepted, bring the environment up (see Environment in `workflow-rules`): nothing ran before this work, so every service the skeleton set up is recorded as started by the workflow. Then dispatch `@doc-writer` to scaffold the system docs from the spec and the skeleton, following `project-docs`: the pointer in the project `AGENTS.md`, `docs/index.md`, `docs/architecture.md`, `docs/environment.md` when the project has services, component docs for the components that exist, a link to `docs/prototypes.md` when it exists, and `CHANGELOG.md` following `project-changelog`. Review its report and commit its changes; later tasks start from these docs.
+After the walking skeleton is accepted, bring the environment up (see Environment in `workflow-rules`): nothing ran before this work, so every service the skeleton set up is recorded as started by the workflow. Then dispatch `@doc-writer` to scaffold the system docs from the spec and the skeleton, following `project-docs`: the pointer in the project `AGENTS.md`, `docs/index.md`, `docs/architecture.md`, `ARCHITECTURE.md`, `docs/environment.md` when the project has services, component docs for the components that exist, a link to `docs/prototypes.md` when it exists, and `CHANGELOG.md` following `project-changelog`. Review its report and commit its changes; later tasks start from these docs.
 
 After each accepted task, update `state.md`, give a one-line CHECKPOINT and dispatch the next task in the same turn. After the walking skeleton and docs scaffold, give a fuller CHECKPOINT: how to start the app and run the checks; it does not stop the work either. From G3 the work runs to G4 without stopping (see Run to completion in `workflow-rules`).
 
@@ -89,7 +89,7 @@ With `Design review: on`, run the Design review of `workflow-rules` after the la
 
 ### 6. Docs sync
 
-Dispatch `@doc-writer` for the docs sync described in `workflow-rules`, with the work directory, workflow type `greenfield` (there is no base branch: the whole repository is new, so the checker runs in full mode) and the discrepancies recorded in `state.md`. Every component in the spec architecture that now exists must have its doc, and the changelog lists the first version's capabilities. Review its report; commit the docs and changelog changes with the work.
+Dispatch `@doc-writer` for the docs sync described in `workflow-rules`, with the work directory, workflow type `greenfield` (there is no base branch: the whole repository is new, so the checker runs in full mode) and the discrepancies recorded in `state.md`. Every component in the spec architecture that now exists must have its doc, `FEATURES.md` lists the features of the first version, `ARCHITECTURE.md` describes the system as built, and the changelog lists the first version's capabilities. Review its report; commit the docs and changelog changes with the work.
 
 ### 7. Closure
 

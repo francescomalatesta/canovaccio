@@ -65,7 +65,7 @@ Give `@task-reviewer` `repro.md` and the commit range.
 
 ### 5. Docs sync
 
-Dispatch `@doc-writer` for the docs sync described in `workflow-rules`, with the work directory, the base branch, workflow type `fix` and the discrepancies recorded in `state.md`. For a fix this is usually small: correct the docs that were wrong, and describe any behavior the fix made explicit. Review its report; commit the docs and changelog changes with the work.
+Dispatch `@doc-writer` for the docs sync described in `workflow-rules`, with the work directory, the base branch, workflow type `fix` and the discrepancies recorded in `state.md`. For a fix this is usually small: correct the docs that were wrong, and describe any behavior the fix made explicit; `FEATURES.md` and `ARCHITECTURE.md` change only when the fix made a statement in them untrue. Review its report; commit the docs and changelog changes with the work.
 
 ### 6. Verification
 
