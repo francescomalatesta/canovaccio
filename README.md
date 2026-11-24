@@ -218,7 +218,7 @@ Export the invoices as CSV
 - **plan-only** writes and reviews a feature's spec and plan without opening G1, against the specs of the stories planned before it, and ends at `ready`, touching nothing outside its work directory.
 - **unattended** delivers a story planned that way and approved at canovacc.io's batch gate: it creates its branch from the base, works to `ready` with no questions (what would need you blocks the story), records the final verification with `skills/workflow-rules/scripts/verify.mjs` and pushes its branch through a permission request. canovacc.io opens the pull request. **fix**, **resume** and **close** fix a story that failed its checks, continue a blocked one with your answer, and close the batch's stories.
 
-Work started this way has `Managed by: canovacc.io` in its `state.md`, and the task tracker preference is not used: canovacc.io moves the items itself. `node verify.mjs check <work-dir> --json` tells whether the last recorded verification still holds for HEAD, and `isolation.mjs new` and `remove` print JSON with `--json`, for creating worktrees from a program.
+Work started this way has `Managed by: canovacc.io` in its `state.md`. canovacc.io moves the tracker items itself, and when the project has a task tracker preference canovaccio keeps them in step too, as a second writer that never moves an item backwards; it proposes no preference and adds no pull request link in that work. `node verify.mjs check <work-dir> --json` tells whether the last recorded verification still holds for HEAD, and `isolation.mjs new` and `remove` print JSON with `--json`, for creating worktrees from a program.
 
 Without canovacc.io you can still start such a session by hand with the header, as an advanced use: you then answer its permission requests yourself. A session without the header behaves as described in the rest of this README. The rules are in canovacc.io and Unattended mode in `skills/workflow-rules`, and Plan-only in `skills/workflow-feature`.
 
@@ -366,7 +366,7 @@ Commit messages, pull request titles and descriptions, and documentation are alw
 
 ## Task tracker
 
-If you track the project in an external tool (GitHub Projects, Jira, Linear, ClickUp, Trello), name the item when you start the work (`/feature #42`, or a link to the card) and the conductor keeps its status in step with the work, as defined by `skills/project-tracker`:
+If you track the project in an external tool (GitHub Projects, Jira, Linear, ClickUp, Trello), name the item when you start the work (`/feature #42`, or a link to the card) and the conductor keeps its status, and the status of the items above it, in step with the work, as defined by `skills/project-tracker`:
 
 | When | Status (GitHub Projects Kanban) |
 |---|---|
@@ -375,9 +375,12 @@ If you track the project in an external tool (GitHub Projects, Jira, Linear, Cli
 | the closure review starts | In review |
 | canovaccio merges the work itself | Done |
 
-Items of single plan tasks, when you give one per task (`/feature #12 #13`), move to In progress and In review with their own implementation and review. When the work is delivered as a pull request, items stay In review and the PR links them (`Closes #42`): the merge and the board's automation move them to Done.
+- **Tasks.** Items of single plan tasks move to In progress and In review with their own implementation and review. They are the items you give one per task (`/feature #12 #13`), or the sub-items of the item you named, which the conductor reads in discovery and pairs with the plan's tasks in `plan.md`, approved with the plan.
+- **Parents.** Statuses roll up the chain: starting the first task of the first story of an epic puts the task, the story and the epic In progress. A parent moves to In review or Done only when all its children are there. Write `Parents: off` in the preference to turn it off.
+- **Pull requests.** When the work is delivered as a pull request, items stay In review and the PR links them (`Closes #42`), never their parents: the merge and the board's automation move them to Done.
+- **Reconciling.** The conductor does not rely on remembering each move: at every checkpoint, gate and resume, including after a context compaction, it compares the status each item should have with the board and moves forward what is behind, so a missed move is made at the next step.
 
-The first time, the conductor finds the tool through what the environment already provides (`gh`, another CLI, an MCP server), reads the board's statuses, maps them, and asks you to confirm the mapping at the first gate; the answer is saved in the project `AGENTS.md` under Task tracker and never asked again. It moves only items you named, never creates any, and changes only their status. Before each move it reads the current status: an item you moved by hand stays where you put it. When the tool cannot be reached the work goes on, and the report says which moves were not made.
+The first time, the conductor finds the tool through what the environment already provides (`gh`, another CLI, an MCP server), reads the board's statuses, maps them, and asks you to confirm the mapping at the first gate; the answer is saved in the project `AGENTS.md` under Task tracker and never asked again. It moves only items that exist, never creates any, never adds an issue to the board, and changes only their status. Before each move it reads the current status: an item never moves backwards, and one you moved off the path of the work (Blocked, back to Backlog) stays where you put it. When the tool cannot be reached the work goes on, and the report says which moves were not made.
 
 ## First local check
 

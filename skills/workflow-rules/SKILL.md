@@ -145,7 +145,7 @@ Work artifacts are the history of one piece of work. The rest of `docs/` holds t
 - Impeccable: on            <!-- on | off -->
 - Advisory: exclude         <!-- minor | exclude; only when Impeccable is on -->
 - Design review: on         <!-- on | off; only when Impeccable is on -->
-- Tracker: #42 — In progress <!-- item of the work and last status set; only with a task tracker, never in managed work -->
+- Tracker: #42 — In progress · parents: #40 In progress, #12 In progress <!-- item of the work and its parents with their last status; only with a task tracker, see project-tracker -->
 - Managed by: canovacc.io    <!-- these three lines only in work started by canovacc.io, see canovacc.io below -->
 - Mode: interactive          <!-- interactive | plan-only | unattended -->
 - Item: FAT-42
@@ -162,7 +162,7 @@ Work artifacts are the history of one piece of work. The rest of `docs/` holds t
 
 ## Tasks
 - [x] T1 export endpoint — implementer → review: needs fixes → implementer → review: approved
-- [ ] T2 download button — implementer → review: pending — #43
+- [ ] T2 download button — implementer → review: pending — #43 In review
 
 ## Notes
 - T2 blocked on nothing; next action: dispatch implementer.
@@ -195,14 +195,14 @@ Not allowed: skipping the review because a task looks trivial, reviewing two tas
 
 For every implementation task:
 
-1. `@implementer`, then `@task-reviewer` on its commits;
+1. `@implementer`, then `@task-reviewer` on its commits; when the task has a tracker item, reconcile the tracker right before each of the two dispatches (see Task tracker);
 2. Needs fixes → back to `@implementer` with the findings; if the same blocking finding survives two fix rounds, or the implementer cannot converge, dispatch `@escalator`;
 3. after `@escalator`, `@task-reviewer` again; if it still needs fixes, open an unplanned gate with the findings and the escalator's diagnosis;
 4. Approved with Minor findings: under `fix`, one `@implementer` round for them and a scoped re-review; under `defer`, record them.
 
 This replaces the fix-round limits of `superpowers:subagent-driven-development`, and overrides any grouping of tasks it or another skill suggests.
 
-Before dispatching the next task, check its predecessor's line in the Tasks section of `state.md`: each implementer and escalator round followed by its review, and the review's verdict last.
+Before dispatching the next task, check its predecessor's line in the Tasks section of `state.md`: each implementer and escalator round followed by its review, and the review's verdict last; with a tracker item, the item recorded at the status its review reached, or held.
 
 ## Test scope and final verification
 
@@ -315,7 +315,7 @@ answer: "<the user's answer>"    # resume
 - Item: FAT-42               <!-- only when the header has item: -->
 ```
 
-`Mode` is the mode of the work: `fix`, `resume` and `close` sessions leave it as it is, and the first `unattended` session of a story planned in `plan-only` sets it to `unattended`. `Managed by` switches off the task tracker (see Task tracker), and `Item` takes the place of the `Tracker` line.
+`Mode` is the mode of the work: `fix`, `resume` and `close` sessions leave it as it is, and the first `unattended` session of a story planned in `plan-only` sets it to `unattended`. `Item` names the tracker item of the work. canovacc.io moves its items, and canovaccio keeps them in step too when the project has a Task tracker preference, recording the statuses in a `Tracker` line (see Task tracker).
 
 A session started without the header behaves exactly as described in the rest of these rules.
 
@@ -370,13 +370,14 @@ Spike, docs-init, security-audit and work that does not touch the UI run with Im
 
 ## Task tracker
 
-When the project `AGENTS.md` has a Task tracker preference and the work has items on it, or the user names a tracker or an item and there is no preference yet, load `project-tracker` and follow it: it defines the preference, which items are tracked and which workflow events move them to which status.
+When the project `AGENTS.md` has a Task tracker preference and the work has items on it, or the user names a tracker or an item and there is no preference yet, load `project-tracker` and follow it: it defines the preference, which items are tracked (the item of the work, items of plan tasks and sub-items, their parents), the status each should have at each point of the work, and how the board is reconciled with it.
 
-**Managed work** (`Managed by: canovacc.io` in `state.md`) has no tracker work at all: canovacc.io is the only writer of its items. The `item:` of the header is not a reason to load `project-tracker`, no preference is proposed, no status is moved and no `Tracker` line is written; the item is recorded as `Item` (see canovacc.io).
+**Managed work** (`Managed by: canovacc.io` in `state.md`): canovacc.io moves the items of the work, and canovaccio keeps them in step as well, as a second writer, but only when the project already has a preference: none is proposed, and no pull request link is added. The item is the `item:` of the header, recorded as `Item`; the `Tracker` line records the statuses set (see Managed work in `project-tracker`).
 
 - Only you, the controller, update the tracker; never pass it to subagents.
-- Record the item of the work in `state.md` as `Tracker`, with the last status set, and the item of a plan task next to the task, so a resumed workflow neither repeats nor skips a move.
-- The tracker never blocks the work and adds no gate: confirming a new preference rides on the first gate, or on the first CHECKPOINT in workflows that start without one.
+- Record the item of the work in `state.md` as `Tracker`, with the last status set and its parents, and the item of a plan task next to the task, so a resumed workflow knows what it set and what someone else changed.
+- **Reconcile, do not remember.** Whenever `state.md` has a `Tracker` line, keep `project-tracker` loaded, also after a compaction and in every new session on the work, and reconcile the board as it describes: right before the points that raise a status, at every CHECKPOINT and gate, and when the work resumes. A move missed at one point is made at the next.
+- The tracker never blocks the work and adds no gate: confirming a new preference rides on the first gate, or on the first CHECKPOINT in workflows that start without one; pairing sub-items with plan tasks rides on the plan's approval.
 
 ## System docs and changelog
 

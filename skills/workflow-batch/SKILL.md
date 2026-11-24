@@ -123,7 +123,7 @@ When the queue is done or stops, it starts the Wrap-up session. `batch.mjs stop`
 A session the runner starts at the end, with a prompt beginning with `[canovaccio batch]` and naming this Wrap-up. Nobody answers in it: do not ask anything.
 
 1. Read the batch with `batch.mjs status <batch-dir> --json`.
-2. Each green story: set its `state.md` to `closed` and delete its temporary directory (see Work directory and artifacts in `workflow-rules`). Tracker items stay at in-review: nothing in a batch merges (see `project-tracker`).
+2. Each green story: set its `state.md` to `closed` and delete its temporary directory (see Work directory and artifacts in `workflow-rules`). Tracker items stay at in-review: nothing in a batch merges. Reconcile them and their parents once more: a parent the batch's stories share (an epic) is at in-review only when every one of its children is (see `project-tracker`).
 3. The story that stopped keeps its `state.md` and temporary directory as they are; queued stories are left untouched.
 4. Bring the environment down (see Environment in `workflow-rules`), from the Environment sections of the batch and of its stories.
 5. Write `summary.md` in the batch work directory: the outcome; for each story its status, its commits (`<start>..<end>`), its pull request, its fix sessions and cost (sessions and their subagents; say so when it is partial); the deferred minor findings and convention candidates of every story, by story; when the batch stopped, why, where the details are (the story's Notes, the green log) and what the user can do.
@@ -177,7 +177,7 @@ A user who wants to stop for good: set the batch and its remaining stories to `a
 | `pr` | with `single` branches and a remote, an open pull request (number or URL) whose head is `branch`: the stories are added to it instead of a new one |
 | `green` | the conditions of a green story, checked in this order: `closure` (required: `Closure: PASS` in the story's `state.md`), `verification` (the last record `batch.mjs verify` wrote in its Verification section has every command at exit 0, and is on HEAD or on a commit followed only by commits under `docs/work/`; lines written by hand never count), `command` (`run` exits 0 from the project root), `ci` (every check reported on HEAD succeeded; needs a remote) |
 | `stories[].green` | the conditions of one story, instead of the batch's |
-| `stories[].item` | the story's tracker item (`#42`, a card link); the pull request links it |
+| `stories[].item` | the story's tracker item (`#42`, a card link); the pull request links it, never its parents |
 | `attempts` | fix sessions a story gets after a failed green check |
 | `agent`, `model` | the agent (default `conductor`) and model of the sessions, when not the project default |
 
