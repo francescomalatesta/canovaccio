@@ -263,6 +263,17 @@ UI prototypes are not work artifacts: they live in the project's prototype syste
 
 The conductor adds the ignore rules to the project's `.gitignore` on first use. `state.md` records phase, approved gates and completed tasks, so a workflow can resume after a context compaction or in a new session.
 
+## Code design
+
+Whoever writes or reviews production code follows `skills/code-design`, a pragmatic reading of the SOLID principles. Each principle comes with the signal in the task that calls for it and the move it suggests: separate what changes for different reasons, gather a growing branch on kind into one dispatch point, make substitutes and test doubles honour their contract, pass narrow dependencies, keep I/O at the edges when it blocks a test. Without a signal the code stays plain: an abstraction with no present need (a single-implementation interface, a forwarding layer, options nobody uses) counts as a defect too.
+
+- `@implementer` applies it to the code the task touches and reports the structural moves it made, or "none";
+- `@task-reviewer` reports what it finds as `structure` findings, Minor by default; Important only with a concrete consequence today: a substitute that breaks its contract, a rule spread across places that must change together, logic wired to I/O so that a required test is missing or runs on the development database;
+- `@escalator` checks structure as a possible root cause when fixes keep breaking something else;
+- the refactor workflow names the problems its target design removes in the same terms.
+
+It never overrides `docs/conventions.md` or the established structure of the codebase, and is never a reason to restructure code outside the task.
+
 ## UI prototypes
 
 Each project has **one prototype system**, defined by `skills/project-prototypes`: a tool and an area where every UI prototype lives, such as Storybook for a React or Vue frontend, or a dev-only route area for server-rendered templates. It is chosen once, in the spec of the first work that needs a prototype (you approve it with the spec), documented in `docs/prototypes.md`, and reused by every later workflow. Whatever the tool, it starts with one command, lists the prototypes in an index, uses the project's real components, gives every state its own URL and stays out of production builds.

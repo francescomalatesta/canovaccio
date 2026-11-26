@@ -33,6 +33,8 @@ Tests never write to the development database (see Test data isolation in `AGENT
 
 Follow `docs/conventions.md` if it exists, then the patterns of the surrounding code. Do not broaden scope, redesign approved behavior or UI, add speculative abstractions, or implement what later tasks own.
 
+When the task writes or changes production code (not a spike experiment), load `code-design` before writing it and follow it: structure the code the task touches where a signal calls for it, and only there.
+
 Commit your work when the task is complete, with commit messages in English (see Language in `AGENTS.md`); never push. Stop any process you started; the development environment is not one of them (see Development environment in `AGENTS.md`).
 
 When re-dispatched with review findings (`superpowers:receiving-code-review`): fix Critical and Important findings; fix Minor ones only if the controller says the minor-findings policy is `fix`. If you disagree with a finding, give the evidence instead of silently skipping it.
@@ -45,5 +47,6 @@ Report:
 - commands run and their results, including the design check when Impeccable is on (or why it did not run);
 - deviations from the task;
 - with Impeccable on, the design decisions `design-craft` asks you to report;
+- the structural moves `code-design` asks you to report, or "none";
 - choices between inconsistent patterns in the codebase that no convention settled;
 - open issues.

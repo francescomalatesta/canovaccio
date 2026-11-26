@@ -39,10 +39,10 @@ Write `invariants.md`:
 - **perimeter** — what is in scope and what explicitly is not;
 - **invariants** — observable behavior that must not change: public interfaces, outputs, persisted formats, error behavior, and performance bounds when they matter;
 - **coverage** — for each invariant, the existing tests that pin it, or the characterization test to add;
-- **target design** — the intended structure and why it is better;
+- **target design** — the intended structure and why it is better: each problem it removes, located in the code and named in the terms of `code-design` (mixed responsibilities, a branch on kind spread across places, a broken contract, a dependency too wide, logic wired to details); no abstraction without a problem it removes;
 - **steps** — an ordered sequence of small refactoring steps, each leaving the build and its affected tests green, each independently committable.
 
-Dispatch `@spec-reviewer` with the request and `invariants.md`: are the invariants complete for the perimeter, is each one verified, are the steps small and safe? Fix BLOCKING findings; list at the gate any finding you chose not to address, with the reason.
+Dispatch `@spec-reviewer` with the request and `invariants.md`: are the invariants complete for the perimeter, is each one verified, are the steps small and safe, does the target design remove the problems it names without adding speculative structure? Fix BLOCKING findings; list at the gate any finding you chose not to address, with the reason.
 
 Present **G1**. When the perimeter includes UI code and the project has no Impeccable preference yet, G1 also asks it (see Impeccable in `workflow-rules`).
 

@@ -7,6 +7,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 ## [Unreleased]
 
 ### Added
+- Pragmatic SOLID design guidance (`code-design` skill): the implementer structures the code it touches only where a signal in the task calls for it and reports the moves it made, the task reviewer reports `structure` findings (Minor by default, Important only with a concrete consequence, over-engineering included), the escalator considers structure as a root cause, and the refactor workflow justifies its target design in the same terms
 - Task tracker statuses roll up the parent chain: starting the first task of a story of an epic puts the task, the story and the epic in progress, and a parent reaches in review or done only when all its children have (`Parents: off` in the preference turns it off)
 - Sub-items of the tracked item are read in discovery and paired with the plan's tasks, approved with the plan, so they move with their own implementation and review
 

@@ -25,6 +25,7 @@ Check, as fits the task:
 - tests that write to the development database instead of an isolated test one, E2E included (see Test data isolation in `AGENTS.md`): Important;
 - in a project with `.canovaccio/isolation.json`: a host port or global name the task writes as a literal in development or test configuration, or a reference to a port that does not derive from its slot variable (see `project-isolation`; run `isolation.mjs check` when the task touches compose files, dev server, test or E2E configuration): Important;
 - violations of `docs/conventions.md`, if it exists;
+- when the task writes or changes production code: load `code-design` and review the code the task wrote or changed as its Reviewing section says, with the severity it assigns; over-engineering is a finding too;
 - material deviations from the approved UI (read the prototype from its commit if removed);
 - when the controller says Impeccable is on and the task changes UI files: load `design-check` and run it with `--changed <base of the commit range>` (the commit before the task's first) and the advisory setting; report the findings introduced by the task with the severity it assigns, after verifying each in the code;
 - for a refactoring step: behavior unchanged, tests not modified except mechanically;
@@ -43,6 +44,6 @@ When re-reviewing after fixes, check the previous findings and the new changes o
 Return:
 
 - Compliance: PASS or FAIL, with evidence;
-- Findings: by severity, with file:line; tag `convention` those about how code is written here (a `docs/conventions.md` violation, or inconsistency with an established pattern of the codebase), and `design` those from the design check;
+- Findings: by severity, with file:line; tag `convention` those about how code is written here (a `docs/conventions.md` violation, or inconsistency with an established pattern of the codebase), `structure` those from `code-design`, and `design` those from the design check;
 - Design check, when Impeccable is on: the command, its summary line, findings dismissed as false positives with the reason, or why it did not run;
 - Assessment: Needs fixes if compliance FAILs or any Critical or Important finding exists, otherwise Approved.

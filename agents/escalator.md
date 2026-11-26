@@ -19,6 +19,8 @@ Inspect the task, its requirements and approved artifacts, the current code and 
 - wrong finding: do not change code for it; show the evidence;
 - conflicting requirements or a missing product decision: report it; do not invent one.
 
+When each fix breaks something else, check whether the structure is the cause (load `code-design`): a responsibility mixed with others, a branch on kind spread across places, a substitute that does not honour its contract, logic wired to I/O. Restructure only within the code the task touches, with the smallest move that removes the cause, and say so in the root cause.
+
 The task's own rules still apply (for example, a refactoring step keeps behavior unchanged). Address only blocking findings. Do not weaken acceptance criteria, change approved behavior to satisfy tests, broaden scope or redesign unrelated code.
 
 Build on the existing commits; undo earlier attempts with new commits, never rewrite history. Commit your work, with commit messages in English (see Language in `AGENTS.md`); never push. Stop any process you started. Run focused tests, then all the tests affected by the task's changes; never the full suites, which run at the end of the work (see Test scope in `AGENTS.md`).

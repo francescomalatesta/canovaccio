@@ -85,6 +85,14 @@ Prefer the smallest coherent solution that satisfies the requirements.
 
 Avoid speculative abstractions and infrastructure.
 
+## Code design
+
+Structure follows real reasons to change. Separate responsibilities, open an extension point or abstract a dependency when the work at hand shows the need: concerns mixed in code the task must change or test, a branch on kind that keeps growing, I/O that blocks a required test, a second implementation. An abstraction without a present need is a defect, as much as a missing one.
+
+A substitute (subtype, alternative implementation, adapter, test double) honours the contract it stands in for.
+
+The `code-design` skill holds the signals for each SOLID principle and the over-engineering to refuse.
+
 ## Temporary files
 
 Work only inside the project directory. Never write to or work in `/tmp`, `$TMPDIR` or any other directory outside the project: not for scratch scripts, logs, server output, captures, downloads, clones or checkouts of other revisions. This also applies when a skill, including a superpowers skill, suggests a system temporary directory.
