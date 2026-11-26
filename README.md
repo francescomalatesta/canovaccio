@@ -276,12 +276,12 @@ It never overrides `docs/conventions.md` or the established structure of the cod
 
 ## E2E tests
 
-What an E2E runner needs on the machine (browsers, the system libraries browsers need, the runner's own binary) is never installed or updated by the agents, even when the runner's error suggests it: when something is missing, the E2E tests run in Docker. The project's runtime and dependencies are not affected: they stay as the project defines them.
+What the project's E2E runner needs on the machine, whichever runner it is (browsers, the system libraries browsers need, the runner's own binary), is never installed or updated by the agents, even when the runner's error suggests it: when something is missing, the E2E tests run in Docker, with the same runner. The project's runtime and dependencies are not affected: they stay as the project defines them.
 
 - At the start of the work the conductor runs one E2E test and decides once: `E2E: local`, `E2E: docker` with the command, or `E2E: not runnable` with the reason. It records the decision in `state.md`, passes it to every agent that runs tests, uses it in the final verification, and the docs sync writes it in the E2E section of `docs/environment.md`.
-- Only what is missing goes into the container (`skills/workflow-rules/reference/e2e-docker.md`). With Playwright, only the browser runs in Docker, in the official image at the project's exact version, while the tests and the app stay on the host with their usual ports. Cypress has no remote browser, so the whole Cypress run goes in its image, on the host network.
+- Only what is missing goes into the container, in the runner's official image at the version the project pins (`skills/workflow-rules/reference/e2e-docker.md`). When the runner can drive a remote browser, only the browser runs in Docker and the tests and the app stay on the host, with their usual ports; otherwise the whole run goes in the container. Playwright and Cypress are the worked examples of the two cases, not a choice of runner.
 - When Docker cannot run them either, the E2E tests are reported as not run, never as passed.
-- `opencode.jsonc` denies `playwright install` and `cypress install`, so the agent turns to Docker instead of stopping to ask.
+- As a safety net, `opencode.jsonc` denies the install commands of the most common runners (`playwright install`, `cypress install`), so the agent turns to Docker instead of stopping to ask. The rule itself covers every runner.
 
 ## UI prototypes
 

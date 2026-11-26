@@ -200,9 +200,11 @@
       "effect": "ask"
     },
     // What an E2E runner needs on the machine is never installed: E2E tests
-    // run in Docker instead (see E2E runner in AGENTS.md). Denied rather than
-    // asked, so the agent turns to Docker instead of stopping for approval,
-    // unattended sessions included. Also covers "playwright install-deps".
+    // run in Docker instead (see E2E runner in AGENTS.md). The rule covers
+    // every runner; these are only a safety net for the install commands of
+    // the most common ones. Denied rather than asked, so the agent turns to
+    // Docker instead of stopping for approval, unattended sessions included.
+    // Also covers "playwright install-deps".
     {
       "action": "shell",
       "resource": "*playwright install*",

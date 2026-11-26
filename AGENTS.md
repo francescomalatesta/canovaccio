@@ -202,7 +202,7 @@ The mechanism is free (a separate database configured for the test environment, 
 
 ### E2E runner
 
-E2E tests need what their runner needs on the machine: browsers, the system libraries browsers need, the runner's own binary. When any of it is missing, never install or update it (no `playwright install`, no `cypress install`, no system packages for the browser), even when the runner's error suggests it: run the E2E tests in Docker, as `reference/e2e-docker.md` of `workflow-rules` shows. When Docker cannot run them either, the E2E tests are not run: report it with the reason, and never count them as passed.
+E2E tests need what their runner needs on the machine, whatever runner the project chose: browsers, the system libraries browsers need, the runner's own binary. When any of it is missing, never install or update it (neither the runner's install command, such as `playwright install`, nor system packages for the browser), even when the runner's error suggests it: run the E2E tests in Docker with the project's own runner, as `reference/e2e-docker.md` of `workflow-rules` shows. When Docker cannot run them either, the E2E tests are not run: report it with the reason, and never count them as passed.
 
 This concerns the runner alone: the project's runtime and dependencies stay as the project defines them.
 
