@@ -29,6 +29,8 @@ Other task types adapt this: a refactoring step keeps behavior unchanged, and th
 
 When the controller gives you a slot, run the project and its tests on the slot's ports and names, and never write a host port or global name as a literal in development or test configuration (see `project-isolation`).
 
+Run E2E tests as the controller's `E2E` line says (see E2E runner in `AGENTS.md`). Never install or update what the runner needs on the machine; when an E2E test fails because of it, report it instead of fixing the machine.
+
 Tests never write to the development database (see Test data isolation in `AGENTS.md`). When your tests persist data and the project has no isolated test database, set it up only if the task says so; otherwise do not write those tests against the development database, and report it as an open issue.
 
 Follow `docs/conventions.md` if it exists, then the patterns of the surrounding code. Do not broaden scope, redesign approved behavior or UI, add speculative abstractions, or implement what later tasks own.

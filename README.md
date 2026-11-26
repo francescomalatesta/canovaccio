@@ -274,6 +274,15 @@ Whoever writes or reviews production code follows `skills/code-design`, a pragma
 
 It never overrides `docs/conventions.md` or the established structure of the codebase, and is never a reason to restructure code outside the task.
 
+## E2E tests
+
+What an E2E runner needs on the machine (browsers, the system libraries browsers need, the runner's own binary) is never installed or updated by the agents, even when the runner's error suggests it: when something is missing, the E2E tests run in Docker. The project's runtime and dependencies are not affected: they stay as the project defines them.
+
+- At the start of the work the conductor runs one E2E test and decides once: `E2E: local`, `E2E: docker` with the command, or `E2E: not runnable` with the reason. It records the decision in `state.md`, passes it to every agent that runs tests, uses it in the final verification, and the docs sync writes it in the E2E section of `docs/environment.md`.
+- Only what is missing goes into the container (`skills/workflow-rules/reference/e2e-docker.md`). With Playwright, only the browser runs in Docker, in the official image at the project's exact version, while the tests and the app stay on the host with their usual ports. Cypress has no remote browser, so the whole Cypress run goes in its image, on the host network.
+- When Docker cannot run them either, the E2E tests are reported as not run, never as passed.
+- `opencode.jsonc` denies `playwright install` and `cypress install`, so the agent turns to Docker instead of stopping to ask.
+
 ## UI prototypes
 
 Each project has **one prototype system**, defined by `skills/project-prototypes`: a tool and an area where every UI prototype lives, such as Storybook for a React or Vue frontend, or a dev-only route area for server-rendered templates. It is chosen once, in the spec of the first work that needs a prototype (you approve it with the spec), documented in `docs/prototypes.md`, and reused by every later workflow. Whatever the tool, it starts with one command, lists the prototypes in an index, uses the project's real components, gives every state its own URL and stays out of production builds.

@@ -200,6 +200,12 @@ Tests never write to the local development database. When tests persist data, th
 
 The mechanism is free (a separate database configured for the test environment, an in-memory or temporary database, a container, a schema per worker); the behavior is binding.
 
+### E2E runner
+
+E2E tests need what their runner needs on the machine: browsers, the system libraries browsers need, the runner's own binary. When any of it is missing, never install or update it (no `playwright install`, no `cypress install`, no system packages for the browser), even when the runner's error suggests it: run the E2E tests in Docker, as `reference/e2e-docker.md` of `workflow-rules` shows. When Docker cannot run them either, the E2E tests are not run: report it with the reason, and never count them as passed.
+
+This concerns the runner alone: the project's runtime and dependencies stay as the project defines them.
+
 ## Reviews
 
 Review findings must be pragmatic.

@@ -110,6 +110,8 @@ export default {
 
 Load the env file at the top of the config when the variables come from it.
 
+When the machine lacks the runner's browsers, the tests run in Docker as `reference/e2e-docker.md` of `workflow-rules` shows: the browser server publishes on a random port of `127.0.0.1` and has no name, so it needs no slot variable.
+
 ## Storybook and prototype systems
 
 `storybook dev -p "${STORYBOOK_PORT:-6006}"` from a script that has the variable, and the same for any dev-only playground. The URLs given at a prototype gate use the slot's port.

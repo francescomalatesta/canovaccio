@@ -153,6 +153,7 @@ Work artifacts are the history of one piece of work. The rest of `docs/` holds t
 ## Environment
 - Started: `docker compose up -d db redis` — ready: `docker compose exec db pg_isready`
 - Already running, left as is: none
+- E2E: local                <!-- local | docker: <command> | not runnable: <reason>; see E2E runner in AGENTS.md -->
 - Throwaway: none            <!-- containers and volumes outside the environment, removed at the end -->
 
 ## Gates
@@ -208,7 +209,7 @@ Before dispatching the next task, check its predecessor's line in the Tasks sect
 
 Inside the Review loop, `@implementer`, `@escalator` and `@task-reviewer` run only the tests affected by the task (see Test scope in `AGENTS.md`). Never ask them for the full suites, and do not run them yourself between tasks.
 
-The full suites run in the workflow's final verification, which you run yourself on the work's last commit. Record it in the Verification section of `state.md`: the commit, then each command with its exit status and counts. That record is the full run for that commit:
+The full suites run in the workflow's final verification, which you run yourself on the work's last commit. E2E tests run as the `E2E` line of Environment says: with `docker`, the E2E command runs inside the Docker block of `reference/e2e-docker.md`, given to `verify.mjs run` or `batch.mjs verify` as one argument; with `not runnable`, the record has no E2E run, and the delivery gate, or the Notes of an unattended story, says they were not run and why. Record it in the Verification section of `state.md`: the commit, then each command with its exit status and counts. That record is the full run for that commit:
 
 - the closure review reuses it and does not run those suites again while HEAD is that commit (see Closure review);
 - after commits that change code (closure fixes, a merge that brought new commits), run the final verification once more, when those changes are complete, and record it with its new commit;
@@ -404,8 +405,9 @@ The environment is the set of services the project runs on (database, cache, que
 3. Check what is already running in this checkout (`docker compose ps`, or the doc's ready check). Start what is missing with the documented command, detached, and wait for the ready check, never a fixed sleep. A service that was already running is never stopped or recreated: it may hold the user's work.
 4. Record under Environment in `state.md` the command run and the services it started, the ready check, what was already running and, when the project is isolated, the slot and its variables (`isolation.mjs env`).
 5. When the environment cannot start (Docker missing, a port taken, a secret missing), give a CHECKPOINT with the reason and go on with what does not need it; open an unplanned gate only when the work cannot go on without it.
+6. When the project has E2E tests, decide once how they run (see E2E runner in `AGENTS.md`), starting from the E2E section of `docs/environment.md` when it has one. Run one E2E test with the project's E2E command. A failure because the runner lacks something on the machine (a browser executable, a system library, the runner's binary) is not a failing test: run the same test in Docker as `reference/e2e-docker.md` in this skill's directory shows. Record under Environment in `state.md` one line: `E2E: local`, `E2E: docker` with the command, or `E2E: not runnable` with the reason; when it differs from `docs/environment.md`, or the doc has no E2E section, record it in Notes, so the docs sync writes it. A test that fails for any other reason is reported as it is.
 
-**During the work.** Give the ready check, and the slot's variables when the project is isolated, to every agent that runs the project or its tests: `@implementer`, `@task-reviewer`, `@escalator`, `@closure-auditor`, `@scout`, `@security-auditor`, `@design-reviewer`. The URLs given at a gate or for a review use the slot's ports. They leave the environment running (see Development environment in `AGENTS.md`). A container started outside the environment, for an experiment or a check, is recorded under Throwaway and removed as soon as it is no longer needed. When the work adds or changes a service, restart what it affects and update Environment.
+**During the work.** Give the ready check, the `E2E` line, and the slot's variables when the project is isolated, to every agent that runs the project or its tests: `@implementer`, `@task-reviewer`, `@escalator`, `@closure-auditor`, `@scout`, `@security-auditor`, `@design-reviewer`. The URLs given at a gate or for a review use the slot's ports. They leave the environment running (see Development environment in `AGENTS.md`). A container started outside the environment, for an experiment or a check, is recorded under Throwaway and removed as soon as it is no longer needed. When the work adds or changes a service, restart what it affects and update Environment.
 
 **Resume.** When resuming a workflow, run the ready check and start again what `state.md` records as started by the workflow: the host may have restarted in the meantime.
 

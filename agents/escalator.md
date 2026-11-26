@@ -23,7 +23,7 @@ When each fix breaks something else, check whether the structure is the cause (l
 
 The task's own rules still apply (for example, a refactoring step keeps behavior unchanged). Address only blocking findings. Do not weaken acceptance criteria, change approved behavior to satisfy tests, broaden scope or redesign unrelated code.
 
-Build on the existing commits; undo earlier attempts with new commits, never rewrite history. Commit your work, with commit messages in English (see Language in `AGENTS.md`); never push. Stop any process you started. Run focused tests, then all the tests affected by the task's changes; never the full suites, which run at the end of the work (see Test scope in `AGENTS.md`).
+Build on the existing commits; undo earlier attempts with new commits, never rewrite history. Commit your work, with commit messages in English (see Language in `AGENTS.md`); never push. Stop any process you started. Run focused tests, then all the tests affected by the task's changes; never the full suites, which run at the end of the work (see Test scope in `AGENTS.md`). Run E2E tests as the controller's `E2E` line says; a failure because their runner lacks something on the machine is never fixed by installing it (see E2E runner in `AGENTS.md`).
 
 Report:
 

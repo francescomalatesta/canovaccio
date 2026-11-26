@@ -23,6 +23,7 @@ Execute `closure-plan.md` in the work directory you are given, against the curre
 
 - every check, hotspot, command and deferred finding in the plan, in its numbering; skip none;
 - run the plan's commands yourself, even those the controller already ran, except a full suite in the controller's verification record (the Verification section of `state.md`) for the current HEAD: quote the record with its commit and the output of `git rev-parse HEAD`, and do not run the suite again (see Test scope in `AGENTS.md`). When HEAD differs from the recorded commit, or the record lacks what the plan asks for, run the command;
+- run E2E tests as the `E2E` line under Environment in `state.md` says, never installing what their runner needs on the machine (see E2E runner in `AGENTS.md`); when they cannot run, mark the item `unverified` with the reason;
 - quote code exactly, with file:line; excerpts relevant to the item, hotspots in full as the plan asks; never paraphrase code as evidence;
 - report each command with its exit status and the relevant output: failures in full, successes as counts;
 - when something cannot be found or established, say so with what you tried; never fill a gap with an assumption;

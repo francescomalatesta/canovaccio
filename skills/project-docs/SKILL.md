@@ -210,6 +210,9 @@ covers:
                   keeping the data volumes; how to drop the data too, when that is wanted
 ## Data         — the volumes, what they hold, which are development data and which are
                   throwaway; where test data goes (see Test data isolation in AGENTS.md)
+## E2E          — when the project has E2E tests: the command, and whether the runner runs
+                  on the machine or in Docker, with the Docker command and its image pinned
+                  to the runner's version (see E2E runner in AGENTS.md)
 ## Isolation    — when the project is isolated: the slot variables with their base and
                   what reads each one, the pinned ports and why, how each process reads
                   the env file, what a new worktree copies and runs; the source is
